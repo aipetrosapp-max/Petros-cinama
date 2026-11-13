@@ -72,7 +72,50 @@ export function LivingHomeScreen({
 }: LivingHomeScreenProps) {
   const { t } = useT();
 
-  const layout = computeLivingHomepage({
+  const layout = React.useMemo(() => {
+    try {
+      return computeLivingHomepage({
+        catalog,
+        userVector,
+        personalizationEnabled,
+        progressMap,
+        favoriteIds,
+        hiddenIds,
+        blockedTopics,
+        feedbackMap,
+        lang
+      });
+    } catch (err) {
+      console.warn('computeLivingHomepage fallback triggered:', err);
+      const fallbackHero = catalog[0]
+        ? {
+            item: catalog[0],
+            score: 96,
+            reasonFa: 'پیشنهاد برگزیده سینما پتروس',
+            reasonEn: 'Petros Cinema Editorial Spotlight'
+          }
+        : null;
+      return {
+        heroPick: fallbackHero,
+        continueWatching: [],
+        recommendedForYou: catalog.slice(1, 7).map((item) => ({
+          item,
+          score: 88,
+          reasonFa: 'منتخب پلتفرم پتروس',
+          reasonEn: 'Curated for you'
+        })),
+        newDiscoveries: catalog.slice(2, 6).map((item) => ({
+          item,
+          score: 82,
+          reasonFa: 'کشف جدید',
+          reasonEn: 'New discovery'
+        })),
+        hiddenGems: [],
+        recentlyAdded: [],
+        exploreDifferent: []
+      };
+    }
+  }, [
     catalog,
     userVector,
     personalizationEnabled,
@@ -82,7 +125,7 @@ export function LivingHomeScreen({
     blockedTopics,
     feedbackMap,
     lang
-  });
+  ]);
 
   const hero = layout.heroPick;
 

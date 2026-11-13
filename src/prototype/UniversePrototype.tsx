@@ -208,6 +208,17 @@ function UniversePrototypeShell({
   const [vaultSizeBytes, setVaultSizeBytes] = useState<number>(() => getVaultByteSize());
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
+  const showToast = useCallback((text: string, undoLabel?: string, onUndo?: () => void) => {
+    setToast({ id: `${Date.now()}`, text, undoLabel, onUndo });
+  }, []);
+
+  const navigateTo = useCallback((nextRoute: PrototypeRoute) => {
+    if (nextRoute !== 'library') {
+      setLibraryTabRequest(undefined);
+    }
+    setRoute(nextRoute);
+  }, []);
+
   // Dynamic Stream Sync, Crypto Ads & TV Navigation State
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
   const [currentAd, setCurrentAd] = useState<CryptoAdUnit | null>(null);
@@ -391,17 +402,6 @@ function UniversePrototypeShell({
     const timer = window.setTimeout(() => setToast(null), 5000);
     return () => window.clearTimeout(timer);
   }, [toast]);
-
-  const showToast = useCallback((text: string, undoLabel?: string, onUndo?: () => void) => {
-    setToast({ id: `${Date.now()}`, text, undoLabel, onUndo });
-  }, []);
-
-  const navigateTo = useCallback((nextRoute: PrototypeRoute) => {
-    if (nextRoute !== 'library') {
-      setLibraryTabRequest(undefined);
-    }
-    setRoute(nextRoute);
-  }, []);
 
   const handleUpdateUser = useCallback((patch: Partial<UserAccountState>) => {
     setUser((prev) => ({ ...prev, ...patch }));

@@ -24,11 +24,15 @@ class TvRemoteNavigationService {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(STORAGE_TV_MODE_KEY);
-      if (stored !== null) {
-        this.isTvMode = stored === 'true';
-      } else {
-        // Auto detect Android TV or Smart TV user agents
+      try {
+        const stored = localStorage.getItem(STORAGE_TV_MODE_KEY);
+        if (stored !== null) {
+          this.isTvMode = stored === 'true';
+        } else {
+          // Auto detect Android TV or Smart TV user agents
+          this.isTvMode = this.detectTvEnvironment();
+        }
+      } catch {
         this.isTvMode = this.detectTvEnvironment();
       }
 
@@ -62,13 +66,17 @@ class TvRemoteNavigationService {
   public setTvModeEnabled(enabled: boolean) {
     this.isTvMode = enabled;
     if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_TV_MODE_KEY, String(enabled));
-      if (enabled) {
-        document.body.classList.add('tv-mode-active');
-        this.focusFirstAvailable();
-      } else {
-        document.body.classList.remove('tv-mode-active');
-        this.clearCurrentFocus();
+      try {
+        localStorage.setItem(STORAGE_TV_MODE_KEY, String(enabled));
+      } catch {}
+      if (document && document.body) {
+        if (enabled) {
+          document.body.classList.add('tv-mode-active');
+          this.focusFirstAvailable();
+        } else {
+          document.body.classList.remove('tv-mode-active');
+          this.clearCurrentFocus();
+        }
       }
     }
   }
