@@ -126,10 +126,16 @@ export function EntryFlow({
         <button
           type="button"
           onClick={() => onNavigate('welcome')}
-          className="min-h-[44px] text-start cursor-pointer"
+          className="min-h-[44px] flex items-center gap-2.5 text-start cursor-pointer"
         >
-          <span className="font-editorial text-xl sm:text-2xl tracking-[0.18em] text-[#F5B942]">
-            AETHER UNIVERSE
+          <div className="w-8 h-8 rounded-lg bg-[#F5B942]/15 border border-[#F5B942]/30 flex items-center justify-center text-[#F5B942] font-black text-sm">
+            P
+          </div>
+          <span className="font-editorial text-lg sm:text-xl tracking-[0.16em] text-[#F5B942]">
+            ai petros
+          </span>
+          <span className="hidden sm:inline text-xs font-semibold px-2 py-0.5 rounded bg-white/10 text-white/90">
+            Petros Cinema
           </span>
         </button>
         <div className="flex items-center gap-2">

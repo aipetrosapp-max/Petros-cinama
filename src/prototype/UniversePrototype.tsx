@@ -1,11 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Coins,
   Compass,
   Film,
   Globe2,
   Home,
+  Radio,
+  RefreshCw,
   Search,
-  Settings
+  Settings,
+  Tv
 } from 'lucide-react';
 import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import type {
@@ -59,6 +63,11 @@ import { ContentDetailModal } from './screens/ContentDetailModal';
 import { CinematicPlayerScreen } from './screens/CinematicPlayerScreen';
 import { LibraryScreen } from './screens/LibraryScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
+import { cryptoAdNetwork, type CryptoAdUnit } from '../services/cryptoAdNetwork';
+import { tvRemote } from '../services/tvRemoteNavigation';
+import { CryptoAdModal } from '../components/CryptoAdModal';
+import { CryptoTipModal } from '../components/CryptoTipModal';
 
 const INITIAL_PROGRESS_SEED: Record<string, WatchProgressEntry> = {
   'proto-01': {
@@ -202,6 +211,105 @@ function UniversePrototypeShell({
 
   const [vaultSizeBytes, setVaultSizeBytes] = useState<number>(() => getVaultByteSize());
   const [toast, setToast] = useState<ToastMessage | null>(null);
+
+  // Dynamic Stream Sync, Crypto Ads & TV Navigation State
+  const [isAdModalOpen, setIsAdModalOpen] = useState(false);
+  const [currentAd, setCurrentAd] = useState<CryptoAdUnit | null>(null);
+  const [isTipModalOpen, setIsTipModalOpen] = useState(false);
+  const [isTvMode, setIsTvMode] = useState(() => tvRemote.isTvModeEnabled());
+  const [isSyncingStreams, setIsSyncingStreams] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+
+  // Dynamic Stream Sync subscription: automatically updates catalog from GitHub public file
+  useEffect(() => {
+    dynamicStreamSync.startPeriodicSync();
+
+    const unsubscribe = dynamicStreamSync.subscribe((dynamicStreams, meta) => {
+      setLastSyncTime(meta.lastSyncedAt);
+      if (dynamicStreams && dynamicStreams.length > 0) {
+        const converted = dynamicStreams.map(convertDynamicStreamToMediaItem);
+        setCatalog((prevCatalog) => {
+          const newIds = new Set(converted.map((c) => c.id));
+          const rest = prevCatalog.filter((item) => !newIds.has(item.id));
+          return [...converted, ...rest];
+        });
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      dynamicStreamSync.stopPeriodicSync();
+    };
+  }, []);
+
+  // Crypto Ad Network subscription
+  useEffect(() => {
+    const unsubAds = cryptoAdNetwork.subscribe((event, ad) => {
+      if (event === 'ad_trigger') {
+        setCurrentAd(ad);
+        setIsAdModalOpen(true);
+      }
+    });
+    return unsubAds;
+  }, []);
+
+  // Spatial Navigation & Android TV Remote Back Key Binding
+  useEffect(() => {
+    const unreg = tvRemote.registerBackHandler(() => {
+      if (isAdModalOpen) {
+        setIsAdModalOpen(false);
+        return true;
+      }
+      if (isTipModalOpen) {
+        setIsTipModalOpen(false);
+        return true;
+      }
+      if (selectedDetailItem) {
+        setSelectedDetailItem(null);
+        return true;
+      }
+      if (route === 'watch') {
+        // Exiting player triggers non-intrusive crypto ad if watch frequency threshold is met
+        const shouldShowAd = cryptoAdNetwork.recordVideoPlayback();
+        if (shouldShowAd) {
+          cryptoAdNetwork.triggerAdModal();
+        }
+        navigateTo(previousRouteBeforeWatch);
+        return true;
+      }
+      if (route !== 'universe') {
+        navigateTo('universe');
+        return true;
+      }
+      return false;
+    });
+    return unreg;
+  }, [isAdModalOpen, isTipModalOpen, selectedDetailItem, route, previousRouteBeforeWatch, navigateTo]);
+
+  const handleManualSyncStreams = useCallback(async () => {
+    setIsSyncingStreams(true);
+    try {
+      const res = await dynamicStreamSync.syncNow(true);
+      if (res.success) {
+        setToast({
+          type: 'success',
+          text: t(`Synced ${res.count} stream sources from GitHub!`, `همگام‌سازی موفق: ${res.count} منبع پخش از گیت‌هاب دریافت شد!`)
+        });
+      } else {
+        setToast({
+          type: 'neutral',
+          text: t('Using local bundled streams (GitHub unreachable).', 'استفاده از منابع پخش محلی اپلیکیشن.')
+        });
+      }
+    } catch {
+      setToast({
+        type: 'neutral',
+        text: t('Stream sync completed with cached data.', 'همگام‌سازی با منابع ذخیره‌شده انجام شد.')
+      });
+    } finally {
+      setIsSyncingStreams(false);
+    }
+  }, [t]);
 
   // If localStorage was empty on boot, recover from IndexedDB backup if available
   useEffect(() => {
@@ -709,11 +817,20 @@ function UniversePrototypeShell({
               onClick={() => navigateTo('universe')}
               className="min-h-[44px] flex items-center gap-2.5 text-start cursor-pointer shrink-0"
             >
-              <span className="font-editorial text-lg sm:text-xl tracking-[0.16em] text-[#F5B942]">
-                AETHER
-              </span>
-              <span className="hidden xl:inline text-[11px] font-medium text-[#A3AEC2]">
-                {t('Personal Entertainment Universe', 'جهان سرگرمی شخصی')}
+              <div className="w-8 h-8 rounded-lg bg-[#F5B942]/15 border border-[#F5B942]/30 flex items-center justify-center text-[#F5B942] font-black text-sm shadow-sm">
+                P
+              </div>
+              <div className="flex flex-col">
+                <span className="font-editorial text-base sm:text-lg tracking-[0.14em] text-[#F5B942] font-bold">
+                  ai petros
+                </span>
+                <span className="text-[10px] text-[#A3AEC2] leading-none hidden xs:inline">
+                  Petros Cinema
+                </span>
+              </div>
+              <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/20">
+                <Radio className="w-2.5 h-2.5 animate-pulse" />
+                <span>Aipetros-stream</span>
               </span>
             </button>
 
@@ -748,13 +865,60 @@ function UniversePrototypeShell({
               })}
             </nav>
 
-            {/* Zone 3: Global World Language Picker */}
-            <div className="flex items-center gap-2 shrink-0">
+            {/* Zone 3: Actions (Sync, TV Mode, Crypto Tip, Language) */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Dynamic GitHub Stream Sync Button */}
+              <button
+                type="button"
+                onClick={handleManualSyncStreams}
+                disabled={isSyncingStreams}
+                title={t('Sync Streams from GitHub', 'همگام‌سازی استریم‌ها از گیت‌هاب')}
+                className="min-h-[38px] px-2.5 inline-flex items-center gap-1 rounded-full border border-white/10 bg-[#0D101A] text-xs text-[#A3AEC2] hover:text-[#F5F7FA] hover:border-[#F5B942]/40 cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncingStreams ? 'animate-spin text-[#F5B942]' : ''}`} />
+                <span className="hidden md:inline text-[11px]">{t('Sync', 'همگام‌سازی')}</span>
+              </button>
+
+              {/* Android TV Remote Mode Toggle Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !isTvMode;
+                  setIsTvMode(next);
+                  tvRemote.setTvModeEnabled(next);
+                  setToast({
+                    type: 'neutral',
+                    text: next ? t('Android TV Remote Mode Activated', 'حالت ریموت کنترل تلویزیون فعال شد') : t('Standard Touch/Mouse Mode', 'حالت لمسی/ماوس فعال شد')
+                  });
+                }}
+                title={t('Toggle TV Remote Mode', 'تغییر حالت ریموت کنترل تلویزیون')}
+                className={`min-h-[38px] px-2.5 inline-flex items-center gap-1 rounded-full border text-xs cursor-pointer ${
+                  isTvMode
+                    ? 'border-[#F5B942] bg-[#F5B942]/15 text-[#F5B942] font-semibold shadow-sm'
+                    : 'border-white/10 bg-[#0D101A] text-[#A3AEC2] hover:text-[#F5F7FA]'
+                }`}
+              >
+                <Tv className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline text-[11px]">{isTvMode ? t('TV Mode', 'حالت TV') : t('TV', 'تلویزیون')}</span>
+              </button>
+
+              {/* Crypto Tip Vault Button */}
+              <button
+                type="button"
+                onClick={() => setIsTipModalOpen(true)}
+                title={t('Crypto Support (No KYC)', 'حمایت کریپتویی بدون احراز هویت')}
+                className="min-h-[38px] px-2.5 inline-flex items-center gap-1 rounded-full border border-[#F5B942]/30 bg-[#F5B942]/10 text-xs text-[#F5B942] hover:brightness-110 cursor-pointer"
+              >
+                <Coins className="w-3.5 h-3.5" />
+                <span className="hidden xl:inline text-[11px]">{t('Donate', 'حمایت')}</span>
+              </button>
+
+              {/* Global World Language Picker */}
               <button
                 type="button"
                 onClick={() => setLangPickerOpen(true)}
                 aria-label={t('Select World Language', 'انتخاب زبان اپلیکیشن')}
-                className="min-h-[40px] inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-[#0D101A] px-3 text-xs font-medium text-[#F5F7FA] hover:border-[#F5B942]/55 cursor-pointer whitespace-nowrap"
+                className="min-h-[38px] inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-[#0D101A] px-2.5 sm:px-3 text-xs font-medium text-[#F5F7FA] hover:border-[#F5B942]/55 cursor-pointer whitespace-nowrap"
               >
                 <Globe2 className="h-3.5 w-3.5 text-[#F5B942]" />
                 <span className="hidden sm:inline">{languageInfo.nativeName}</span>
@@ -1048,6 +1212,21 @@ function UniversePrototypeShell({
           currentLang={lang}
           onSelect={setLang}
           onClose={() => setLangPickerOpen(false)}
+        />
+
+        {/* Smart Privacy-First Crypto Ad Modal (No KYC) */}
+        <CryptoAdModal
+          isOpen={isAdModalOpen}
+          ad={currentAd}
+          onClose={() => setIsAdModalOpen(false)}
+          lang={lang === 'fa' ? 'fa' : 'en'}
+        />
+
+        {/* Direct Crypto Tip Vault Modal */}
+        <CryptoTipModal
+          isOpen={isTipModalOpen}
+          onClose={() => setIsTipModalOpen(false)}
+          lang={lang === 'fa' ? 'fa' : 'en'}
         />
 
         {/* Undo / Notification Toast */}

@@ -2,15 +2,23 @@ import React, { useState } from 'react';
 import {
   Accessibility,
   Bell,
+  Coins,
   Download,
+  ExternalLink,
   Globe2,
   Lock,
   MonitorPlay,
+  Radio,
+  RefreshCw,
   RotateCcw,
   Shield,
   Sliders,
+  Sparkles,
+  Smartphone,
   Trash2,
-  User
+  Tv,
+  User,
+  Check
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type {
@@ -21,6 +29,9 @@ import type {
 } from '../types';
 import { useT } from '../i18n';
 import { Button } from '../components/UiPrimitives';
+import { dynamicStreamSync, DEFAULT_GITHUB_STREAMS_URL } from '../../services/dynamicStreamSync';
+import { cryptoAdNetwork, OFFICIAL_CRYPTO_WALLETS } from '../../services/cryptoAdNetwork';
+import { tvRemote } from '../../services/tvRemoteNavigation';
 
 interface SettingsScreenProps {
   lang: LanguageCode;
@@ -38,9 +49,11 @@ interface SettingsScreenProps {
 
 const SETTINGS_TABS: Array<{ id: SettingsTab; fa: string; en: string; icon: React.ReactNode }> = [
   { id: 'account', fa: 'پروفایل و حافظه داخلی', en: 'Local Profile & Memory', icon: <User className="h-3.5 w-3.5" /> },
+  { id: 'streams', fa: 'همگام‌سازی استریم (گیت‌هاب)', en: 'GitHub Stream Sync', icon: <Radio className="h-3.5 w-3.5 text-[#F5B942]" /> },
+  { id: 'monetization', fa: 'اسپانسر کریپتو و درآمدزایی', en: 'Crypto Ads & Vault', icon: <Coins className="h-3.5 w-3.5 text-[#F5B942]" /> },
+  { id: 'playback', fa: 'تنظیمات پخش و ریموت TV', en: 'Playback & TV Remote', icon: <MonitorPlay className="h-3.5 w-3.5" /> },
   { id: 'preferences', fa: 'تنظیمات سلیقه', en: 'Taste Preferences', icon: <Sliders className="h-3.5 w-3.5" /> },
   { id: 'privacy', fa: 'حریم خصوصی و داده‌ها', en: 'Privacy & Data Export', icon: <Shield className="h-3.5 w-3.5" /> },
-  { id: 'playback', fa: 'تنظیمات پخش', en: 'Playback Defaults', icon: <MonitorPlay className="h-3.5 w-3.5" /> },
   { id: 'notifications', fa: 'اعلان‌ها', en: 'Notifications', icon: <Bell className="h-3.5 w-3.5" /> },
   { id: 'accessibility', fa: 'زبان و دسترس‌پذیری', en: 'Language & Accessibility', icon: <Accessibility className="h-3.5 w-3.5" /> }
 ];
@@ -78,6 +91,36 @@ export function SettingsScreen({
   const { t, languageInfo } = useT();
   const [tab, setTab] = useState<SettingsTab>('account');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [syncUrlInput, setSyncUrlInput] = useState(() => dynamicStreamSync.getStoredSyncUrl());
+  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>(null);
+  const [isSyncingNow, setIsSyncingNow] = useState(false);
+  const [adFreq, setAdFreq] = useState(() => cryptoAdNetwork.getAdFrequency());
+  const [adsEnabled, setAdsEnabled] = useState(() => cryptoAdNetwork.isAdsEnabled());
+  const [tvModeActive, setTvModeActive] = useState(() => tvRemote.isTvModeEnabled());
+  const [copiedWallet, setCopiedWallet] = useState<string | null>(null);
+
+  const handleSyncNow = async () => {
+    setIsSyncingNow(true);
+    setSyncStatusMsg(null);
+    try {
+      const res = await dynamicStreamSync.syncNow(true);
+      if (res.success) {
+        setSyncStatusMsg(t(`Successfully synced ${res.count} streams from GitHub!`, `همگام‌سازی موفق: ${res.count} منبع پخش از گیت‌هاب دریافت شد.`));
+      } else {
+        setSyncStatusMsg(t(`Sync error: ${res.error}`, `خطا در همگام‌سازی: ${res.error}`));
+      }
+    } catch {
+      setSyncStatusMsg(t('Failed to connect to stream source.', 'عدم موفقیت در اتصال به سرور گیت‌هاب.'));
+    } finally {
+      setIsSyncingNow(false);
+    }
+  };
+
+  const handleCopyWallet = (addr: string) => {
+    navigator.clipboard.writeText(addr);
+    setCopiedWallet(addr);
+    setTimeout(() => setCopiedWallet(null), 2500);
+  };
 
   return (
     <div className="space-y-6 sm:space-y-7 pb-12">
@@ -379,7 +422,8 @@ export function SettingsScreen({
             )}
 
             {tab === 'playback' && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs text-[#A3AEC2]">
                     {t('Default Quality', 'کیفیت پیش‌فرض پخش')}
@@ -429,6 +473,230 @@ export function SettingsScreen({
                     <option value={1.25}>1.25x</option>
                     <option value={1.5}>1.5x</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Android TV & Smart TV D-Pad Remote Navigation Section */}
+              <div className="mt-4 rounded-2xl border border-white/10 bg-[#06070C]/65 p-4 space-y-3">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-2.5">
+                    <Tv className="w-5 h-5 text-[#F5B942]" />
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">
+                        {t('Android TV & Remote D-Pad Navigation', 'حالت تلویزیون و ناوبری ریموت کنترل (Android TV)')}
+                      </h3>
+                      <p className="text-xs text-[#A3AEC2]">
+                        {t(
+                          'Enables high-contrast glowing TV focus ring and 10-foot UI spatial arrow key navigation',
+                          'فعال‌سازی فوکوس درخشان برای تلویزیون و پیمایش با کلیدهای جهت‌نمای ریموت کنترل'
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={tvModeActive}
+                    onChange={(e) => {
+                      const enabled = e.target.checked;
+                      setTvModeActive(enabled);
+                      tvRemote.setTvModeEnabled(enabled);
+                    }}
+                    className="h-5 w-5 accent-[#F5B942] shrink-0 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+            )}
+
+            {tab === 'streams' && (
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-[#F5B942]/30 bg-gradient-to-r from-[#0C101D] to-[#060810] p-5 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#F5B942]/15 border border-[#F5B942]/30 flex items-center justify-center text-[#F5B942]">
+                      <Radio className="w-5 h-5 animate-pulse" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-white">
+                        {t('Dynamic GitHub Stream URL Sync', 'سیستم همگام‌سازی خودکار و داینامیک استریم از گیت‌هاب')}
+                      </h3>
+                      <p className="text-xs text-[#A3AEC2]">
+                        {t(
+                          'The app dynamically reads stream sources from a public GitHub file. Any changes in GitHub instantly reflect in the app without requiring an admin panel.',
+                          'اپلیکیشن به طور خودکار لیست ویدیوها و کیفیت‌های استریم را از فایل پابلیک گیت‌هاب می‌خواند. تغییر فایل مساوی با آپدیت کل اپلیکیشن است.'
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs text-[#A3AEC2] block">
+                      {t('Public GitHub Raw Stream Manifest URL', 'آدرس فایل JSON پابلیک گیت‌هاب (Stream Sources):')}
+                    </label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="text"
+                        value={syncUrlInput}
+                        onChange={(e) => setSyncUrlInput(e.target.value)}
+                        className="flex-1 min-h-[42px] rounded-xl border border-white/12 bg-black/60 px-3 text-xs font-mono text-white focus:border-[#F5B942] focus:outline-none"
+                        placeholder="https://raw.githubusercontent.com/.../streams.json"
+                      />
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          dynamicStreamSync.setSyncUrl(syncUrlInput);
+                          handleSyncNow();
+                        }}
+                      >
+                        {t('Save & Apply', 'ذخیره و اعمال')}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          dynamicStreamSync.resetSyncUrl();
+                          setSyncUrlInput(DEFAULT_GITHUB_STREAMS_URL);
+                          handleSyncNow();
+                        }}
+                      >
+                        {t('Reset Default', 'بازنشانی')}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/10">
+                    <div className="text-xs text-[#A3AEC2]">
+                      <span>{t('Active Streams in Catalog: ', 'تعداد استریم‌های فعال در کاتالوگ: ')}</span>
+                      <strong className="text-[#F5B942] font-mono">{dynamicStreamSync.getStreams().length}</strong>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      onClick={handleSyncNow}
+                      disabled={isSyncingNow}
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isSyncingNow ? 'animate-spin' : ''}`} />
+                      <span>{isSyncingNow ? t('Syncing...', 'در حال همگام‌سازی...') : t('Force Sync Now', 'همگام‌سازی زنده اکنون')}</span>
+                    </Button>
+                  </div>
+
+                  {syncStatusMsg && (
+                    <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-[#34D399]">
+                      {syncStatusMsg}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {tab === 'monetization' && (
+              <div className="space-y-4">
+                {/* No-KYC Smart Crypto Advertising Section */}
+                <div className="rounded-2xl border border-white/10 bg-[#06070C]/65 p-5 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#F5B942]/15 border border-[#F5B942]/30 flex items-center justify-center text-[#F5B942]">
+                      <Coins className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-white">
+                        {t('Smart Privacy-First Crypto Ads (No KYC)', 'سیستم تبلیغات هوشمند کریپتو بدون KYC')}
+                      </h3>
+                      <p className="text-xs text-[#A3AEC2]">
+                        {t(
+                          'Non-intrusive decentralized monetization via A-Ads with zero tracking cookies and zero identity verification.',
+                          'درآمدزایی بهینه و بدون آزار از طریق شبکه تبلیغاتی غیرمتمرکز A-Ads با حفظ حریم خصوصی ۱۰۰٪.'
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-white">
+                          {t('Enable Crypto Sponsor Ads', 'فعال‌بودن تبلیغات حامیان کریپتو')}
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={adsEnabled}
+                          onChange={(e) => {
+                            const val = e.target.checked;
+                            setAdsEnabled(val);
+                            cryptoAdNetwork.setAdsEnabled(val);
+                          }}
+                          className="h-5 w-5 accent-[#F5B942] cursor-pointer"
+                        />
+                      </div>
+                      <p className="text-[11px] text-[#A3AEC2]">
+                        {t('Displays elegant banners and occasional interstitials after 2-3 videos.', 'نمایش بنرهای ظریف و پیام‌های کوتاه حامیان هر ۲ الی ۳ ویدیو.')}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-white">
+                          {t('Ad Display Frequency', 'تواتر نمایش تبلیغ')}
+                        </span>
+                        <span className="text-xs font-mono font-bold text-[#F5B942]">
+                          {t(`Every ${adFreq} videos`, `هر ${adFreq} ویدیو یکبار`)}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1"
+                        max="5"
+                        value={adFreq}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setAdFreq(val);
+                          cryptoAdNetwork.setAdFrequency(val);
+                        }}
+                        className="w-full accent-[#F5B942] cursor-pointer"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/10">
+                    <span className="text-xs text-[#A3AEC2]">
+                      {t('Preview the non-intrusive crypto sponsor interstitial:', 'پیش‌نمایش مدال تبلیغ حامی کریپتو:')}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => cryptoAdNetwork.triggerAdModal()}
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-[#F5B942]" />
+                      <span>{t('Test Ad Modal', 'تست نمایش تبلیغ')}</span>
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Direct Crypto Tip Vault */}
+                <div className="rounded-2xl border border-white/10 bg-[#06070C]/65 p-5 space-y-3">
+                  <h3 className="text-sm font-semibold text-white">
+                    {t('Direct Creator & Cinema Node Donation (No Intermediary)', 'کیف‌پول‌های حمایت مستقیم از پلتفرم')}
+                  </h3>
+                  <div className="space-y-2">
+                    {OFFICIAL_CRYPTO_WALLETS.map((w) => (
+                      <div
+                        key={w.symbol}
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 rounded-xl bg-black/40 border border-white/10 text-xs"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-[#F5B942] w-20">{w.symbol}</span>
+                          <span className="font-mono text-white/90 break-all select-all">{w.address}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyWallet(w.address)}
+                          className="min-h-[30px] px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium inline-flex items-center gap-1.5 self-end sm:self-center shrink-0 cursor-pointer"
+                        >
+                          {copiedWallet === w.address ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : null}
+                          <span>{copiedWallet === w.address ? t('Copied', 'کپی شد') : t('Copy Address', 'کپی آدرس')}</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}

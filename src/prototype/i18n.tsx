@@ -628,7 +628,7 @@ const OFFLINE_DICTIONARY: Record<string, Record<string, string>> = {
   }
 };
 
-const I18N_CACHE_KEY = 'aether_i18n_dynamic_cache_v1';
+const I18N_CACHE_KEY = 'aipetros_i18n_dynamic_cache_v1';
 
 type TranslationCache = Record<string, Record<string, string>>;
 

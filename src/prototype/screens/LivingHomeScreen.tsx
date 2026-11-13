@@ -23,6 +23,7 @@ import type {
 import { computeLivingHomepage } from '../tasteEngine';
 import { useT } from '../i18n';
 import { Button, MediaCard, formatDuration } from '../components/UiPrimitives';
+import { CryptoAdBanner } from '../../components/CryptoAdBanner';
 
 interface LivingHomeScreenProps {
   catalog: PrototypeMediaItem[];
@@ -326,6 +327,11 @@ export function LivingHomeScreen({
           </div>
         </section>
       )}
+
+      {/* Non-intrusive Crypto Sponsor Banner (No KYC) */}
+      <div className="py-2">
+        <CryptoAdBanner unitType="banner-728x90" lang={lang === 'fa' ? 'fa' : 'en'} />
+      </div>
 
       {renderShelf(
         'New Discoveries',

@@ -1,27 +1,65 @@
 <!doctype html>
-<html lang="en">
+<html lang="fa" dir="rtl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#070b14" />
+    <meta name="theme-color" content="#060810" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="AETHER" />
-    <title>AETHER — Private Noir Cinema & AI Discovery</title>
-    <meta name="description" content="Ultra-minimal, visual-first private noir cinema discovery powered by real-time AI semantic search and local-first taste profiling." />
-    <meta property="og:title" content="AETHER — Private Noir Cinema & AI Discovery" />
-    <meta property="og:description" content="Ultra-minimal, visual-first private noir cinema discovery powered by real-time AI semantic search and local-first taste profiling." />
-    <meta property="og:type" content="website" />
+    <meta name="apple-mobile-web-app-title" content="ai petros" />
+    <title>ai petros — Petros Cinema (Aipetros-stream)</title>
+    <meta name="description" content="ai petros & Petros Cinema (Aipetros-stream) — پلتفرم نسل جدید سینمای هوش مصنوعی، استریم پرسرعت با سینک داینامیک از گیت‌هاب و پشتیبانی کامل کراس‌پلتفرم." />
+    <meta name="keywords" content="ai petros, Petros Cinema, Aipetros-stream, AI Cinema, 4K Streaming, Cyber Noir, Dynamic Stream Sync, Android TV Cinema" />
+    
+    <!-- Open Graph / Facebook / Telegram -->
+    <meta property="og:type" content="video.other" />
+    <meta property="og:title" content="ai petros — Petros Cinema (Aipetros-stream)" />
+    <meta property="og:description" content="پلتفرم سینمای هوش مصنوعی و استریم چندرسانه‌ای با پخش 4K، کنترل ریموت تلویزیون و سینک زنده منابع پخش." />
+    <meta property="og:image" content="./logo.svg" />
+    <meta property="og:site_name" content="ai petros" />
+
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ai petros — Petros Cinema (Aipetros-stream)" />
+    <meta name="twitter:description" content="Private AI Noir Cinema & High-Bitrate Cross-Platform Streaming Discovery." />
+    <meta name="twitter:image" content="./logo.svg" />
+
+    <!-- Structured Data (Schema.org) for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "StreamingMediaService",
+      "name": "ai petros",
+      "alternateName": "Petros Cinema",
+      "serviceType": "Aipetros-stream",
+      "description": "Ultra-fast cross-platform AI cinema and high-bitrate streaming discovery engine.",
+      "inLanguage": ["fa", "en"],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Petros Cinema Curated Catalog",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Movie",
+              "name": "Cosmic Neon Odyssey",
+              "contentRating": "PG-13"
+            }
+          }
+        ]
+      }
+    }
+    </script>
+
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Changa:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;600;700;800&family=Courier+Prime:wght@400;700&family=Lalezar&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Changa:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;600;700;800&family=Courier+Prime:wght@400;700&family=Lalezar&family=Montserrat:wght@400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
-  <body class="bg-[#070b14] text-[#f1f5f9] antialiased selection:bg-[#D4AF37]/30 selection:text-[#fef3c7]">
+  <body class="bg-[#060810] text-[#f1f5f9] antialiased selection:bg-[#F5B942]/30 selection:text-[#fef3c7]">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

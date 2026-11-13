@@ -1,6 +1,6 @@
 import type { OfflineDownloadRecord, PrototypeMediaItem } from './types';
 
-const OFFLINE_DB_NAME = 'AetherOfflineMediaDB';
+const OFFLINE_DB_NAME = 'AiPetrosOfflineMediaDB';
 const OFFLINE_BLOB_STORE = 'mediaBlobs';
 
 function openOfflineDb(): Promise<IDBDatabase | null> {

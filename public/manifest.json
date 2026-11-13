@@ -1,26 +1,25 @@
 {
-  "id": "/",
-  "name": "AETHER 18+ • Luxury Adult Cinema & Global 100 AI",
-  "short_name": "AETHER 18+",
-  "description": "Zero-account 18+ luxury adult streaming platform powered by 5D AI taste curation and the Global Top-100 source intelligence index.",
-  "start_url": "/",
-  "scope": "/",
+  "name": "ai petros — Petros Cinema",
+  "short_name": "ai petros",
+  "description": "Aipetros-stream: Private AI Noir Cinema & High-Bitrate Cross-Platform Streaming Discovery.",
+  "start_url": "./",
   "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#050305",
-  "theme_color": "#050305",
+  "orientation": "any",
+  "background_color": "#060810",
+  "theme_color": "#060810",
+  "categories": ["entertainment", "multimedia", "movies"],
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "192x192 512x512",
+      "src": "./icon.svg",
+      "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon.svg",
+      "src": "./logo.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "any"
     }
   ]
 }

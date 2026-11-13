@@ -7,7 +7,7 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
-class AetherErrorBoundary extends React.Component<
+class PetrosCinemaErrorBoundary extends React.Component<
   { children: React.ReactNode },
   ErrorBoundaryState
 > {
@@ -23,14 +23,20 @@ class AetherErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-[100dvh] w-full bg-[#070b14] text-slate-100 flex flex-col items-center justify-center p-6 text-center gap-4">
-          <p className="font-editorial text-2xl text-[#D4AF37]">AETHER</p>
+        <div className="min-h-[100dvh] w-full bg-[#060810] text-slate-100 flex flex-col items-center justify-center p-6 text-center gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#F5B942]/15 border border-[#F5B942]/30 flex items-center justify-center text-[#F5B942] font-black text-2xl">
+              P
+            </div>
+            <p className="font-editorial text-2xl text-[#F5B942]">ai petros</p>
+          </div>
+          <p className="text-sm text-[#A3AEC2]">Petros Cinema — Aipetros-stream Recovery Mode</p>
           <button
             type="button"
             onClick={() => this.setState({ hasError: false })}
-            className="min-h-[44px] px-6 py-2.5 rounded-full bg-[#D4AF37] text-[#070b14] text-sm font-semibold cursor-pointer transition-transform active:scale-95"
+            className="min-h-[44px] px-6 py-2.5 rounded-full bg-[#F5B942] text-[#060810] text-sm font-bold cursor-pointer transition-transform active:scale-95 shadow-lg shadow-[#F5B942]/20"
           >
-            Reload Discovery
+            راه‌اندازی مجدد سینما (Reload Cinema)
           </button>
         </div>
       );
@@ -40,7 +46,7 @@ class AetherErrorBoundary extends React.Component<
 }
 
 createRoot(document.getElementById('root')!).render(
-  <AetherErrorBoundary>
+  <PetrosCinemaErrorBoundary>
     <App />
-  </AetherErrorBoundary>
+  </PetrosCinemaErrorBoundary>
 );

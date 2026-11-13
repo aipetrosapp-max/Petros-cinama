@@ -10,8 +10,8 @@ import type {
   WatchProgressEntry
 } from './types';
 
-export const VAULT_STORAGE_KEY = 'aether_universe_inapp_memory_v1';
-const IDB_NAME = 'AetherUniverseVaultDB';
+export const VAULT_STORAGE_KEY = 'aipetros_universe_inapp_memory_v1';
+const IDB_NAME = 'AiPetrosUniverseVaultDB';
 const IDB_STORE = 'memorySnapshots';
 const IDB_RECORD_KEY = 'primary_snapshot';
 

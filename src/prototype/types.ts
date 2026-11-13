@@ -39,6 +39,8 @@ export type SettingsTab =
   | 'preferences'
   | 'privacy'
   | 'playback'
+  | 'streams'
+  | 'monetization'
   | 'notifications'
   | 'accessibility';
 
@@ -101,6 +103,8 @@ export interface PrototypeMediaItem {
   licenseVerified: boolean;
   consentVerified: boolean;
   sourceName: string;
+  streamUrl?: string;
+  qualities?: { quality: string; url: string; format?: string }[];
   subtitles: SubtitleLine[];
   chapters: ChapterMarker[];
   spatialPos: { x: number; y: number; z: number };

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/tooling/cli/schema.json",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:5173",
+    "distDir": "../dist"
+  },
+  "package": {
+    "productName": "Petros Cinema",
+    "version": "2.4.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "fs": {
+        "all": true,
+        "scope": ["$APPDATA/*", "$DOWNLOAD/*"]
+      },
+      "http": {
+        "all": true,
+        "request": true,
+        "scope": ["https://**", "http://**"]
+      },
+      "window": {
+        "all": true,
+        "fullscreen": true,
+        "maximize": true,
+        "minimize": true,
+        "close": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "Entertainment",
+      "copyright": "© 2026 ai petros ecosystem",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "com.aipetros.stream.desktop",
+      "longDescription": "Aipetros-stream & Petros Cinema: Private AI Noir Cinema & High-Bitrate Cross-Platform Streaming Discovery.",
+      "macOS": {
+        "frameworks": [],
+        "minimumSystemVersion": "10.15"
+      },
+      "resources": [],
+      "shortDescription": "ai petros private cinema player",
+      "targets": ["all"],
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 900,
+        "resizable": true,
+        "title": "ai petros — Petros Cinema (Aipetros-stream)",
+        "width": 1440,
+        "minWidth": 960,
+        "minHeight": 640
+      }
+    ]
+  }
+}

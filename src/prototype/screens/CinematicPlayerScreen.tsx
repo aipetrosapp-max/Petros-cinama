@@ -48,6 +48,7 @@ import {
 } from '../subtitleAiEngine';
 import { useT } from '../i18n';
 import { Button, formatDuration } from '../components/UiPrimitives';
+import { CryptoAdBanner } from '../../components/CryptoAdBanner';
 
 interface CinematicPlayerScreenProps {
   item: PrototypeMediaItem | null;
@@ -1258,6 +1259,11 @@ export function CinematicPlayerScreen({
             </span>
           </p>
         </motion.div>
+      </div>
+
+      {/* Non-intrusive Crypto Sponsor Banner Slot (No KYC) */}
+      <div className="mt-5">
+        <CryptoAdBanner unitType="banner-728x90" lang={lang === 'fa' ? 'fa' : 'en'} />
       </div>
     </div>
   );
