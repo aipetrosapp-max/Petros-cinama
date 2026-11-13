@@ -64,7 +64,7 @@ import { CinematicPlayerScreen } from './screens/CinematicPlayerScreen';
 import { LibraryScreen } from './screens/LibraryScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
-import { cryptoAdNetwork, type CryptoAdUnit } from '../services/cryptoAdNetwork';
+import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
 import { tvRemote } from '../services/tvRemoteNavigation';
 import { CryptoAdModal } from '../components/CryptoAdModal';
 import { InteractiveSpotlightTour } from '../components/InteractiveSpotlightTour';
@@ -219,14 +219,14 @@ function UniversePrototypeShell({
     setRoute(nextRoute);
   }, []);
 
-  // Dynamic Stream Sync, Crypto Ads, TV Navigation & Interactive Tour State
+  // Dynamic Stream Sync, AI Ad Agent, TV Navigation & Interactive Tour State
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
-  const [currentAd, setCurrentAd] = useState<CryptoAdUnit | null>(null);
+  const [currentAd, setCurrentAd] = useState<OptimizedAdUnit | null>(null);
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [isTvMode, setIsTvMode] = useState(() => tvRemote.isTvModeEnabled());
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
-  // Dynamic Stream Sync subscription: automatically updates catalog from GitHub public file
+  // Dynamic Stream Sync subscription: automatically updates catalog from GitHub public file silently
   useEffect(() => {
     dynamicStreamSync.startPeriodicSync();
 
@@ -248,17 +248,6 @@ function UniversePrototypeShell({
     };
   }, []);
 
-  // Crypto Ad Network subscription
-  useEffect(() => {
-    const unsubAds = cryptoAdNetwork.subscribe((event, ad) => {
-      if (event === 'ad_trigger') {
-        setCurrentAd(ad);
-        setIsAdModalOpen(true);
-      }
-    });
-    return unsubAds;
-  }, []);
-
   // Spatial Navigation & Android TV Remote Back Key Binding
   useEffect(() => {
     const unreg = tvRemote.registerBackHandler(() => {
@@ -275,10 +264,11 @@ function UniversePrototypeShell({
         return true;
       }
       if (route === 'watch') {
-        // Exiting player triggers non-intrusive crypto ad if watch frequency threshold is met
-        const shouldShowAd = cryptoAdNetwork.recordVideoPlayback();
-        if (shouldShowAd) {
-          cryptoAdNetwork.triggerAdModal();
+        // Exiting player triggers non-intrusive crypto ad strictly after watching 4 videos
+        const res = aiAdOptimizationAgent.recordVideoPlayback();
+        if (res.shouldTriggerAd && res.adUnit) {
+          setCurrentAd(res.adUnit);
+          setIsAdModalOpen(true);
         }
         navigateTo(previousRouteBeforeWatch);
         return true;
@@ -981,7 +971,14 @@ function UniversePrototypeShell({
                       void handleDownloadItem(item, saveFile, quality)
                     }
                     onOpenLanguagePicker={() => setLangPickerOpen(true)}
-                    onBack={() => navigateTo(previousRouteBeforeWatch)}
+                    onBack={() => {
+                      const res = aiAdOptimizationAgent.recordVideoPlayback();
+                      if (res.shouldTriggerAd && res.adUnit) {
+                        setCurrentAd(res.adUnit);
+                        setIsAdModalOpen(true);
+                      }
+                      navigateTo(previousRouteBeforeWatch);
+                    }}
                   />
                 )}
 
@@ -1138,11 +1135,16 @@ function UniversePrototypeShell({
           onClose={() => setLangPickerOpen(false)}
         />
 
-        {/* Smart Privacy-First Crypto Ad Modal (No KYC) */}
+        {/* Smart Privacy-First Crypto Ad Modal (No KYC) - Handled by AI Ad Optimization Agent */}
         <CryptoAdModal
           isOpen={isAdModalOpen}
           ad={currentAd}
-          onClose={() => setIsAdModalOpen(false)}
+          onClose={() => {
+            if (currentAd) {
+              aiAdOptimizationAgent.registerImpressionCredit(currentAd);
+            }
+            setIsAdModalOpen(false);
+          }}
           lang={lang === 'fa' ? 'fa' : 'en'}
         />
 
