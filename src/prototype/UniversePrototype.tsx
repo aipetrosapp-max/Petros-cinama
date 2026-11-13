@@ -157,12 +157,8 @@ function UniversePrototypeShell({
 }) {
   const { t, languageInfo } = useT();
 
-  const [onboardingDone, setOnboardingDone] = useState<boolean>(
-    () => Boolean(initialVault?.onboardingDone || initialVault?.user?.ageVerified)
-  );
-  const [route, setRoute] = useState<PrototypeRoute>(() =>
-    initialVault?.onboardingDone || initialVault?.user?.ageVerified ? 'universe' : 'welcome'
-  );
+  const [onboardingDone, setOnboardingDone] = useState<boolean>(() => true);
+  const [route, setRoute] = useState<PrototypeRoute>(() => 'universe');
   const [uiState, setUiState] = useState<UiSimulationState>('normal');
   const [libraryTabRequest, setLibraryTabRequest] = useState<LibraryTab | undefined>(undefined);
   const [langPickerOpen, setLangPickerOpen] = useState(false);

@@ -635,7 +635,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
 export const INITIAL_USER_STATE: UserAccountState = {
   profileId: 'local-device-vault',
   displayName: 'فضای شخصی شما',
-  ageVerified: false,
+  ageVerified: true,
   jurisdiction: 'global-standard',
   consentEssential: true,
   consentPersonalization: true,
