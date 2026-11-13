@@ -1,4 +1,4 @@
-name: Deploy AETHER to GitHub Pages
+name: Deploy ai petros to GitHub Pages
 
 on:
   push:

@@ -1,9 +1,13 @@
 # 🎬 ai petros — Petros Cinema (Aipetros-stream)
 
+[![Live WebApp](https://img.shields.io/badge/Live%20WebApp-GitHub%20Pages-34D399?style=for-the-badge&logo=github)](https://aipetrosapp-max.github.io/Petros-cinama/)
 [![Cross-Platform: Web | Android | Android TV | Windows | macOS](https://img.shields.io/badge/Platform-Web%20%7C%20Android%20TV%20%7C%20Desktop-F5B942.svg)](https://github.com/aipetrosapp-max/Petros-cinama)
 [![Dynamic Stream Sync](https://img.shields.io/badge/Sync-Public%20GitHub%20Manifest-34D399.svg)](https://raw.githubusercontent.com/aipetrosapp-max/Petros-cinama/main/data/streams.json)
 [![No-KYC Crypto Monetization](https://img.shields.io/badge/Monetization-A--Ads%20%7C%20Zero%20KYC-00F0FF.svg)](https://a-ads.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+🌐 **لینک رسمی اجرای زنده وب‌اپلیکیشن (Live Demo):**  
+👉 **[https://aipetrosapp-max.github.io/Petros-cinama/](https://aipetrosapp-max.github.io/Petros-cinama/)**
 
 > **معماری پیشرفته پلتفرم چندرسانه‌ای نسل جدید "ai petros" با عنوان پلتفرم "Aipetros-stream" و سالن اختصاصی "Petros Cinema"**  
 > سیستم یکپارچه سینمای هوش مصنوعی، استریم پرسرعت 4K با همگام‌سازی ابری داینامیک، ناوبری فضایی ریموت کنترل برای Android TV و مدل درآمدزایی غیرمتمرکز کریپتویی بدون احراز هویت (Zero KYC).
