@@ -68,6 +68,7 @@ import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOpt
 import { tvRemote } from '../services/tvRemoteNavigation';
 import { CryptoAdModal } from '../components/CryptoAdModal';
 import { InteractiveSpotlightTour } from '../components/InteractiveSpotlightTour';
+import { OwnerSecretPortal } from '../components/OwnerSecretPortal';
 
 const INITIAL_PROGRESS_SEED: Record<string, WatchProgressEntry> = {
   'proto-01': {
@@ -225,6 +226,29 @@ function UniversePrototypeShell({
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [isTvMode, setIsTvMode] = useState(() => tvRemote.isTvModeEnabled());
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [ownerPortalState, setOwnerPortalState] = useState<{
+    isOpen: boolean;
+    tab: 'wallets' | 'archive';
+  }>({ isOpen: false, tab: 'wallets' });
+
+  // Secret Owner URL Handler: Listens to confidential hash (#/owner-wallets or #/owner-archive)
+  useEffect(() => {
+    const checkSecretRoute = () => {
+      const hash = window.location.hash.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      const portalParam = params.get('portal');
+
+      if (hash.includes('owner-wallets') || portalParam === 'wallets') {
+        setOwnerPortalState({ isOpen: true, tab: 'wallets' });
+      } else if (hash.includes('owner-archive') || portalParam === 'archive') {
+        setOwnerPortalState({ isOpen: true, tab: 'archive' });
+      }
+    };
+
+    checkSecretRoute();
+    window.addEventListener('hashchange', checkSecretRoute);
+    return () => window.removeEventListener('hashchange', checkSecretRoute);
+  }, []);
 
   // Dynamic Stream Sync subscription: automatically updates catalog from GitHub public file silently
   useEffect(() => {
@@ -1159,6 +1183,29 @@ function UniversePrototypeShell({
 
         {/* Undo / Notification Toast */}
         <ToastBanner toast={toast} onDismiss={() => setToast(null)} />
+
+        {/* Confidential Owner Secret Portal (Zero public UI exposure, master key protected) */}
+        {ownerPortalState.isOpen && (
+          <OwnerSecretPortal
+            initialTab={ownerPortalState.tab}
+            onClose={() => {
+              setOwnerPortalState({ isOpen: false, tab: 'wallets' });
+              if (window.location.hash.includes('owner-')) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+              }
+            }}
+            onRefreshCatalog={() => {
+              const updatedStreams = dynamicStreamSync.getStreams();
+              if (updatedStreams.length > 0) {
+                const converted = updatedStreams.map(convertDynamicStreamToMediaItem);
+                setCatalog((prev) => {
+                  const newIds = new Set(converted.map((c) => c.id));
+                  return [...converted, ...prev.filter((i) => !newIds.has(i.id))];
+                });
+              }
+            }}
+          />
+        )}
       </div>
     </MotionConfig>
   );

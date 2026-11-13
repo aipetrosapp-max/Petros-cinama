@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ExternalLink, ShieldCheck, X, Sparkles, CheckCircle2, Wallet } from 'lucide-react';
+import { ExternalLink, ShieldCheck, X, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { CryptoAdUnit } from '../services/cryptoAdNetwork';
 import type { OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
@@ -129,24 +129,6 @@ export const CryptoAdModal: React.FC<CryptoAdModalProps> = ({
                 {ad.description}
               </p>
             </div>
-          </div>
-
-          {/* AI Wallet Direct Payout Attribution Box */}
-          <div className="p-3 rounded-2xl bg-[#00F0FF]/5 border border-[#00F0FF]/20 flex items-center justify-between gap-3 text-xs mb-3">
-            <div className="flex items-center gap-2 overflow-hidden">
-              <Wallet className="w-4 h-4 text-[#00F0FF] shrink-0" />
-              <div className="truncate">
-                <p className="text-[10px] text-[#A3AEC2]">
-                  {isFa ? 'واریز مستقیم درآمد به آدرس ولت شما:' : 'Direct Ad Revenue Routed To Wallet:'}
-                </p>
-                <p className="font-mono text-[11px] text-[#00F0FF] font-semibold truncate" dir="ltr">
-                  {payoutWallet}
-                </p>
-              </div>
-            </div>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 shrink-0 border border-emerald-500/30">
-              {isFa ? 'تأیید آنی' : 'Verified'}
-            </span>
           </div>
 
           {/* Bottom Action Footer */}
