@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Lock,
   KeyRound,
   ShieldAlert,
+  ShieldCheck,
   Wallet,
   Film,
   Plus,
@@ -14,11 +15,20 @@ import {
   Download,
   Play,
   X,
-  Sparkles
+  Sparkles,
+  UploadCloud,
+  FileText,
+  Cpu,
+  Layers,
+  Search,
+  RefreshCw,
+  Sliders,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { aiAdOptimizationAgent, DEFAULT_PUBLISHER_WALLETS } from '../services/aiAdOptimizationAgent';
 import { dynamicStreamSync, type DynamicStreamItem } from '../services/dynamicStreamSync';
+import { internalAiArchiveParser, type IngestionResult } from '../services/internalAiArchiveParser';
 
 interface OwnerSecretPortalProps {
   initialTab?: 'wallets' | 'archive';
@@ -52,13 +62,16 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
   // Streams state
   const [streams, setStreams] = useState<DynamicStreamItem[]>(() => dynamicStreamSync.getStreams());
-  const [newTitle, setNewTitle] = useState('');
-  const [newTitleFa, setNewTitleFa] = useState('');
-  const [newStreamUrl, setNewStreamUrl] = useState('');
-  const [newPosterUrl, setNewPosterUrl] = useState('');
-  const [newCategory, setNewCategory] = useState<'movie' | 'series' | 'anime' | 'cyber-noir'>('movie');
-  const [newQuality, setNewQuality] = useState<'4K' | '1080p'>('4K');
   const [streamSavedMessage, setStreamSavedMessage] = useState<string | null>(null);
+
+  // Internal AI Archive Ingestion State (Air-Gapped & Offline)
+  const [rawArchiveText, setRawArchiveText] = useState('');
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [isProcessingAi, setIsProcessingAi] = useState(false);
+  const [aiIngestionResult, setAiIngestionResult] = useState<IngestionResult | null>(null);
+  const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'movie' | 'series' | 'anime' | 'cyber-noir'>('all');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Revenue analytics from AI Ad Agent
   const accumulatedRevenue = aiAdOptimizationAgent.getAccumulatedRevenueUsd();
@@ -82,51 +95,87 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
     setTimeout(() => setWalletSaved(false), 3000);
   };
 
-  const handleAddStream = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !newStreamUrl.trim()) return;
+  // 100% Client-Side File Reader (Zero network calls)
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    const newItem: DynamicStreamItem = {
-      id: `stream-custom-${Date.now()}`,
-      title: newTitle.trim(),
-      titleFa: newTitleFa.trim() || newTitle.trim(),
-      category: newCategory,
-      year: 2026,
-      durationSec: 3600,
-      posterUrl: newPosterUrl.trim() || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop',
-      synopsis: `Stream archive added via Owner Portal: ${newTitle}`,
-      synopsisFa: `استریم جدید اضافه شده در آرشیو اختصاصی: ${newTitleFa || newTitle}`,
-      defaultStreamUrl: newStreamUrl.trim(),
-      qualities: [
-        { quality: newQuality, resolution: newQuality === '4K' ? '3840x2160' : '1920x1080', streamUrl: newStreamUrl.trim(), bitrateKbps: newQuality === '4K' ? 14000 : 6000 }
-      ],
-      tags: ['Archive', newCategory, newQuality]
+    setUploadedFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        setRawArchiveText(content);
+      }
     };
+    reader.readAsText(file);
+  };
 
-    const updated = [newItem, ...streams];
-    setStreams(updated);
+  // Run the Air-Gapped Internal AI Parser
+  const handleRunInternalAiIngestion = () => {
+    if (!rawArchiveText.trim()) return;
 
-    // Save into dynamicStreamSync local cache
+    setIsProcessingAi(true);
+    // Instant heuristic parsing in-memory (no external network latency or leakage)
+    setTimeout(() => {
+      try {
+        const result = internalAiArchiveParser.ingestRawArchive(rawArchiveText);
+        setAiIngestionResult(result);
+      } catch (err) {
+        console.error('AI Ingestion error:', err);
+      } finally {
+        setIsProcessingAi(false);
+      }
+    }, 250);
+  };
+
+  // Apply sanitized items to the live platform catalog
+  const handleApplyToLivePlatform = (mode: 'merge' | 'replace' = 'merge') => {
+    if (!aiIngestionResult || aiIngestionResult.sanitizedItems.length === 0) return;
+
+    let updatedList: DynamicStreamItem[];
+    if (mode === 'replace') {
+      updatedList = aiIngestionResult.sanitizedItems;
+    } else {
+      // Merge and deduplicate with existing streams
+      const existingUrls = new Set(streams.map((s) => s.defaultStreamUrl.toLowerCase().trim()));
+      const newUnique = aiIngestionResult.sanitizedItems.filter(
+        (item) => !existingUrls.has(item.defaultStreamUrl.toLowerCase().trim())
+      );
+      updatedList = [...newUnique, ...streams];
+    }
+
+    setStreams(updatedList);
+
+    // Save directly to offline cache
     try {
-      localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify(updated));
+      localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify(updatedList));
     } catch {}
 
-    setNewTitle('');
-    setNewTitleFa('');
-    setNewStreamUrl('');
-    setNewPosterUrl('');
-    setStreamSavedMessage(`Stream "${newItem.title}" added to active archive!`);
+    setStreamSavedMessage(
+      `✅ Success: ${aiIngestionResult.sanitizedItems.length} streams ingested & delivered to live frontend!`
+    );
     onRefreshCatalog?.();
-    setTimeout(() => setStreamSavedMessage(null), 4000);
+    setTimeout(() => setStreamSavedMessage(null), 5000);
   };
 
   const handleDeleteStream = (id: string) => {
-    const updated = streams.filter(s => s.id !== id);
+    const updated = streams.filter((s) => s.id !== id);
     setStreams(updated);
     try {
       localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify(updated));
     } catch {}
     onRefreshCatalog?.();
+  };
+
+  const handleClearAllStreams = () => {
+    if (confirm('Are you sure you want to clear all active streams from the archive?')) {
+      setStreams([]);
+      try {
+        localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify([]));
+      } catch {}
+      onRefreshCatalog?.();
+    }
   };
 
   const handleExportJson = () => {
@@ -136,6 +185,16 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
     dlAnchorElem.setAttribute('download', 'streams.json');
     dlAnchorElem.click();
   };
+
+  const filteredStreams = streams.filter((s) => {
+    const matchesCategory = categoryFilter === 'all' || s.category === categoryFilter;
+    const matchesQuery =
+      !archiveSearchQuery.trim() ||
+      s.title.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
+      s.titleFa.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
+      s.defaultStreamUrl.toLowerCase().includes(archiveSearchQuery.toLowerCase());
+    return matchesCategory && matchesQuery;
+  });
 
   return (
     <div className="fixed inset-0 z-[200] overflow-y-auto bg-black/95 backdrop-blur-2xl text-slate-100 flex flex-col p-4 sm:p-8">
@@ -236,12 +295,12 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
               onClick={() => setActiveTab('archive')}
               className={`flex-1 min-h-[40px] rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'archive'
-                  ? 'bg-[#F5B942] text-[#060810] shadow-md shadow-[#F5B942]/20'
+                  ? 'bg-[#00F0FF] text-[#060810] shadow-md shadow-[#00F0FF]/20'
                   : 'text-[#A3AEC2] hover:text-white'
               }`}
             >
-              <Film className="w-4 h-4" />
-              <span>2. Film & Series Stream Archive</span>
+              <Cpu className="w-4 h-4" />
+              <span>2. Internal AI Archive Ingestion</span>
             </button>
           </div>
 
@@ -252,85 +311,79 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
-              {/* Live Revenue Analytics Summary */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-5 rounded-3xl bg-[#0E1322] border border-emerald-500/30 space-y-1">
-                  <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">
-                    Total Estimated Ad Revenue
+              {/* Revenue Snapshot Card */}
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-[#090D18] via-[#0E1526] to-[#090D18] border border-[#F5B942]/30 shadow-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-[#F5B942]">
+                    <DollarSign className="w-5 h-5" />
+                    <span className="text-xs font-bold tracking-wider uppercase">Live Revenue & Ad Yield Report</span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Direct Payout Mode (No-KYC)
                   </span>
-                  <p className="text-2xl font-black text-white font-mono">
-                    ${accumulatedRevenue.toFixed(4)} USD
-                  </p>
-                  <p className="text-[10px] text-[#A3AEC2]">Directly credited to your destination wallet</p>
                 </div>
 
-                <div className="p-5 rounded-3xl bg-[#0E1322] border border-blue-500/30 space-y-1">
-                  <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">
-                    Total Ad Impressions
-                  </span>
-                  <p className="text-2xl font-black text-white font-mono">
-                    {impressionsCount} Views
-                  </p>
-                  <p className="text-[10px] text-[#A3AEC2]">Triggered strictly every 4 video playbacks</p>
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div className="p-4 rounded-2xl bg-black/40 border border-white/5">
+                    <p className="text-[11px] text-[#A3AEC2] uppercase font-semibold">Total Ad Impressions</p>
+                    <p className="text-2xl font-black text-white mt-1">{impressionsCount}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Frequency: 1 ad per 4 video watches</p>
+                  </div>
 
-                <div className="p-5 rounded-3xl bg-[#0E1322] border border-[#F5B942]/30 space-y-1">
-                  <span className="text-[11px] font-bold text-[#F5B942] uppercase tracking-wider">
-                    AI Top Network & eCPM
-                  </span>
-                  <p className="text-xl font-black text-white truncate">
-                    {winningNetwork.shortName} (${winningNetwork.eCpmUsd.toFixed(2)} eCPM)
-                  </p>
-                  <p className="text-[10px] text-[#A3AEC2]">100% No-KYC verified ad settlement</p>
+                  <div className="p-4 rounded-2xl bg-black/40 border border-white/5">
+                    <p className="text-[11px] text-[#A3AEC2] uppercase font-semibold">Total Revenue Accrued</p>
+                    <p className="text-2xl font-black text-emerald-400 mt-1">${accumulatedRevenue.toFixed(2)}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Calculated by AI optimization agent</p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-black/40 border border-white/5">
+                    <p className="text-[11px] text-[#A3AEC2] uppercase font-semibold">Winning Ad Network</p>
+                    <p className="text-lg font-bold text-[#F5B942] mt-1">{winningNetwork?.networkName || 'A-Ads Crypto'}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Effective CPM: ${(winningNetwork?.cpmUsd || 4.2).toFixed(2)}</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Wallet Configuration Form */}
+              {/* Wallet Configuration */}
               <div className="p-6 rounded-3xl bg-[#090D18] border border-white/10 space-y-5">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-base font-bold text-white flex items-center gap-2">
                       <Wallet className="w-5 h-5 text-[#F5B942]" />
-                      <span>Owner Crypto Payout Addresses</span>
+                      <span>Direct Crypto Settlement Addresses</span>
                     </h2>
                     <p className="text-xs text-[#A3AEC2]">
-                      Set your wallet addresses here. Ad revenue generated by viewers will be routed directly to these accounts.
+                      Set your addresses to receive automated decentralized payouts from ads and sponsorships.
                     </p>
                   </div>
 
                   <button
                     type="button"
                     onClick={handleSaveWallets}
-                    className="min-h-[40px] px-5 rounded-2xl bg-[#F5B942] hover:bg-[#E5A832] text-[#060810] font-black text-xs flex items-center gap-2 shadow-lg shadow-[#F5B942]/20 active:scale-95 transition-all cursor-pointer"
+                    className="min-h-[40px] px-5 rounded-xl bg-[#F5B942] text-[#060810] font-black text-xs flex items-center gap-2 shadow-lg shadow-[#F5B942]/20 cursor-pointer active:scale-95 transition-transform"
                   >
                     <Save className="w-4 h-4" />
-                    <span>Save Wallets</span>
+                    <span>{walletSaved ? 'Saved!' : 'Save Wallets'}</span>
                   </button>
                 </div>
 
-                {walletSaved && (
-                  <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-400 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Wallets successfully saved! AI Ad Agent is routing all earnings to your updated addresses.</span>
-                  </div>
-                )}
-
-                <div className="space-y-4 pt-2">
+                <div className="space-y-4 pt-1">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-                      <span>USDT (TRON TRC-20) — Primary Settlement</span>
-                      <span className="text-[10px] text-emerald-400 font-mono">Zero Fee Fast Rail</span>
+                      <span>USDT (TRC-20) — Primary Settlement</span>
+                      <span className="text-[10px] text-[#F5B942]">Active Ad Revenue Target</span>
                     </label>
                     <input
                       type="text"
                       value={wallets.usdt}
                       onChange={(e) => setWallets({ ...wallets, usdt: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#F5B942] font-mono text-xs text-[#00F0FF]"
+                      className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#F5B942] font-mono text-xs text-slate-200"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">Bitcoin (BTC SegWit / Taproot)</label>
+                    <label className="text-xs font-semibold text-slate-300">Bitcoin (BTC)</label>
                     <input
                       type="text"
                       value={wallets.btc}
@@ -340,11 +393,21 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">TON (The Open Network)</label>
+                    <label className="text-xs font-semibold text-slate-300">TON Network (Telegram Ecosystem)</label>
                     <input
                       type="text"
                       value={wallets.ton}
                       onChange={(e) => setWallets({ ...wallets, ton: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#F5B942] font-mono text-xs text-slate-200"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300">Solana (SOL)</label>
+                    <input
+                      type="text"
+                      value={wallets.sol}
+                      onChange={(e) => setWallets({ ...wallets, sol: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#F5B942] font-mono text-xs text-slate-200"
                     />
                   </div>
@@ -363,174 +426,316 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
             </motion.div>
           )}
 
-          {/* TAB 2: FILM & SERIES STREAM ARCHIVE MANAGEMENT */}
+          {/* TAB 2: INTERNAL AI ARCHIVE INGESTION (AIR-GAPPED & PROTECTED) */}
           {activeTab === 'archive' && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
-              {/* Add New Stream Form */}
-              <div className="p-6 rounded-3xl bg-[#090D18] border border-white/10 space-y-4">
-                <div className="flex items-center justify-between">
+              {/* Security & Air-Gap Banner */}
+              <div className="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/40 flex items-start gap-3">
+                <ShieldCheck className="w-5 h-5 text-[#00F0FF] shrink-0 mt-0.5" />
+                <div className="text-xs space-y-0.5">
+                  <p className="font-bold text-white flex items-center gap-2">
+                    <span>100% Internal Air-Gapped AI Engine</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] bg-[#00F0FF]/20 text-[#00F0FF] font-mono">
+                      ZERO EXTERNAL API CALLS
+                    </span>
+                  </p>
+                  <p className="text-[#A3AEC2]">
+                    هوش مصنوعی داخلی کلاینت‌ساید بدون ارسال به هیچ سرور خارجی، فایل یا متن شما را پردازش می‌کند؛ لینک‌های اسپم و پارامترهای ردیابی را پاکسازی، بهترین کیفیت‌ها را شناسایی، دسته‌بندی خودکار (فیلم، سریال، انیمه) انجام داده و مستقیماً روی فرانت‌ند زنده می‌نشاند.
+                  </p>
+                </div>
+              </div>
+
+              {/* Ingestion Input Container */}
+              <div className="p-6 rounded-3xl bg-[#090D18] border border-white/10 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h2 className="text-base font-bold text-white flex items-center gap-2">
-                      <Plus className="w-5 h-5 text-[#00F0FF]" />
-                      <span>Add Movie / Series / Anime Stream URL</span>
+                      <Cpu className="w-5 h-5 text-[#00F0FF]" />
+                      <span>Archive Ingestion Box (Raw Text / File Upload)</span>
                     </h2>
                     <p className="text-xs text-[#A3AEC2]">
-                      Paste any HLS (.m3u8), MP4, or cloud video URL to immediately publish it to your platform.
+                      Upload files (.txt, .m3u, .json, .csv) or paste messy text/links directly.
                     </p>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={handleExportJson}
-                    className="min-h-[38px] px-4 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Export streams.json</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="min-h-[38px] px-4 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
+                    >
+                      <UploadCloud className="w-4 h-4 text-[#00F0FF]" />
+                      <span>{uploadedFileName ? uploadedFileName : 'Upload File'}</span>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".txt,.m3u,.m3u8,.json,.csv,.log"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={handleExportJson}
+                      className="min-h-[38px] px-4 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                      title="Download clean streams.json"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Export JSON</span>
+                    </button>
+                  </div>
                 </div>
 
+                {/* Raw Text Input Area */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <label className="font-semibold text-slate-300 flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-[#00F0FF]" />
+                      <span>Paste Raw Text / Unstructured Links / M3U Playlist:</span>
+                    </label>
+                    {rawArchiveText && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRawArchiveText('');
+                          setUploadedFileName(null);
+                          setAiIngestionResult(null);
+                        }}
+                        className="text-red-400 hover:text-red-300 cursor-pointer text-[11px]"
+                      >
+                        Clear Text
+                      </button>
+                    )}
+                  </div>
+
+                  <textarea
+                    rows={7}
+                    placeholder={`Paste any messy dump here, for example:
+#EXTINF:-1 tvg-id="" tvg-name="Dune 2", Dune Part Two 4K UHD
+https://cdn.example.com/movies/dune2_4k.m3u8?utm_source=ad&token=123
+
+Or plain links:
+Interstellar 2014 1080p https://stream.box/interstellar.mp4
+Breaking Bad Season 1 Episode 1 https://server.net/bb_s01e01.m3u8
+Attack on Titan Final Season https://anime.stream/aot_final.m3u8`}
+                    value={rawArchiveText}
+                    onChange={(e) => setRawArchiveText(e.target.value)}
+                    className="w-full p-3.5 rounded-2xl bg-black/70 border border-white/15 focus:border-[#00F0FF] font-mono text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none transition-colors"
+                  />
+                </div>
+
+                {/* AI Processing Action Button */}
+                <button
+                  type="button"
+                  onClick={handleRunInternalAiIngestion}
+                  disabled={!rawArchiveText.trim() || isProcessingAi}
+                  className={`w-full min-h-[46px] rounded-2xl font-black text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer ${
+                    !rawArchiveText.trim() || isProcessingAi
+                      ? 'bg-white/10 text-slate-500 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-[#00F0FF] via-[#0284C7] to-[#00F0FF] text-[#060810] shadow-[#00F0FF]/25 hover:brightness-110 active:scale-95'
+                  }`}
+                >
+                  {isProcessingAi ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin text-[#060810]" />
+                      <span>Parsing & Sanitizing Archive with Internal AI...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Cpu className="w-4 h-4" />
+                      <span>🧠 Run Internal AI: Sanitize, Categorize & Ingest Archive</span>
+                    </>
+                  )}
+                </button>
+
+                {/* AI Ingestion Results Card */}
+                {aiIngestionResult && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-5 rounded-2xl bg-gradient-to-br from-cyan-950/40 via-black/60 to-cyan-950/20 border border-[#00F0FF]/40 space-y-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-[#00F0FF]">
+                        <Sparkles className="w-5 h-5" />
+                        <span className="text-xs font-bold uppercase tracking-wider">
+                          Internal AI Analysis Completed
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {aiIngestionResult.sanitizedItems.length} Cleaned Items Ready
+                      </span>
+                    </div>
+
+                    {/* Breakdown Metrics */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-center">
+                        <p className="text-[10px] text-[#A3AEC2] uppercase font-semibold">Total Extracted</p>
+                        <p className="text-xl font-black text-white mt-0.5">
+                          {aiIngestionResult.totalExtracted}
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-center">
+                        <p className="text-[10px] text-[#A3AEC2] uppercase font-semibold">Valid Streams</p>
+                        <p className="text-xl font-black text-[#00F0FF] mt-0.5">
+                          {aiIngestionResult.validStreamsCount}
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-center">
+                        <p className="text-[10px] text-[#A3AEC2] uppercase font-semibold">Duplicates Cleaned</p>
+                        <p className="text-xl font-black text-amber-400 mt-0.5">
+                          {aiIngestionResult.duplicateCount}
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-center">
+                        <p className="text-[10px] text-[#A3AEC2] uppercase font-semibold">Categorized</p>
+                        <p className="text-xs font-bold text-emerald-400 mt-1">
+                          🎬 {aiIngestionResult.moviesCount} M · 📺 {aiIngestionResult.seriesCount} S · ⚡ {aiIngestionResult.animeCount} A
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Delivery Actions */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => handleApplyToLivePlatform('merge')}
+                        className="w-full sm:flex-1 min-h-[42px] rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>Merge & Publish to Live Frontend Catalog</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleApplyToLivePlatform('replace')}
+                        className="w-full sm:w-auto min-h-[42px] px-4 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <span>Replace Whole Archive</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
                 {streamSavedMessage && (
-                  <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-400 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-xs text-emerald-400 flex items-center gap-2 font-semibold">
+                    <CheckCircle2 className="w-5 h-5 shrink-0" />
                     <span>{streamSavedMessage}</span>
                   </div>
                 )}
-
-                <form onSubmit={handleAddStream} className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">English Title</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Dune: Part Two"
-                      value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-xs text-white"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">Persian Title (عنوان فارسی)</label>
-                    <input
-                      type="text"
-                      placeholder="مثلاً: تل‌ماسه بخش ۲"
-                      value={newTitleFa}
-                      onChange={(e) => setNewTitleFa(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-xs text-white"
-                    />
-                  </div>
-
-                  <div className="space-y-1 sm:col-span-2">
-                    <label className="text-xs font-semibold text-[#00F0FF]">
-                      Video Stream Direct URL (.m3u8 / .mp4 / CDN)
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://example.com/stream/master.m3u8"
-                      value={newStreamUrl}
-                      onChange={(e) => setNewStreamUrl(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-[#00F0FF]/40 font-mono text-xs text-[#00F0FF]"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300">Poster Image URL</label>
-                    <input
-                      type="url"
-                      placeholder="https://images.unsplash.com/..."
-                      value={newPosterUrl}
-                      onChange={(e) => setNewPosterUrl(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-xs text-white"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-slate-300">Category</label>
-                      <select
-                        value={newCategory}
-                        onChange={(e) => setNewCategory(e.target.value as any)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-black/80 border border-white/15 text-xs text-white"
-                      >
-                        <option value="movie">Movie</option>
-                        <option value="series">TV Series</option>
-                        <option value="anime">Anime</option>
-                        <option value="cyber-noir">Cyber Noir</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-slate-300">Quality</label>
-                      <select
-                        value={newQuality}
-                        onChange={(e) => setNewQuality(e.target.value as any)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-black/80 border border-white/15 text-xs text-white"
-                      >
-                        <option value="4K">4K Ultra HD</option>
-                        <option value="1080p">1080p Full HD</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="sm:col-span-2 pt-2">
-                    <button
-                      type="submit"
-                      className="w-full min-h-[42px] rounded-xl bg-gradient-to-r from-[#00F0FF] to-[#0284C7] text-[#060810] font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#00F0FF]/20 cursor-pointer active:scale-95 transition-all"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Publish Video Stream to Platform</span>
-                    </button>
-                  </div>
-                </form>
               </div>
 
-              {/* Active Stream List */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-bold text-white flex items-center justify-between">
-                  <span>Active Archive Streams ({streams.length})</span>
-                </h3>
+              {/* Active Archive Catalog Inspector */}
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Layers className="w-4 h-4 text-[#F5B942]" />
+                      <span>Active Platform Archive ({filteredStreams.length} / {streams.length} items)</span>
+                    </h3>
+                    <p className="text-[11px] text-[#A3AEC2]">
+                      Live streaming catalog currently served to all web, TV and mobile users.
+                    </p>
+                  </div>
 
-                <div className="grid grid-cols-1 gap-2.5">
-                  {streams.map((s) => (
-                    <div
-                      key={s.id}
-                      className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-4"
+                  {streams.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearAllStreams}
+                      className="text-xs text-red-400 hover:text-red-300 font-semibold cursor-pointer"
                     >
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <img
-                          src={s.posterUrl}
-                          alt={s.title}
-                          className="w-10 h-14 object-cover rounded-lg shrink-0 bg-black"
-                        />
-                        <div className="truncate">
-                          <p className="text-xs font-bold text-white truncate">{s.title}</p>
-                          <p className="text-[11px] text-[#A3AEC2] truncate">{s.titleFa}</p>
-                          <p className="font-mono text-[10px] text-[#00F0FF] truncate mt-0.5" dir="ltr">
-                            {s.defaultStreamUrl}
-                          </p>
+                      Clear All Archive
+                    </button>
+                  )}
+                </div>
+
+                {/* Filters & Search */}
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <div className="relative flex-1 w-full">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                    <input
+                      type="text"
+                      placeholder="Search active archive by title or stream URL..."
+                      value={archiveSearchQuery}
+                      onChange={(e) => setArchiveSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-black/60 border border-white/15 text-xs text-white placeholder:text-slate-500 focus:border-[#00F0FF] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                    {(['all', 'movie', 'series', 'anime', 'cyber-noir'] as const).map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setCategoryFilter(cat)}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase transition-colors shrink-0 cursor-pointer ${
+                          categoryFilter === cat
+                            ? 'bg-[#F5B942] text-[#060810]'
+                            : 'bg-white/5 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Stream Items List */}
+                <div className="grid grid-cols-1 gap-2.5 max-h-[480px] overflow-y-auto pr-1">
+                  {filteredStreams.length === 0 ? (
+                    <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 text-center text-slate-400 text-xs">
+                      No stream items match your filter. Ingest text or files above to add streams.
+                    </div>
+                  ) : (
+                    filteredStreams.map((s) => (
+                      <div
+                        key={s.id}
+                        className="p-3.5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.05] border border-white/10 flex items-center justify-between gap-4 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <img
+                            src={s.posterUrl}
+                            alt={s.title}
+                            className="w-11 h-16 object-cover rounded-xl shrink-0 bg-black shadow-md"
+                          />
+                          <div className="truncate space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs font-bold text-white truncate">{s.title}</p>
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#F5B942]/20 text-[#F5B942] shrink-0">
+                                {s.qualities?.[0]?.quality || '4K'}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-[#A3AEC2] truncate">{s.titleFa}</p>
+                            <p className="font-mono text-[10px] text-[#00F0FF] truncate" dir="ltr">
+                              {s.defaultStreamUrl}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 text-slate-300">
+                            {s.category.toUpperCase()}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteStream(s.id)}
+                            className="p-2 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-400 cursor-pointer transition-colors"
+                            title="Delete Stream"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#F5B942]/20 text-[#F5B942]">
-                          {s.category.toUpperCase()}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteStream(s.id)}
-                          className="p-2 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-400 cursor-pointer transition-colors"
-                          title="Delete Stream"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             </motion.div>
