@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Coins,
   Compass,
   Film,
   Globe2,
@@ -9,6 +8,7 @@ import {
   RefreshCw,
   Search,
   Settings,
+  Sparkles,
   Tv
 } from 'lucide-react';
 import { AnimatePresence, MotionConfig, motion } from 'motion/react';
@@ -67,7 +67,7 @@ import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamI
 import { cryptoAdNetwork, type CryptoAdUnit } from '../services/cryptoAdNetwork';
 import { tvRemote } from '../services/tvRemoteNavigation';
 import { CryptoAdModal } from '../components/CryptoAdModal';
-import { CryptoTipModal } from '../components/CryptoTipModal';
+import { InteractiveTourModal } from '../components/InteractiveTourModal';
 
 const INITIAL_PROGRESS_SEED: Record<string, WatchProgressEntry> = {
   'proto-01': {
@@ -132,7 +132,7 @@ function buildDownloadFilename(item: PrototypeMediaItem, mimeType: string): stri
 
 export function UniversePrototype() {
   const initialVault = useMemo(() => loadVaultSnapshot(), []);
-  const [lang, setLang] = useState<LanguageCode>(() => initialVault?.lang ?? 'fa');
+  const [lang, setLang] = useState<LanguageCode>(() => initialVault?.lang ?? 'en');
 
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -219,10 +219,10 @@ function UniversePrototypeShell({
     setRoute(nextRoute);
   }, []);
 
-  // Dynamic Stream Sync, Crypto Ads & TV Navigation State
+  // Dynamic Stream Sync, Crypto Ads, TV Navigation & Interactive Tour State
   const [isAdModalOpen, setIsAdModalOpen] = useState(false);
   const [currentAd, setCurrentAd] = useState<CryptoAdUnit | null>(null);
-  const [isTipModalOpen, setIsTipModalOpen] = useState(false);
+  const [isTourOpen, setIsTourOpen] = useState(false);
   const [isTvMode, setIsTvMode] = useState(() => tvRemote.isTvModeEnabled());
   const [isSyncingStreams, setIsSyncingStreams] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
@@ -267,8 +267,8 @@ function UniversePrototypeShell({
         setIsAdModalOpen(false);
         return true;
       }
-      if (isTipModalOpen) {
-        setIsTipModalOpen(false);
+      if (isTourOpen) {
+        setIsTourOpen(false);
         return true;
       }
       if (selectedDetailItem) {
@@ -291,7 +291,7 @@ function UniversePrototypeShell({
       return false;
     });
     return unreg;
-  }, [isAdModalOpen, isTipModalOpen, selectedDetailItem, route, previousRouteBeforeWatch, navigateTo]);
+  }, [isAdModalOpen, isTourOpen, selectedDetailItem, route, previousRouteBeforeWatch, navigateTo]);
 
   const handleManualSyncStreams = useCallback(async () => {
     setIsSyncingStreams(true);
@@ -898,15 +898,15 @@ function UniversePrototypeShell({
                 <span className="hidden lg:inline text-[11px]">{isTvMode ? t('TV Mode', 'حالت TV') : t('TV', 'تلویزیون')}</span>
               </button>
 
-              {/* Crypto Tip Vault Button */}
+              {/* Interactive Platform Tour & Tutorial Walkthrough Button */}
               <button
                 type="button"
-                onClick={() => setIsTipModalOpen(true)}
-                title={t('Crypto Support (No KYC)', 'حمایت کریپتویی بدون احراز هویت')}
-                className="min-h-[38px] px-2.5 inline-flex items-center gap-1 rounded-full border border-[#F5B942]/30 bg-[#F5B942]/10 text-xs text-[#F5B942] hover:brightness-110 cursor-pointer"
+                onClick={() => setIsTourOpen(true)}
+                title={t('Platform Guide & Tutorial', 'آموزش و معرفی امکانات پلتفرم')}
+                className="min-h-[38px] px-2.5 sm:px-3 inline-flex items-center gap-1.5 rounded-full border border-[#F5B942]/40 bg-[#F5B942]/10 text-xs font-bold text-[#F5B942] hover:bg-[#F5B942]/20 hover:brightness-110 cursor-pointer shadow-md shadow-[#F5B942]/10 transition-all active:scale-95"
               >
-                <Coins className="w-3.5 h-3.5" />
-                <span className="hidden xl:inline text-[11px]">{t('Donate', 'حمایت')}</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#F5B942]" />
+                <span className="text-[11px]">{t('Tutorial', 'آموزش')}</span>
               </button>
 
               {/* Global World Language Picker */}
@@ -1102,28 +1102,13 @@ function UniversePrototypeShell({
                   <SettingsScreen
                     lang={lang}
                     user={user}
-                    userVector={userVector}
                     vaultSizeBytes={vaultSizeBytes}
                     onChangeLang={setLang}
                     onOpenLanguagePicker={() => setLangPickerOpen(true)}
                     onUpdateUser={handleUpdateUser}
-                    onRevokeSession={(sessionId) => {
-                      setUser((prev) => ({
-                        ...prev,
-                        sessions: prev.sessions.filter((s) => s.id !== sessionId)
-                      }));
-                      showToast(t('Session revoked.', 'دسترسی نشست لغو شد.'));
-                    }}
-                    onResetTasteAndHistory={() => {
-                      setUserVector(DEFAULT_TASTE_VECTOR);
-                      setFeedbackMap({});
-                      setProgressMap({});
-                      showToast(t('Taste model and history reset.', 'مدل سلیقه و سابقه تعاملات بازنشانی شد.'));
-                    }}
-                    onExportPersonalData={handleExportPersonalData}
                     onWipeLocalMemory={() => {
                       handleResetPrototype();
-                      navigateTo('welcome');
+                      navigateTo('universe');
                     }}
                   />
                 )}
@@ -1218,11 +1203,12 @@ function UniversePrototypeShell({
           lang={lang === 'fa' ? 'fa' : 'en'}
         />
 
-        {/* Direct Crypto Tip Vault Modal */}
-        <CryptoTipModal
-          isOpen={isTipModalOpen}
-          onClose={() => setIsTipModalOpen(false)}
-          lang={lang === 'fa' ? 'fa' : 'en'}
+        {/* Interactive Platform Tour & Tutorial Walkthrough */}
+        <InteractiveTourModal
+          isOpen={isTourOpen}
+          onClose={() => setIsTourOpen(false)}
+          lang={lang}
+          onNavigateToTab={(targetRoute) => navigateTo(targetRoute)}
         />
 
         {/* Undo / Notification Toast */}
