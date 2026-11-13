@@ -68,7 +68,7 @@ class PetrosCinemaErrorBoundary extends React.Component<
             <button
               type="button"
               onClick={() => {
-                this.setState({ hasError: false, error: null });
+                try { localStorage.removeItem('aipetros_universe_inapp_memory_v1'); sessionStorage.clear(); } catch(e){} this.setState({ hasError: false, error: null });
                 window.location.reload();
               }}
               className="min-h-[44px] px-6 py-2.5 rounded-full bg-[#F5B942] text-[#060810] text-sm font-bold cursor-pointer transition-transform active:scale-95 shadow-lg shadow-[#F5B942]/20"

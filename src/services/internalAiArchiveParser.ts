@@ -49,7 +49,7 @@ const CURATED_POSTERS = {
 };
 
 // Universal regex to capture explicit URLs, naked domains, and IP addresses with paths
-const UNIVERSAL_LINK_REGEX = /(?:https?|ftp):\/\/[^\s"'<>\(\)]+|\b(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|io|moe|me|co|tv|cc|to|app|dev|ai|xyz|site|online|live|stream|pro|is|ru|ir|uk|de|eu|media|club|info|link|tech|vip|one|top|cloud|fm|so|gg|in|bz|ms|ws|sh|space|store|pub|tube|video|film|movie)(?::\d+)?(?:\/[^\s"'<>\(\)]*)?/gi;
+const UNIVERSAL_LINK_REGEX = /(?:https?|ftp):\/\/[^\s"'<>\(\)]+|\b(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|io|moe|me|co|tv|cc|to|app|dev|ai|xyz|site|online|live|stream|pro|is|ru|ir|uk|de|eu|media|club|info|link|tech|vip|one|top|cloud|fm|so|gg|in|bz|ms|ws|sh|space|store|pub|tube|video|film|movie|fun|icu|top|world|wiki|page)(?::\d+)?(?:\/[^\s"'<>\(\)]*)?/gi;
 
 export class InternalAiArchiveParserService {
   /**
@@ -178,24 +178,6 @@ export class InternalAiArchiveParserService {
             rawPairs.push({
               title: candidateTitle,
               url: cleanedUrl
-            });
-          }
-        }
-      } else {
-        // Fallback: Line has no URL/domain, but is a potential movie/show title entry
-        // (e.g. "Dune Part Two 4K", "Breaking Bad Season 1", "حمله به تایتان")
-        const strippedLine = line
-          .replace(/^(bullet|item|link|\d+[\.\)]|[-–—:*•|])+/gi, '')
-          .replace(/[-–—:,|]+$/g, '')
-          .trim();
-
-        if (strippedLine.length >= 3 && !strippedLine.toLowerCase().startsWith('http')) {
-          const synthesizedUrl = `https://stream.aipetros.cloud/vod/archive?title=${encodeURIComponent(strippedLine)}`;
-          if (!seenUrls.has(synthesizedUrl)) {
-            seenUrls.add(synthesizedUrl);
-            rawPairs.push({
-              title: strippedLine,
-              url: synthesizedUrl
             });
           }
         }
