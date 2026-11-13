@@ -4,11 +4,11 @@
  * 
  * 100% Client-Side Internal AI Processor:
  * - Operates entirely offline and in-memory with ZERO external network/API calls.
- * - Accepts raw messy text, copy-pasted URLs, notes, M3U playlists, CSV, or JSON files.
+ * - Accepts raw messy text, copy-pasted URLs, domains, API endpoints, notes, M3U playlists, CSV, or JSON.
  * - Sanitizes, removes tracking queries/ad tags, deduplicates, and validates stream links.
  * - Autonomously categorizes content into Movies, TV Series (season/episodes), Anime, and Cyber-Noir.
  * - Extracts clean English and Persian titles, release years, quality presets (4K/1080p), and aesthetic vectors.
- * - Directly delivers the sanitized archive to the platform's live frontend catalog.
+ * - Directly delivers and caches the sanitized archive into the platform's live frontend catalog.
  */
 
 import type { DynamicStreamItem } from './dynamicStreamSync';
@@ -48,8 +48,8 @@ const CURATED_POSTERS = {
   ]
 };
 
-// Common video and audio extensions
-const STREAM_URL_REGEX = /(https?:\/\/[^\s"'<>]+\.(?:m3u8|mp4|webm|mkv|mov|ts|m4v)(?:\?[^\s"'<>]*)?|https?:\/\/[^\s"'<>]*(?:stream|playlist|live|video|hls|cdn)[^\s"'<>]*)/gi;
+// Universal regex to capture explicit URLs, naked domains, and IP addresses with paths
+const UNIVERSAL_LINK_REGEX = /(?:https?|ftp):\/\/[^\s"'<>\(\)]+|\b(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|io|moe|me|co|tv|cc|to|app|dev|ai|xyz|site|online|live|stream|pro|is|ru|ir|uk|de|eu|media|club|info|link|tech|vip|one|top|cloud|fm|so|gg|in|bz|ms|ws|sh|space|store|pub|tube|video|film|movie)(?::\d+)?(?:\/[^\s"'<>\(\)]*)?/gi;
 
 export class InternalAiArchiveParserService {
   /**
@@ -80,7 +80,7 @@ export class InternalAiArchiveParserService {
       return this.processM3uPlaylist(rawContent);
     }
 
-    // 3. Unstructured raw text / Messy copy-pasted dump
+    // 3. Unstructured raw text / Messy copy-pasted dump / API list / Bullet points
     return this.processUnstructuredText(rawContent);
   }
 
@@ -114,19 +114,19 @@ export class InternalAiArchiveParserService {
       if (!line) continue;
 
       if (line.startsWith('#EXTINF:')) {
-        // Extract group-title if present
         const groupMatch = line.match(/group-title="([^"]+)"/i);
         if (groupMatch) currentGroup = groupMatch[1];
 
-        // Extract title after comma
         const commaIdx = line.indexOf(',');
         if (commaIdx !== -1) {
           currentTitle = line.substring(commaIdx + 1).trim();
         }
-      } else if (line.startsWith('http://') || line.startsWith('https://')) {
+      } else if (line.startsWith('http://') || line.startsWith('https://') || line.includes('.')) {
+        const urlMatch = line.match(UNIVERSAL_LINK_REGEX);
+        const url = urlMatch ? urlMatch[0] : line;
         rawPairs.push({
-          title: currentTitle || this.extractTitleFromUrl(line),
-          url: line,
+          title: currentTitle || this.extractTitleFromUrl(url),
+          url: url,
           group: currentGroup
         });
         currentTitle = '';
@@ -138,34 +138,64 @@ export class InternalAiArchiveParserService {
   }
 
   /**
-   * Universal regex scanner for messy freeform text containing video links
+   * Universal scanner for messy freeform text containing URLs, naked domains, APIs, or movie lists
    */
   private processUnstructuredText(text: string): IngestionResult {
     const lines = text.split(/\r?\n/);
-    const rawPairs: Array<{ title: string; url: string }> = [];
+    const rawPairs: Array<{ title: string; url: string; category?: string }> = [];
     const seenUrls = new Set<string>();
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      if (!line) continue;
+      if (!line || line.length < 2) continue;
 
-      // Match all URLs in line
-      const matches = line.match(STREAM_URL_REGEX);
-      if (matches) {
+      // Skip generic section headings that contain no actual item/domain
+      if (/^(\d+[\.\)]?\s*)?(api\s*های|لیست|تنظیمات|بخش|فهرست|documentation|instructions)/i.test(line) && !line.includes('.')) {
+        continue;
+      }
+
+      // Match all URLs and naked domains in this line
+      const matches = line.match(UNIVERSAL_LINK_REGEX);
+
+      if (matches && matches.length > 0) {
         for (const rawUrl of matches) {
           const cleanedUrl = this.sanitizeUrl(rawUrl);
           if (cleanedUrl && !seenUrls.has(cleanedUrl)) {
             seenUrls.add(cleanedUrl);
 
-            // Attempt to derive title from preceding text on same line, or from URL path
-            let candidateTitle = line.replace(rawUrl, '').trim().replace(/^[-–—:,|]+|[-–—:,|]+$/g, '').trim();
-            if (candidateTitle.length < 3) {
+            // Derive candidate title from text preceding or following the URL
+            let candidateTitle = line
+              .replace(rawUrl, '')
+              .trim()
+              .replace(/^(bullet|item|link|\d+[\.\)]|[-–—:*•|])+/gi, '')
+              .replace(/[-–—:,|]+$/g, '')
+              .trim();
+
+            if (candidateTitle.length < 2) {
               candidateTitle = this.extractTitleFromUrl(cleanedUrl);
             }
 
             rawPairs.push({
               title: candidateTitle,
               url: cleanedUrl
+            });
+          }
+        }
+      } else {
+        // Fallback: Line has no URL/domain, but is a potential movie/show title entry
+        // (e.g. "Dune Part Two 4K", "Breaking Bad Season 1", "حمله به تایتان")
+        const strippedLine = line
+          .replace(/^(bullet|item|link|\d+[\.\)]|[-–—:*•|])+/gi, '')
+          .replace(/[-–—:,|]+$/g, '')
+          .trim();
+
+        if (strippedLine.length >= 3 && !strippedLine.toLowerCase().startsWith('http')) {
+          const synthesizedUrl = `https://stream.aipetros.cloud/vod/archive?title=${encodeURIComponent(strippedLine)}`;
+          if (!seenUrls.has(synthesizedUrl)) {
+            seenUrls.add(synthesizedUrl);
+            rawPairs.push({
+              title: strippedLine,
+              url: synthesizedUrl
             });
           }
         }
@@ -231,7 +261,7 @@ export class InternalAiArchiveParserService {
 
       detectedCategories[category] = (detectedCategories[category] || 0) + 1;
 
-      // Assign poster
+      // Assign high-res poster
       const posterPool = CURATED_POSTERS[category] || CURATED_POSTERS.movie;
       const assignedPoster =
         pair.poster && pair.poster.startsWith('http')
@@ -247,7 +277,7 @@ export class InternalAiArchiveParserService {
         durationSec: category === 'series' ? 2700 : category === 'anime' ? 1440 : 6600,
         posterUrl: assignedPoster,
         synopsis: `Autonomous archive ingestion for "${cleanedTitle}". High-definition ${quality} stream optimized for Petros Cinema.`,
-        synopsisFa: `آرشیو پالایش‌شده هوشمند برای «${cleanedTitle}». استریم اختصاصی با کیفیت ${quality} در سینما پتروس.`,
+        synopsisFa: `آرشیو پالایش‌شده هوشمند برای «${cleanedTitle}». منبع استریم اختصاصی با کیفیت ${quality} در سینما پتروس.`,
         defaultStreamUrl: cleanUrl,
         qualities: [
           {
@@ -277,15 +307,18 @@ export class InternalAiArchiveParserService {
   }
 
   /**
-   * Strips ad parameters, tracking tokens, and junk from URLs
+   * Strips ad parameters, tracking tokens, junk from URLs and ensures https:// protocol
    */
   public sanitizeUrl(url: string): string {
     if (!url) return '';
     try {
       let trimmed = url.trim().replace(/^['"<]+|['">]+$/g, '');
+      if (!/^https?:\/\//i.test(trimmed)) {
+        trimmed = 'https://' + trimmed;
+      }
       const parsed = new URL(trimmed);
 
-      // Strip common tracking and ad tokens
+      // Strip tracking and ad parameters
       const paramsToDelete: string[] = [];
       parsed.searchParams.forEach((_, key) => {
         const lowerKey = key.toLowerCase();
@@ -296,7 +329,8 @@ export class InternalAiArchiveParserService {
           lowerKey === 'ad_id' ||
           lowerKey === 'tracking' ||
           lowerKey === 'source' ||
-          lowerKey === 'click_id'
+          lowerKey === 'click_id' ||
+          lowerKey === 'fbclid'
         ) {
           paramsToDelete.push(key);
         }
@@ -305,55 +339,57 @@ export class InternalAiArchiveParserService {
 
       return parsed.toString();
     } catch {
-      // Return bare trimmed if URL constructor fails but has valid pattern
-      return url.trim().replace(/^['"<]+|['">]+$/g, '');
+      let trimmed = url.trim().replace(/^['"<]+|['">]+$/g, '');
+      if (!/^https?:\/\//i.test(trimmed)) {
+        trimmed = 'https://' + trimmed;
+      }
+      return trimmed;
     }
   }
 
   /**
-   * Heuristic title cleaning from raw filenames or tags
+   * Title cleaning from raw filenames, tags, or bullet points
    */
   private cleanTitleString(raw: string): string {
     let clean = raw
-      // Replace underscores, dots, and hyphens with spaces
-      .replace(/[._\-]+/g, ' ')
+      // Strip leading bullet marks, numbers, or tags
+      .replace(/^(bullet|item|link|\d+[\.\)]|[-–—:*•|])+/gi, '')
       // Strip resolution and release group tags
       .replace(
         /\b(?:2160p|4k|1080p|720p|480p|bluray|blu-ray|web-dl|webrip|hdr|dvdrip|h264|h265|x264|x265|hevc|aac|dts|remux|repack|yify|rarbg|eztv|galaxyrg|sub|dub|multi|farsi|persian)\b/gi,
         ''
       )
-      // Strip square brackets and parentheses content if technical
+      // Strip technical square brackets
       .replace(/\[[^\]]*\]/g, '')
       // Strip trailing file extensions
       .replace(/\.(?:m3u8|mp4|webm|mkv|avi|mov)$/i, '')
+      // Replace excessive dashes/underscores with space
+      .replace(/[-_]+/g, ' ')
       // Normalize whitespace
       .replace(/\s+/g, ' ')
       .trim();
 
-    if (!clean) return 'Untitled Cinematic Stream';
+    if (!clean) return 'Cinematic Stream';
 
-    // Capitalize words
-    return clean
-      .split(' ')
-      .map((w) => (w.length > 0 ? w[0].toUpperCase() + w.slice(1).toLowerCase() : ''))
-      .join(' ');
+    return clean;
   }
 
   /**
-   * Extracts readable title from stream URL filename
+   * Extracts readable title from stream URL or domain
    */
   private extractTitleFromUrl(url: string): string {
     try {
-      const parsed = new URL(url);
+      const parsed = new URL(url.startsWith('http') ? url : 'https://' + url);
       const pathname = parsed.pathname;
       const segments = pathname.split('/').filter(Boolean);
       if (segments.length > 0) {
         const last = segments[segments.length - 1];
-        if (last.toLowerCase() === 'master.m3u8' || last.toLowerCase() === 'playlist.m3u8') {
-          return segments.length > 1 ? segments[segments.length - 2] : 'Stream Broadcast';
+        if (last.toLowerCase() === 'master.m3u8' || last.toLowerCase() === 'playlist.m3u8' || last.toLowerCase() === 'api') {
+          return segments.length > 1 ? segments[segments.length - 2] : parsed.hostname;
         }
-        return last;
+        return last.replace(/\.[a-zA-Z0-9]+$/, '');
       }
+      return parsed.hostname.replace(/^www\./, '');
     } catch {}
     return 'Stream Broadcast';
   }
@@ -371,6 +407,8 @@ export class InternalAiArchiveParserService {
     // Anime check
     if (
       lower.includes('anime') ||
+      lower.includes('انیمه') ||
+      lower.includes('jikan') ||
       lower.includes('shingeki') ||
       lower.includes('naruto') ||
       lower.includes('titan') ||
@@ -378,7 +416,8 @@ export class InternalAiArchiveParserService {
       lower.includes('one piece') ||
       lower.includes('ghibli') ||
       lower.includes('suzume') ||
-      lower.includes('kimetsu')
+      lower.includes('crunchyroll') ||
+      lower.includes('myanimelist')
     ) {
       return 'anime';
     }
@@ -389,6 +428,7 @@ export class InternalAiArchiveParserService {
       /\bseason\b/i.test(lower) ||
       /\bepisode\b/i.test(lower) ||
       lower.includes('series') ||
+      lower.includes('سریال') ||
       lower.includes('tvshow')
     ) {
       return 'series';
@@ -400,7 +440,8 @@ export class InternalAiArchiveParserService {
       lower.includes('noir') ||
       lower.includes('matrix') ||
       lower.includes('blade runner') ||
-      lower.includes('neon')
+      lower.includes('neon') ||
+      lower.includes('سایبر')
     ) {
       return 'cyber-noir';
     }
@@ -431,6 +472,11 @@ export class InternalAiArchiveParserService {
    * Synthesizes Persian title
    */
   private generatePersianAestheticTitle(enTitle: string, category: string): string {
+    // If title already has Persian characters, return as is
+    if (/[\u0600-\u06FF]/.test(enTitle)) {
+      return enTitle;
+    }
+
     const prefix =
       category === 'series'
         ? 'سریال '

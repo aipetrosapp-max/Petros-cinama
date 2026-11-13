@@ -111,16 +111,38 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
     reader.readAsText(file);
   };
 
-  // Run the Air-Gapped Internal AI Parser
+  // Run the Air-Gapped Internal AI Parser with Automatic Live Caching
   const handleRunInternalAiIngestion = () => {
     if (!rawArchiveText.trim()) return;
 
     setIsProcessingAi(true);
-    // Instant heuristic parsing in-memory (no external network latency or leakage)
     setTimeout(() => {
       try {
         const result = internalAiArchiveParser.ingestRawArchive(rawArchiveText);
         setAiIngestionResult(result);
+
+        if (result.sanitizedItems.length > 0) {
+          // Automatic live cache & sync to platform
+          const existingUrls = new Set(streams.map((s) => s.defaultStreamUrl.toLowerCase().trim()));
+          const newUnique = result.sanitizedItems.filter(
+            (item) => !existingUrls.has(item.defaultStreamUrl.toLowerCase().trim())
+          );
+          const updatedList = [...newUnique, ...streams];
+          setStreams(updatedList);
+
+          try {
+            localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify(updatedList));
+          } catch {}
+
+          onRefreshCatalog?.();
+          setStreamSavedMessage(
+            `✅ هوش مصنوعی با موفقیت ${result.validStreamsCount} لینک و استریم را پالایش و مستقیماً روی پلتفرم کش و ذخیره کرد!`
+          );
+          setTimeout(() => setStreamSavedMessage(null), 5000);
+        } else {
+          setStreamSavedMessage(`⚠️ هیچ استریم معتبری یافت نشد. لطفاً لینک یا نام فیلم را وارد نمایید.`);
+          setTimeout(() => setStreamSavedMessage(null), 4000);
+        }
       } catch (err) {
         console.error('AI Ingestion error:', err);
       } finally {
