@@ -64,10 +64,10 @@ export function generateAiSyncedSubtitles(
     startSec: 1,
     endSec: Math.min(8, duration * 0.08),
     en: `${imdb?.matchedTitle || item.titleEn} (${imdb?.year || item.releaseYear}) — Dir. ${
-      imdb?.director || item.creatorEn || 'Aether Cinema'
+      imdb?.director || item.creatorEn || 'Petros Cinema'
     }`,
     fa: `${item.titleFa} (${imdb?.year || item.releaseYear}) — کارگردان: ${
-      item.creatorFa || imdb?.director || 'آتر سینما'
+      item.creatorFa || imdb?.director || 'سینمای پتروس'
     }`
   });
 

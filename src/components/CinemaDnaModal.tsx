@@ -62,7 +62,7 @@ export const CinemaDnaModal: React.FC<CinemaDnaModalProps> = ({
 
   const handleCopySummary = async () => {
     if (!dna) return;
-    const text = `AETHER Cinema DNA — ${dna.archetypeTitle}\n${dna.signatureVibe}\n"${dna.tagline}"\nTraits: ${dna.topTraits.join(' · ')}\nAuteur Affinity: ${dna.directorAffinity}`;
+    const text = `ai petros Cinema DNA — ${dna.archetypeTitle}\n${dna.signatureVibe}\n"${dna.tagline}"\nTraits: ${dna.topTraits.join(' · ')}\nAuteur Affinity: ${dna.directorAffinity}`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -102,7 +102,7 @@ export const CinemaDnaModal: React.FC<CinemaDnaModalProps> = ({
 
     ctx.fillStyle = '#D4AF37';
     ctx.font = '600 22px sans-serif';
-    ctx.fillText('AETHER  •  LOCAL-ONLY CINEMA DNA', 96, 132);
+    ctx.fillText('ai petros  •  Petros Cinema Taste Profile', 96, 132);
 
     ctx.fillStyle = '#F8FAFC';
     ctx.font = 'bold 64px Georgia, serif';
@@ -141,7 +141,7 @@ export const CinemaDnaModal: React.FC<CinemaDnaModalProps> = ({
     ctx.fillText(`${dna.filmsAnalyzed} FILMS ANALYZED  •  AVG ${dna.avgRuntimeMin} MIN`, 96, 1086);
 
     const link = document.createElement('a');
-    link.download = 'aether-cinema-dna.png';
+    link.download = 'ai-petros-cinema-dna.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
   };

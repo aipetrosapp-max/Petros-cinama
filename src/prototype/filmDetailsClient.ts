@@ -80,7 +80,7 @@ export function buildFallbackBackendQualities(item: PrototypeMediaItem): Backend
             audio: 'Dolby Atmos 7.1',
             estimatedSizeMb: Math.max(48, Math.round(durMin * 172)),
             batteryMode: 'Cinema High Power',
-            streamUrl: `/api/velora/stream/${encodeURIComponent(item.id)}?q=2160p`,
+            streamUrl: item.streamUrl || `/api/petros/stream/${encodeURIComponent(item.id)}?q=2160p`,
             recommended: true,
             available: true
           }
@@ -96,7 +96,7 @@ export function buildFallbackBackendQualities(item: PrototypeMediaItem): Backend
       audio: 'Stereo AAC 320 kbps',
       estimatedSizeMb: Math.max(16, Math.round(durMin * 62)),
       batteryMode: 'Optimal Daily',
-      streamUrl: `/api/velora/stream/${encodeURIComponent(item.id)}?q=1080p`,
+      streamUrl: item.streamUrl || `/api/petros/stream/${encodeURIComponent(item.id)}?q=1080p`,
       recommended: !item.quality.startsWith('4K'),
       available: true
     },
@@ -110,7 +110,7 @@ export function buildFallbackBackendQualities(item: PrototypeMediaItem): Backend
       audio: 'Stereo AAC 192 kbps',
       estimatedSizeMb: Math.max(9, Math.round(durMin * 30)),
       batteryMode: 'Low Battery & Fast Load',
-      streamUrl: `/api/velora/stream/${encodeURIComponent(item.id)}?q=720p`,
+      streamUrl: item.streamUrl || `/api/petros/stream/${encodeURIComponent(item.id)}?q=720p`,
       recommended: false,
       available: true
     }
