@@ -22,7 +22,7 @@ export interface DynamicStreamItem {
   titleFa: string;
   synopsis: string;
   synopsisFa: string;
-  category: 'cinema' | 'ai-feature' | 'documentary' | 'live-stream' | 'short-film' | 'cyber-noir';
+  category: 'cinema' | 'ai-feature' | 'documentary' | 'live-stream' | 'short-film' | 'cyber-noir' | 'movie' | 'series' | 'anime';
   posterUrl: string;
   backdropUrl?: string;
   year?: number;
@@ -166,7 +166,10 @@ class DynamicStreamSyncService {
         throw new Error('Invalid streams format in public GitHub manifest');
       }
 
-      this.currentStreams = data.streams;
+      // Merge remote streams with existing local custom streams so user streams are never lost
+      const remoteIds = new Set(data.streams.map((s) => s.id));
+      const userCustom = this.currentStreams.filter((s) => !remoteIds.has(s.id));
+      this.currentStreams = [...userCustom, ...data.streams];
       this.lastSyncedAt = new Date().toISOString();
 
       // Persist to local cache
@@ -191,6 +194,24 @@ class DynamicStreamSyncService {
     } finally {
       this.isSyncing = false;
     }
+  }
+
+  /**
+   * Save and persist custom ingested streams from Owner Portal directly into dynamic stream cache
+   */
+  public saveCustomStreams(streams: DynamicStreamItem[]) {
+    this.currentStreams = streams;
+    this.lastSyncedAt = new Date().toISOString();
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_SYNC_KEY, JSON.stringify(this.currentStreams));
+      localStorage.setItem(STORAGE_SYNC_META, JSON.stringify({
+        lastSyncedAt: this.lastSyncedAt,
+        version: '2.4.0',
+        source: 'Owner AI Ingestion Portal',
+        count: this.currentStreams.length
+      }));
+    }
+    this.notifyListeners();
   }
 
   public startPeriodicSync(intervalMs = this.syncIntervalMs) {
@@ -253,6 +274,8 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     creatorFa: stream.director || 'سینما هوش مصنوعی پتروس',
     categoryEn: stream.category.toUpperCase(),
     categoryFa: stream.category === 'cyber-noir' ? 'سایبرنوآر' :
+                stream.category === 'anime' ? 'انیمه' :
+                stream.category === 'series' ? 'سریال' :
                 stream.category === 'live-stream' ? 'پخش زنده' :
                 stream.category === 'ai-feature' ? 'فیلم هوش مصنوعی' :
                 stream.category === 'documentary' ? 'مستند' : 'سینما',

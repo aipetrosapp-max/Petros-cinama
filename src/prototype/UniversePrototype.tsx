@@ -1202,6 +1202,11 @@ function UniversePrototypeShell({
                   const newIds = new Set(converted.map((c) => c.id));
                   return [...converted, ...prev.filter((i) => !newIds.has(i.id))];
                 });
+                showToast(
+                  lang === 'fa'
+                    ? `کاتالوگ با ${converted.length} فیلم و سریال جدید در پلتفرم کش و بارگذاری شد!`
+                    : `Catalog updated & cached with ${converted.length} streams!`
+                );
               }
             }}
           />

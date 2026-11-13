@@ -130,13 +130,12 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
           const updatedList = [...newUnique, ...streams];
           setStreams(updatedList);
 
-          try {
-            localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify(updatedList));
-          } catch {}
-
+          // Save & broadcast directly to dynamicStreamSync and frontend catalog
+          dynamicStreamSync.saveCustomStreams(updatedList);
           onRefreshCatalog?.();
+
           setStreamSavedMessage(
-            `✅ هوش مصنوعی با موفقیت ${result.validStreamsCount} لینک و استریم را پالایش و مستقیماً روی پلتفرم کش و ذخیره کرد!`
+            `✅ هوش مصنوعی با موفقیت ${result.validStreamsCount} فیلم و سریال را پالایش و مستقیماً روی پلتفرم کش و ذخیره کرد!`
           );
           setTimeout(() => setStreamSavedMessage(null), 5000);
         } else {
@@ -169,33 +168,27 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
     setStreams(updatedList);
 
-    // Save directly to offline cache
-    try {
-      localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify(updatedList));
-    } catch {}
+    // Save & broadcast directly to dynamicStreamSync and frontend catalog
+    dynamicStreamSync.saveCustomStreams(updatedList);
+    onRefreshCatalog?.();
 
     setStreamSavedMessage(
       `✅ Success: ${aiIngestionResult.sanitizedItems.length} streams ingested & delivered to live frontend!`
     );
-    onRefreshCatalog?.();
     setTimeout(() => setStreamSavedMessage(null), 5000);
   };
 
   const handleDeleteStream = (id: string) => {
     const updated = streams.filter((s) => s.id !== id);
     setStreams(updated);
-    try {
-      localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify(updated));
-    } catch {}
+    dynamicStreamSync.saveCustomStreams(updated);
     onRefreshCatalog?.();
   };
 
   const handleClearAllStreams = () => {
     if (confirm('Are you sure you want to clear all active streams from the archive?')) {
       setStreams([]);
-      try {
-        localStorage.setItem('aipetros_dynamic_stream_cache_v1', JSON.stringify([]));
-      } catch {}
+      dynamicStreamSync.saveCustomStreams([]);
       onRefreshCatalog?.();
     }
   };
