@@ -194,7 +194,7 @@ export function LivingHomeScreen({
       )}
 
       {hero && (
-        <section className="relative overflow-hidden rounded-[24px] sm:rounded-[28px] border border-white/12 bg-[#0D101A]">
+        <section id="tour-step-cinema-hero" className="relative overflow-hidden rounded-[24px] sm:rounded-[28px] border border-white/12 bg-[#0D101A]">
           <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
             <div className="lg:col-span-7 relative min-h-[220px] sm:min-h-[340px] overflow-hidden">
               <img

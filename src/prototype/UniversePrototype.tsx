@@ -67,7 +67,7 @@ import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamI
 import { cryptoAdNetwork, type CryptoAdUnit } from '../services/cryptoAdNetwork';
 import { tvRemote } from '../services/tvRemoteNavigation';
 import { CryptoAdModal } from '../components/CryptoAdModal';
-import { InteractiveTourModal } from '../components/InteractiveTourModal';
+import { InteractiveSpotlightTour } from '../components/InteractiveSpotlightTour';
 
 const INITIAL_PROGRESS_SEED: Record<string, WatchProgressEntry> = {
   'proto-01': {
@@ -224,7 +224,6 @@ function UniversePrototypeShell({
   const [currentAd, setCurrentAd] = useState<CryptoAdUnit | null>(null);
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [isTvMode, setIsTvMode] = useState(() => tvRemote.isTvModeEnabled());
-  const [isSyncingStreams, setIsSyncingStreams] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
   // Dynamic Stream Sync subscription: automatically updates catalog from GitHub public file
@@ -292,31 +291,6 @@ function UniversePrototypeShell({
     });
     return unreg;
   }, [isAdModalOpen, isTourOpen, selectedDetailItem, route, previousRouteBeforeWatch, navigateTo]);
-
-  const handleManualSyncStreams = useCallback(async () => {
-    setIsSyncingStreams(true);
-    try {
-      const res = await dynamicStreamSync.syncNow(true);
-      if (res.success) {
-        setToast({
-          type: 'success',
-          text: t(`Synced ${res.count} stream sources from GitHub!`, `همگام‌سازی موفق: ${res.count} منبع پخش از گیت‌هاب دریافت شد!`)
-        });
-      } else {
-        setToast({
-          type: 'neutral',
-          text: t('Using local bundled streams (GitHub unreachable).', 'استفاده از منابع پخش محلی اپلیکیشن.')
-        });
-      }
-    } catch {
-      setToast({
-        type: 'neutral',
-        text: t('Stream sync completed with cached data.', 'همگام‌سازی با منابع ذخیره‌شده انجام شد.')
-      });
-    } finally {
-      setIsSyncingStreams(false);
-    }
-  }, [t]);
 
   // If localStorage was empty on boot, recover from IndexedDB backup if available
   useEffect(() => {
@@ -809,6 +783,7 @@ function UniversePrototypeShell({
           <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
             {/* Zone 1: Brand */}
             <button
+              id="tour-step-brand"
               type="button"
               onClick={() => navigateTo('universe')}
               className="min-h-[44px] flex items-center gap-2.5 text-start cursor-pointer shrink-0"
@@ -831,7 +806,7 @@ function UniversePrototypeShell({
             </button>
 
             {/* Zone 2: Desktop Single-Line Primary Links with Sliding Indicator */}
-            <nav className="hidden md:flex items-center gap-1" aria-label="Primary navigation">
+            <nav id="tour-step-desktop-nav" className="hidden md:flex items-center gap-1" aria-label="Primary navigation">
               {effectiveNavItems.map((nav) => {
                 const active = route === nav.id;
                 return (
@@ -861,49 +836,15 @@ function UniversePrototypeShell({
               })}
             </nav>
 
-            {/* Zone 3: Actions (Sync, TV Mode, Crypto Tip, Language) */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              {/* Dynamic GitHub Stream Sync Button */}
+            {/* Zone 3: Actions (Tutorial Walkthrough & Language) */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Interactive On-Screen Spotlight Tour Button */}
               <button
-                type="button"
-                onClick={handleManualSyncStreams}
-                disabled={isSyncingStreams}
-                title={t('Sync Streams from GitHub', 'همگام‌سازی استریم‌ها از گیت‌هاب')}
-                className="min-h-[38px] px-2.5 inline-flex items-center gap-1 rounded-full border border-white/10 bg-[#0D101A] text-xs text-[#A3AEC2] hover:text-[#F5F7FA] hover:border-[#F5B942]/40 cursor-pointer"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isSyncingStreams ? 'animate-spin text-[#F5B942]' : ''}`} />
-                <span className="hidden md:inline text-[11px]">{t('Sync', 'همگام‌سازی')}</span>
-              </button>
-
-              {/* Android TV Remote Mode Toggle Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  const next = !isTvMode;
-                  setIsTvMode(next);
-                  tvRemote.setTvModeEnabled(next);
-                  setToast({
-                    type: 'neutral',
-                    text: next ? t('Android TV Remote Mode Activated', 'حالت ریموت کنترل تلویزیون فعال شد') : t('Standard Touch/Mouse Mode', 'حالت لمسی/ماوس فعال شد')
-                  });
-                }}
-                title={t('Toggle TV Remote Mode', 'تغییر حالت ریموت کنترل تلویزیون')}
-                className={`min-h-[38px] px-2.5 inline-flex items-center gap-1 rounded-full border text-xs cursor-pointer ${
-                  isTvMode
-                    ? 'border-[#F5B942] bg-[#F5B942]/15 text-[#F5B942] font-semibold shadow-sm'
-                    : 'border-white/10 bg-[#0D101A] text-[#A3AEC2] hover:text-[#F5F7FA]'
-                }`}
-              >
-                <Tv className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline text-[11px]">{isTvMode ? t('TV Mode', 'حالت TV') : t('TV', 'تلویزیون')}</span>
-              </button>
-
-              {/* Interactive Platform Tour & Tutorial Walkthrough Button */}
-              <button
+                id="tour-step-tutorial"
                 type="button"
                 onClick={() => setIsTourOpen(true)}
-                title={t('Platform Guide & Tutorial', 'آموزش و معرفی امکانات پلتفرم')}
-                className="min-h-[38px] px-2.5 sm:px-3 inline-flex items-center gap-1.5 rounded-full border border-[#F5B942]/40 bg-[#F5B942]/10 text-xs font-bold text-[#F5B942] hover:bg-[#F5B942]/20 hover:brightness-110 cursor-pointer shadow-md shadow-[#F5B942]/10 transition-all active:scale-95"
+                title={t('Live Interactive Tour', 'راهنمای زنده و متحرک پلتفرم')}
+                className="min-h-[38px] px-3 inline-flex items-center gap-1.5 rounded-full border border-[#F5B942]/40 bg-[#F5B942]/10 text-xs font-bold text-[#F5B942] hover:bg-[#F5B942]/20 hover:brightness-110 cursor-pointer shadow-md shadow-[#F5B942]/10 transition-all active:scale-95"
               >
                 <Sparkles className="w-3.5 h-3.5 text-[#F5B942]" />
                 <span className="text-[11px]">{t('Tutorial', 'آموزش')}</span>
@@ -911,6 +852,7 @@ function UniversePrototypeShell({
 
               {/* Global World Language Picker */}
               <button
+                id="tour-step-lang"
                 type="button"
                 onClick={() => setLangPickerOpen(true)}
                 aria-label={t('Select World Language', 'انتخاب زبان اپلیکیشن')}
@@ -1119,6 +1061,7 @@ function UniversePrototypeShell({
 
         {/* Mobile Compact Bottom Dock with Safe Area Inset & Sliding Pill */}
         <nav
+          id="tour-step-mobile-nav"
           className="md:hidden fixed bottom-0 inset-x-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] border-t border-white/12 bg-[#06070C]/95 backdrop-blur-xl px-1.5 flex items-center justify-around"
           aria-label="Mobile Navigation"
         >
@@ -1203,11 +1146,12 @@ function UniversePrototypeShell({
           lang={lang === 'fa' ? 'fa' : 'en'}
         />
 
-        {/* Interactive Platform Tour & Tutorial Walkthrough */}
-        <InteractiveTourModal
+        {/* Interactive On-Screen Spotlight Tour */}
+        <InteractiveSpotlightTour
           isOpen={isTourOpen}
           onClose={() => setIsTourOpen(false)}
           lang={lang}
+          currentRoute={route}
           onNavigateToTab={(targetRoute) => navigateTo(targetRoute)}
         />
 
