@@ -355,7 +355,7 @@ export class InternalAiArchiveParserService {
             const channelId = tm[1];
             const postId = tm[2];
             canonicalTelegramUrl = `https://t.me/c/${channelId}/${postId}`;
-            displayTitle = `Telegram Cinema Post #${postId}`;
+            displayTitle = `Petros Cloud Stream #${postId}`;
           } 
           // Case B: Public channel or public post link: t.me/channel or t.me/channel/123
           else if (tm[3]) {
@@ -366,8 +366,8 @@ export class InternalAiArchiveParserService {
               ? `https://t.me/${channelHandle}/${postId}`
               : `https://t.me/${channelHandle}`;
             displayTitle = postId 
-              ? `Telegram: ${channelHandle} #${postId}`
-              : `Telegram Channel: @${channelHandle}`;
+              ? `Stream #${postId}`
+              : `Cloud Stream`;
           }
           // Case C: @username handle
           else if (tm[5]) {
@@ -377,7 +377,7 @@ export class InternalAiArchiveParserService {
             }
             const handle = tm[5];
             canonicalTelegramUrl = `https://t.me/${handle}`;
-            displayTitle = `Telegram: @${handle}`;
+            displayTitle = `Cloud Stream Feed`;
           }
 
           if (canonicalTelegramUrl) {
@@ -389,7 +389,7 @@ export class InternalAiArchiveParserService {
               .trim();
 
             // Backward multi-line title scan: if current line only had the link, scan up to 6 lines above!
-            if (candidateTitle.length < 2 || candidateTitle.startsWith('Telegram Cinema Post')) {
+            if (candidateTitle.length < 2 || candidateTitle.startsWith('Petros Cloud Stream')) {
               for (let back = i - 1; back >= Math.max(0, i - 6); back--) {
                 const prev = lines[back].trim();
                 if (
@@ -411,12 +411,12 @@ export class InternalAiArchiveParserService {
             }
 
             // User provided title hint
-            if ((!candidateTitle || candidateTitle.length < 2 || candidateTitle.startsWith('Telegram Cinema Post')) && titleHint?.trim()) {
+            if ((!candidateTitle || candidateTitle.length < 2 || candidateTitle.startsWith('Petros Cloud Stream')) && titleHint?.trim()) {
               candidateTitle = titleHint.trim();
             }
 
             // Known test post fallback: 1380077268/60929
-            if ((!candidateTitle || candidateTitle.length < 2 || candidateTitle.startsWith('Telegram Cinema Post')) && canonicalTelegramUrl.includes('1380077268/60929')) {
+            if ((!candidateTitle || candidateTitle.length < 2 || candidateTitle.startsWith('Petros Cloud Stream')) && canonicalTelegramUrl.includes('1380077268/60929')) {
               candidateTitle = 'X-Men: Apocalypse 2016';
             }
 
@@ -608,7 +608,7 @@ export class InternalAiArchiveParserService {
           }
         ],
         tags: [
-          ...(isTelegramSource ? ['TELEGRAM', 'Telegram Stream Cached'] : ['Archive', 'AI Sanitized']),
+          ...(isTelegramSource ? ['Petros Cloud', 'Fast Stream'] : ['Archive', 'AI Sanitized']),
           category.toUpperCase(),
           quality,
           ...(seriesStruct.season ? [`Season ${seriesStruct.season}`, `S${seriesStruct.season}`] : []),
@@ -798,7 +798,7 @@ export class InternalAiArchiveParserService {
     }
 
     if (sourceType === 'telegram') {
-      return `Telegram/${cleanName}/${quality}`;
+      return `Vault/${cleanName}/${quality}`;
     }
 
     return `Movies/${cleanName}/${quality}`;

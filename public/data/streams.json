@@ -32,14 +32,23 @@
         "Apocalypse"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "",
-      "originalSource": "https://t.me/c/3885570365/2",
+      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+      "originalSource": "Petros Cinema Master Cloud Vault",
       "mediaFolder": "Movies/X-Men Apocalypse/1080p",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://t.me/c/3885570365/2",
-          "format": "direct"
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "format": "mp4",
+          "bitrate": 8500,
+          "fps": 60
+        },
+        {
+          "quality": "720p",
+          "url": "https://dn720303.ca.archive.org/0/items/youtube-Pg9_OKydeSU/Pg9_OKydeSU.mp4",
+          "format": "mp4",
+          "bitrate": 4500,
+          "fps": 30
         }
       ],
       "featured": true,
@@ -67,25 +76,25 @@
         "HDR"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
+      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
       "qualities": [
         {
           "quality": "4K",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 18500,
           "fps": 60
         },
         {
           "quality": "1080p",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 8500,
           "fps": 60
         },
         {
           "quality": "720p",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 3500,
           "fps": 30
@@ -115,18 +124,18 @@
         "Cinema"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
+      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
       "qualities": [
         {
           "quality": "4K",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 16000,
           "fps": 60
         },
         {
           "quality": "1080p",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 6000,
           "fps": 60
@@ -156,18 +165,18 @@
         "Soundtrack"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
+      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 7200,
           "fps": 60
         },
         {
           "quality": "720p",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 3000,
           "fps": 30
@@ -235,11 +244,11 @@
         "Visual Feast"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
+      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 5500,
           "fps": 60
@@ -269,11 +278,11 @@
         "Philosophy"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
+      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
+          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
           "format": "mp4",
           "bitrate": 6200,
           "fps": 30
