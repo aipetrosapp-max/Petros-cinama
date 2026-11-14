@@ -19,22 +19,19 @@ def main():
     print("=" * 70)
     print("🔐 Telegram StringSession Generator (راهنمای ساخت نشست تلگرام)")
     print("=" * 70)
-    print("برای دریافت api_id و api_hash:")
-    print("1. به آدرس https://my.telegram.org بروید.")
-    print("2. با شماره خود وارد شوید و به بخش 'API development tools' بروید.")
-    print("3. مقادیر api_id و api_hash را کپی کنید.\n")
 
-    api_id_input = input("👉 لطفاً api_id عددی خود را وارد کنید: ").strip()
-    api_hash_input = input("👉 لطفاً api_hash خود را وارد کنید: ").strip()
+    # Pre-configured from your Telegram developer credentials
+    default_api_id = 76997
+    default_api_hash = "5fab41b477b0caf5a30648b86570b5b5"
 
-    if not api_id_input.isdigit():
-        print("❌ مقدار api_id باید صرفاً عدد باشد!")
-        return
+    print(f"✅ api_id از پیش تنظیم شد: {default_api_id}")
+    print(f"✅ api_hash از پیش تنظیم شد: {default_api_hash}\n")
 
-    api_id = int(api_id_input)
-    api_hash = api_hash_input
+    api_id = default_api_id
+    api_hash = default_api_hash
 
-    print("\n⏳ در حال اتصال به سرورهای تلگرام...")
+    print("⏳ در حال اتصال به سرورهای تلگرام...")
+    print("👇 لطفاً شماره موبایل خود را همراه با کد کشور وارد کنید (مثلاً: +989123456789):")
     with TelegramClient(StringSession(), api_id, api_hash) as client:
         session_string = client.session.save()
         print("\n" + "=" * 70)
@@ -42,10 +39,7 @@ def main():
         print("=" * 70)
         print(session_string)
         print("=" * 70)
-        print("\n📋 این متن طولانی بالا را کاملاً کپی کنید.")
-        print("سپس در گیت‌هاب به مسیر زیر بروید:")
-        print("Settings -> Secrets and variables -> Actions -> New repository secret")
-        print("و به عنوان secret با نام TG_STRING_SESSION ذخیره کنید.\n")
+        print("\n📋 این متن طولانی را کپی کنید و در چت بفرستید تا فوراً در گیت‌هاب ست شود.\n")
 
 if __name__ == "__main__":
     main()
