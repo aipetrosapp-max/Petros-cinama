@@ -172,32 +172,38 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
     setIsProcessingAi(true);
     try {
-      const result = await internalAiArchiveParser.ingestAndEnrichArchive(rawArchiveText, customTitleHint);
+      // Pass the current live repository (streams) to cross-check and avoid adding existing items
+      const result = await internalAiArchiveParser.ingestAndEnrichArchive(rawArchiveText, customTitleHint, streams);
       setAiIngestionResult(result);
 
-        if (result.sanitizedItems.length > 0) {
-          // Automatic live cache & sync to platform
-          const existingSources = new Set(
-            streams.map((s) => (s.originalSource || s.defaultStreamUrl).toLowerCase().trim())
-          );
-          const newUnique = result.sanitizedItems.filter(
-            (item) => !existingSources.has((item.originalSource || item.defaultStreamUrl).toLowerCase().trim())
-          );
-          const updatedList = [...newUnique, ...streams];
-          setStreams(updatedList);
+      if (result.newItemsToIngest.length > 0) {
+        // Automatic live cache & sync ONLY genuine new items to platform!
+        const updatedList = [...result.newItemsToIngest, ...streams];
+        setStreams(updatedList);
 
-          // Save & broadcast directly to dynamicStreamSync and frontend catalog
-          dynamicStreamSync.saveCustomStreams(updatedList);
-          onRefreshCatalog?.();
+        // Save & broadcast directly to dynamicStreamSync and frontend catalog
+        dynamicStreamSync.saveCustomStreams(updatedList);
+        onRefreshCatalog?.();
 
-          setStreamSavedMessage(
-            `✅ هوش مصنوعی با موفقیت ${result.validStreamsCount} فیلم و سریال را پالایش و مستقیماً روی پلتفرم کش و ذخیره کرد!`
-          );
-          setTimeout(() => setStreamSavedMessage(null), 5000);
-        } else {
-          setStreamSavedMessage(`⚠️ هیچ استریم معتبری یافت نشد. لطفاً لینک یا نام فیلم را وارد نمایید.`);
-          setTimeout(() => setStreamSavedMessage(null), 4000);
-        }
+        setStreamSavedMessage(
+          `✅ مخزن سایت بررسی شد: تعداد ${result.newItemsToIngest.length} فیلم جدید به مخزن اضافه شد.${
+            result.alreadyInRepoCount > 0
+              ? ` (${result.alreadyInRepoCount} مورد چون از قبل در مخزن موجود بود اضافه نشد).`
+              : ''
+          }`
+        );
+        setTimeout(() => setStreamSavedMessage(null), 6000);
+      } else if (result.alreadyInRepoCount > 0) {
+        // ALL entered items already exist in the repository!
+        const firstExisting = result.existingItemsInRepo[0];
+        setStreamSavedMessage(
+          `⚠️ بررسی مخزن: تمامی عناوین وارد شده قبلاً در مخزن سایت موجود هستند («${firstExisting?.item.title || ''}»). طبق دستور شما هیچ آیتم تکراری اضافه نشد و مخزن دست‌نخورده باقی ماند.`
+        );
+        setTimeout(() => setStreamSavedMessage(null), 6000);
+      } else {
+        setStreamSavedMessage(`⚠️ هیچ استریم معتبری یافت نشد. لطفاً لینک یا نام فیلم را وارد نمایید.`);
+        setTimeout(() => setStreamSavedMessage(null), 4000);
+      }
     } catch (err) {
       console.error('AI Ingestion error:', err);
     } finally {
@@ -207,20 +213,21 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
   // Apply sanitized items to the live platform catalog
   const handleApplyToLivePlatform = async (mode: 'merge' | 'replace' = 'merge') => {
-    if (!aiIngestionResult || aiIngestionResult.sanitizedItems.length === 0) return;
+    if (!aiIngestionResult) return;
 
     let updatedList: DynamicStreamItem[];
     if (mode === 'replace') {
       updatedList = aiIngestionResult.sanitizedItems;
     } else {
-      // Merge and deduplicate with existing streams
-      const existingSources = new Set(
-        streams.map((s) => (s.originalSource || s.defaultStreamUrl).toLowerCase().trim())
-      );
-      const newUnique = aiIngestionResult.sanitizedItems.filter(
-        (item) => !existingSources.has((item.originalSource || item.defaultStreamUrl).toLowerCase().trim())
-      );
-      updatedList = [...newUnique, ...streams];
+      if (aiIngestionResult.newItemsToIngest.length === 0) {
+        setStreamSavedMessage(
+          `⚠️ تمام آیتم‌های وارد شده از قبل در مخزن سایت موجودند. طبق دستور شما هیچ تغییری در مخزن اعمال نشد.`
+        );
+        setTimeout(() => setStreamSavedMessage(null), 5000);
+        return;
+      }
+      // ONLY merge items that are confirmed NOT to exist in repository
+      updatedList = [...aiIngestionResult.newItemsToIngest, ...streams];
     }
 
     setStreams(updatedList);
@@ -709,36 +716,73 @@ Breaking Bad S01E01: https://server.net/bb_s01e01.m3u8`}
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-center">
-                        <p className="text-[10px] text-[#A3AEC2] uppercase font-semibold">Duplicates Cleaned</p>
-                        <p className="text-xl font-black text-amber-400 mt-0.5">
-                          {aiIngestionResult.duplicateCount}
+                      <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-center">
+                        <p className="text-[10px] text-emerald-400 uppercase font-semibold">🟢 جدید (آماده افزودن)</p>
+                        <p className="text-xl font-black text-emerald-400 mt-0.5">
+                          {aiIngestionResult.newItemsToIngest?.length || 0}
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-black/40 border border-white/5 text-center">
-                        <p className="text-[10px] text-[#A3AEC2] uppercase font-semibold">Categorized</p>
-                        <p className="text-xs font-bold text-emerald-400 mt-1">
-                          🎬 {aiIngestionResult.moviesCount} M · 📺 {aiIngestionResult.seriesCount} S · ⚡ {aiIngestionResult.animeCount} A
+                      <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 text-center">
+                        <p className="text-[10px] text-amber-300 uppercase font-semibold">🟡 موجود در مخزن (نادیده)</p>
+                        <p className="text-xl font-black text-amber-300 mt-0.5">
+                          {aiIngestionResult.alreadyInRepoCount || 0}
                         </p>
                       </div>
                     </div>
+
+                    {/* Repository Cross-Check Detailed Report */}
+                    {aiIngestionResult.alreadyInRepoCount > 0 && (
+                      <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-2 text-right" dir="rtl">
+                        <p className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                          <span>🛡️ گزارش هوشمند تطبیق با مخزن سایت:</span>
+                        </p>
+                        <p className="text-[11px] text-slate-300 leading-relaxed">
+                          تعداد <strong>{aiIngestionResult.alreadyInRepoCount}</strong> مورد از قبل در مخزن سایت وجود داشتند و طبق دستور شما جهت جلوگیری از تکرار، کاری با آن‌ها نداریم و اضافه نشدند:
+                        </p>
+                        <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
+                          {aiIngestionResult.existingItemsInRepo.map((itemMatch, idx) => (
+                            <div key={idx} className="text-[11px] text-amber-200/90 flex items-start gap-1 bg-black/40 px-2 py-1 rounded">
+                              <span className="shrink-0 font-bold">• {itemMatch.item.title || itemMatch.item.titleFa}:</span>
+                              <span className="text-slate-400">{itemMatch.reason}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {aiIngestionResult.newItemsToIngest && aiIngestionResult.newItemsToIngest.length > 0 && (
+                      <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-right" dir="rtl">
+                        <p className="text-xs font-bold text-emerald-400">
+                          ✨ تعداد {aiIngestionResult.newItemsToIngest.length} فیلم یا استریم جدید تایید شد و آماده ثبت دائمی در مخزن سایت است.
+                        </p>
+                      </div>
+                    )}
 
                     {/* Delivery Actions */}
                     <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
                       <button
                         type="button"
                         onClick={() => handleApplyToLivePlatform('merge')}
-                        className="w-full sm:flex-1 min-h-[42px] rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                        disabled={!aiIngestionResult.newItemsToIngest || aiIngestionResult.newItemsToIngest.length === 0}
+                        className={`w-full sm:flex-1 min-h-[44px] rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-lg transition-all ${
+                          !aiIngestionResult.newItemsToIngest || aiIngestionResult.newItemsToIngest.length === 0
+                            ? 'bg-white/10 text-slate-500 cursor-not-allowed border border-white/5'
+                            : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/20 hover:brightness-110 active:scale-95 cursor-pointer'
+                        }`}
                       >
                         <Check className="w-4 h-4" />
-                        <span>Merge & Publish to Live Frontend Catalog</span>
+                        <span>
+                          {aiIngestionResult.newItemsToIngest && aiIngestionResult.newItemsToIngest.length > 0
+                            ? `افزودن ${aiIngestionResult.newItemsToIngest.length} فیلم جدید به مخزن سایت و ثبت دائمی در گیت‌هاب`
+                            : 'تمامی فیلم‌ها در مخزن سایت موجودند (موردی برای افزودن نیست)'}
+                        </span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => handleApplyToLivePlatform('replace')}
-                        className="w-full sm:w-auto min-h-[42px] px-4 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                        className="w-full sm:w-auto min-h-[44px] px-4 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
                       >
                         <span>Replace Whole Archive</span>
                       </button>

@@ -16,12 +16,119 @@ import type { DynamicStreamItem } from './dynamicStreamSync';
 export interface IngestionResult {
   totalExtracted: number;
   validStreamsCount: number;
-  duplicateCount: number;
+  duplicateCount: number; // Duplicates within current input batch
+  alreadyInRepoCount: number; // Items that already exist in site's repository
   moviesCount: number;
   seriesCount: number;
   animeCount: number;
-  sanitizedItems: DynamicStreamItem[];
+  sanitizedItems: DynamicStreamItem[]; // All valid items parsed
+  newItemsToIngest: DynamicStreamItem[]; // ONLY items that do NOT exist in site repo
+  existingItemsInRepo: Array<{ item: DynamicStreamItem; reason: string }>; // Items already in repo
   detectedCategories: Record<string, number>;
+}
+
+export function normalizeComparableString(str: string): string {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/\b(?:19|20)\d{2}\b/g, '') // remove 4-digit years
+    .replace(/\b(?:1080p|720p|480p|4k|2160p|fhd|hd|sd|bluray|web-dl|webrip|hdr|farsi|persian|dub|sub|part\s*\d+|e\d+|s\d+)\b/gi, '')
+    .replace(/[^\p{L}\p{N}]+/gu, '') // remove punctuation and whitespace
+    .trim();
+}
+
+export function isItemInRepository(
+  candidate: DynamicStreamItem,
+  existingCatalog: DynamicStreamItem[] = []
+): { exists: boolean; matchedItem?: DynamicStreamItem; reason?: string } {
+  if (!candidate || !existingCatalog || existingCatalog.length === 0) {
+    return { exists: false };
+  }
+
+  const candNormTitle = normalizeComparableString(candidate.title || '');
+  const candNormTitleFa = normalizeComparableString(candidate.titleFa || '');
+
+  // Collect all valid URLs from candidate (stripping trailing slashes and query strings where appropriate)
+  const candUrls = [
+    candidate.defaultStreamUrl,
+    candidate.originalSource,
+    ...(candidate.qualities || []).map((q) => q.url)
+  ]
+    .filter((u): u is string => Boolean(u && u.trim().length > 6))
+    .map((u) => u.toLowerCase().trim().replace(/\/+$/, ''));
+
+  for (const existing of existingCatalog) {
+    // 1. Direct ID match
+    if (candidate.id && existing.id && candidate.id === existing.id) {
+      return { exists: true, matchedItem: existing, reason: `شناسه اثر (${existing.title}) در مخزن ثبت شده است.` };
+    }
+
+    // 2. Direct URL / Source matching across all qualities and stream links
+    const existUrls = [
+      existing.defaultStreamUrl,
+      existing.originalSource,
+      ...(existing.qualities || []).map((q) => q.url)
+    ]
+      .filter((u): u is string => Boolean(u && u.trim().length > 6))
+      .map((u) => u.toLowerCase().trim().replace(/\/+$/, ''));
+
+    for (const cUrl of candUrls) {
+      for (const eUrl of existUrls) {
+        if (cUrl === eUrl) {
+          return {
+            exists: true,
+            matchedItem: existing,
+            reason: `لینک وارد شده با اثر «${existing.title}» در مخزن سایت مطابقت دارد.`
+          };
+        }
+      }
+    }
+
+    const existNormTitle = normalizeComparableString(existing.title || '');
+    const existNormTitleFa = normalizeComparableString(existing.titleFa || '');
+
+    // 3. English Title match
+    if (candNormTitle && existNormTitle && candNormTitle.length >= 3) {
+      if (candNormTitle === existNormTitle) {
+        const yearDiff = (candidate.year && existing.year) ? Math.abs(candidate.year - existing.year) : 0;
+        if (yearDiff <= 1) {
+          return {
+            exists: true,
+            matchedItem: existing,
+            reason: `فیلم «${existing.title}» (${existing.year || ''}) از قبل در مخزن سایت موجود است.`
+          };
+        }
+      }
+    }
+
+    // 4. Persian Title match
+    if (candNormTitleFa && existNormTitleFa && candNormTitleFa.length >= 3) {
+      if (candNormTitleFa === existNormTitleFa) {
+        return {
+          exists: true,
+          matchedItem: existing,
+          reason: `عنوان فارسی «${existing.titleFa || existing.title}» از قبل در مخزن سایت موجود است.`
+        };
+      }
+    }
+
+    // 5. Series Season/Episode match
+    if (
+      candidate.seriesTitle &&
+      existing.seriesTitle &&
+      normalizeComparableString(candidate.seriesTitle) === normalizeComparableString(existing.seriesTitle) &&
+      candidate.season === existing.season &&
+      candidate.episode === existing.episode
+    ) {
+      return {
+        exists: true,
+        matchedItem: existing,
+        reason: `قسمت ${candidate.episode} فصل ${candidate.season} سریال «${existing.seriesTitle}» در مخزن موجود است.`
+      };
+    }
+  }
+
+  return { exists: false };
 }
 
 // Curated high-res aesthetic backdrops mapped to content types
@@ -169,40 +276,63 @@ export class InternalAiArchiveParserService {
   /**
    * Main entry point: Ingests raw text or file content and returns a clean, categorized archive
    */
-  public ingestRawArchive(rawContent: string, titleHint?: string): IngestionResult {
+  public ingestRawArchive(rawContent: string, titleHint?: string, existingCatalog: DynamicStreamItem[] = []): IngestionResult {
     if (!rawContent || !rawContent.trim()) {
       return {
         totalExtracted: 0,
         validStreamsCount: 0,
         duplicateCount: 0,
+        alreadyInRepoCount: 0,
         moviesCount: 0,
         seriesCount: 0,
         animeCount: 0,
         sanitizedItems: [],
+        newItemsToIngest: [],
+        existingItemsInRepo: [],
         detectedCategories: {}
       };
     }
 
+    let parsedResult: IngestionResult;
     // 1. Check if input is structured JSON array
     const jsonParsed = this.tryParseJson(rawContent);
     if (jsonParsed && jsonParsed.length > 0) {
-      return this.processStructuredItems(jsonParsed);
+      parsedResult = this.processStructuredItems(jsonParsed);
+    } else if (rawContent.includes('#EXTM3U') || rawContent.includes('#EXTINF:')) {
+      parsedResult = this.processM3uPlaylist(rawContent);
+    } else {
+      parsedResult = this.processUnstructuredText(rawContent, titleHint);
     }
 
-    // 2. Check if input is M3U / M3U8 Playlist
-    if (rawContent.includes('#EXTM3U') || rawContent.includes('#EXTINF:')) {
-      return this.processM3uPlaylist(rawContent);
+    const newItemsToIngest: DynamicStreamItem[] = [];
+    const existingItemsInRepo: Array<{ item: DynamicStreamItem; reason: string }> = [];
+
+    for (const item of parsedResult.sanitizedItems) {
+      const check = isItemInRepository(item, existingCatalog);
+      if (check.exists) {
+        existingItemsInRepo.push({ item, reason: check.reason || 'موجود در مخزن سایت' });
+      } else {
+        newItemsToIngest.push(item);
+      }
     }
 
-    // 3. Unstructured raw text / Messy copy-pasted dump / API list / Bullet points
-    return this.processUnstructuredText(rawContent, titleHint);
+    return {
+      ...parsedResult,
+      newItemsToIngest,
+      existingItemsInRepo,
+      alreadyInRepoCount: existingItemsInRepo.length
+    };
   }
 
   /**
-   * Async Ingestion with Automatic Live IMDb Enrichment
+   * Async Ingestion with Automatic Live IMDb Enrichment and Repository Cross-Checking
    */
-  public async ingestAndEnrichArchive(rawContent: string, titleHint?: string): Promise<IngestionResult> {
-    const baseResult = this.ingestRawArchive(rawContent, titleHint);
+  public async ingestAndEnrichArchive(
+    rawContent: string,
+    titleHint?: string,
+    existingCatalog: DynamicStreamItem[] = []
+  ): Promise<IngestionResult> {
+    const baseResult = this.ingestRawArchive(rawContent, titleHint, existingCatalog);
     if (baseResult.sanitizedItems.length === 0) return baseResult;
 
     const enrichedItems: DynamicStreamItem[] = [];
@@ -266,9 +396,25 @@ export class InternalAiArchiveParserService {
       }
     }
 
+    const newItemsToIngest: DynamicStreamItem[] = [];
+    const existingItemsInRepo: Array<{ item: DynamicStreamItem; reason: string }> = [];
+
+    for (const item of enrichedItems) {
+      const check = isItemInRepository(item, existingCatalog);
+      if (check.exists) {
+        existingItemsInRepo.push({ item, reason: check.reason || 'موجود در مخزن سایت' });
+      } else {
+        newItemsToIngest.push(item);
+      }
+    }
+
     return {
       ...baseResult,
-      sanitizedItems: enrichedItems
+      sanitizedItems: enrichedItems,
+      newItemsToIngest,
+      existingItemsInRepo,
+      alreadyInRepoCount: existingItemsInRepo.length,
+      validStreamsCount: enrichedItems.length
     };
   }
 
@@ -622,10 +768,13 @@ export class InternalAiArchiveParserService {
       totalExtracted: pairs.length,
       validStreamsCount: sanitizedItems.length,
       duplicateCount,
+      alreadyInRepoCount: 0,
       moviesCount,
       seriesCount,
       animeCount,
       sanitizedItems,
+      newItemsToIngest: sanitizedItems,
+      existingItemsInRepo: [],
       detectedCategories
     };
   }
