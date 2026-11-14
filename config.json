@@ -4,7 +4,8 @@
     "@THEFILMO041"
   ],
   "destination_channel": "https://t.me/+fAEG65IvvM05MDY0",
-  "delay_between_uploads_sec": 7,
-  "max_videos_per_run": 2,
-  "clean_caption": true
+  "server_side_copy": true,
+  "enrich_with_imdb": true,
+  "delay_between_uploads_sec": 2,
+  "max_videos_per_run": 20
 }
