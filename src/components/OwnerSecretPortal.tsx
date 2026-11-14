@@ -111,15 +111,14 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
     reader.readAsText(file);
   };
 
-  // Run the Air-Gapped Internal AI Parser with Automatic Live Caching
-  const handleRunInternalAiIngestion = () => {
+  // Run the Air-Gapped Internal AI Parser with Automatic Live Caching & IMDb Metadata Enrichment
+  const handleRunInternalAiIngestion = async () => {
     if (!rawArchiveText.trim()) return;
 
     setIsProcessingAi(true);
-    setTimeout(() => {
-      try {
-        const result = internalAiArchiveParser.ingestRawArchive(rawArchiveText);
-        setAiIngestionResult(result);
+    try {
+      const result = await internalAiArchiveParser.ingestAndEnrichArchive(rawArchiveText);
+      setAiIngestionResult(result);
 
         if (result.sanitizedItems.length > 0) {
           // Automatic live cache & sync to platform
@@ -144,12 +143,11 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
           setStreamSavedMessage(`⚠️ هیچ استریم معتبری یافت نشد. لطفاً لینک یا نام فیلم را وارد نمایید.`);
           setTimeout(() => setStreamSavedMessage(null), 4000);
         }
-      } catch (err) {
-        console.error('AI Ingestion error:', err);
-      } finally {
-        setIsProcessingAi(false);
-      }
-    }, 250);
+    } catch (err) {
+      console.error('AI Ingestion error:', err);
+    } finally {
+      setIsProcessingAi(false);
+    }
   };
 
   // Apply sanitized items to the live platform catalog
@@ -569,7 +567,7 @@ Breaking Bad S01E01: https://server.net/bb_s01e01.m3u8`}
                   {isProcessingAi ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin text-[#060810]" />
-                      <span>Parsing & Sanitizing Archive with Internal AI...</span>
+                      <span>Parsing Archive & Fetching Official IMDb Metadata...</span>
                     </>
                   ) : (
                     <>

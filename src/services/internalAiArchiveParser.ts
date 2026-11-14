@@ -54,6 +54,80 @@ const TELEGRAM_SOURCE_REGEX = /(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?:s\/)?(
 // Universal regex to capture explicit URLs, naked domains, and IP addresses with paths
 const UNIVERSAL_LINK_REGEX = /(?:https?|ftp):\/\/[^\s"'<>\(\)]+|\b(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|io|moe|me|co|tv|cc|to|app|dev|ai|xyz|site|online|live|stream|pro|is|ru|ir|uk|de|eu|media|club|info|link|tech|vip|one|top|cloud|fm|so|gg|in|bz|ms|ws|sh|space|store|pub|tube|video|film|movie|fun|icu|top|world|wiki|page)(?::\d+)?(?:\/[^\s"'<>\(\)]*)?/gi;
 
+
+export interface ImdbMetadata {
+  title: string;
+  year?: number;
+  imdbRating?: string;
+  poster?: string;
+  plot?: string;
+  director?: string;
+  actors?: string;
+  genre?: string;
+  type?: 'movie' | 'series' | 'episode' | 'anime';
+}
+
+/**
+ * Live IMDb/OMDb Metadata Enrichment Engine
+ */
+export async function fetchImdbMetadata(query: string, releaseYear?: number): Promise<ImdbMetadata | null> {
+  let cleanQuery = query
+    .replace(/[\(\)\[\]]/g, ' ')
+    .replace(/\b(?:1080p|720p|480p|4k|2160p|bluray|web-dl|webrip|hdr|farsi|persian|dub|sub|telegram|post|channel|#\d+)\b/gi, '')
+    .replace(/\b(19\d{2}|20\d{2})\b/g, '') // remove year from title search query
+    .replace(/[:\-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!cleanQuery || cleanQuery.length < 2) return null;
+
+  try {
+    let url = `https://www.omdbapi.com/?t=${encodeURIComponent(cleanQuery)}&apikey=trilogy`;
+    if (releaseYear) {
+      url += `&y=${releaseYear}`;
+    }
+
+    let resp = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (!resp.ok) return null;
+
+    let data = await resp.json();
+
+    // Fallback: If exact match failed, try search query (?s=...)
+    if (!data || data.Response !== 'True') {
+      const searchUrl = `https://www.omdbapi.com/?s=${encodeURIComponent(cleanQuery)}&apikey=trilogy`;
+      const searchResp = await fetch(searchUrl, { headers: { Accept: 'application/json' } });
+      if (searchResp.ok) {
+        const searchData = await searchResp.json();
+        if (searchData && searchData.Search && searchData.Search.length > 0) {
+          const firstImdbId = searchData.Search[0].imdbID;
+          const detailResp = await fetch(`https://www.omdbapi.com/?i=${firstImdbId}&apikey=trilogy`);
+          if (detailResp.ok) {
+            data = await detailResp.json();
+          }
+        }
+      }
+    }
+
+    if (data && data.Response === 'True') {
+      const isAnime = data.Genre && data.Genre.toLowerCase().includes('animation');
+      return {
+        title: data.Title || cleanQuery,
+        year: parseInt(data.Year, 10) || releaseYear,
+        imdbRating: data.imdbRating !== 'N/A' ? data.imdbRating : '7.5',
+        poster: data.Poster && data.Poster !== 'N/A' ? data.Poster : undefined,
+        plot: data.Plot && data.Plot !== 'N/A' ? data.Plot : undefined,
+        director: data.Director && data.Director !== 'N/A' ? data.Director : undefined,
+        actors: data.Actors && data.Actors !== 'N/A' ? data.Actors : undefined,
+        genre: data.Genre,
+        type: isAnime ? 'anime' : (data.Type === 'series' ? 'series' : 'movie')
+      };
+    }
+  } catch (err) {
+    console.warn('[IMDb Engine] Metadata lookup failed, using fallback:', err);
+  }
+  return null;
+}
+
 export class InternalAiArchiveParserService {
   /**
    * Main entry point: Ingests raw text or file content and returns a clean, categorized archive
@@ -86,6 +160,62 @@ export class InternalAiArchiveParserService {
     // 3. Unstructured raw text / Messy copy-pasted dump / API list / Bullet points
     return this.processUnstructuredText(rawContent);
   }
+
+  /**
+   * Async Ingestion with Automatic Live IMDb Enrichment
+   */
+  public async ingestAndEnrichArchive(rawContent: string): Promise<IngestionResult> {
+    const baseResult = this.ingestRawArchive(rawContent);
+    if (baseResult.sanitizedItems.length === 0) return baseResult;
+
+    const enrichedItems: DynamicStreamItem[] = [];
+
+    for (const item of baseResult.sanitizedItems) {
+      // Determine best search query for IMDb
+      const searchTarget = item.seriesTitle || item.title;
+      // Fetch official IMDb details
+      const imdb = await fetchImdbMetadata(searchTarget, item.year);
+
+      if (imdb) {
+        const officialTitle = imdb.title || item.title;
+        const officialPoster = imdb.poster || item.posterUrl;
+        const officialYear = imdb.year || item.year;
+        const detectedCat = (item.category === 'series' || imdb.type === 'series') ? 'series' : (imdb.type === 'anime' ? 'anime' : item.category);
+
+        enrichedItems.push({
+          ...item,
+          title: officialTitle,
+          titleFa: item.titleFa && !item.titleFa.includes('Post #') ? item.titleFa : this.generatePersianAestheticTitle(officialTitle, detectedCat),
+          posterUrl: officialPoster,
+          year: officialYear,
+          rating: imdb.imdbRating,
+          director: imdb.director || item.director,
+          category: detectedCat,
+          synopsis: imdb.plot 
+            ? `${imdb.plot} [IMDb: ${imdb.imdbRating}/10 | Directed by ${imdb.director || 'N/A'}]`
+            : item.synopsis,
+          synopsisFa: imdb.plot
+            ? `خلاصه داستان رسمی IMDb: ${imdb.plot} (امتیاز: ${imdb.imdbRating}/10 | کارگردان: ${imdb.director || 'نامشخص'})`
+            : item.synopsisFa,
+          tags: [
+            ...(item.tags || []),
+            `IMDb ${imdb.imdbRating}`,
+            ...(imdb.genre ? imdb.genre.split(',').map((g: string) => g.trim()) : []),
+            ...(imdb.actors ? imdb.actors.split(',').map((a: string) => a.trim()) : []),
+            officialTitle
+          ]
+        });
+      } else {
+        enrichedItems.push(item);
+      }
+    }
+
+    return {
+      ...baseResult,
+      sanitizedItems: enrichedItems
+    };
+  }
+
 
   /**
    * Safe parser for structured JSON dumps
