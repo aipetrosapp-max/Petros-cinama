@@ -3,8 +3,8 @@
     -1001380077268,
     "@THEFILMO041"
   ],
-  "destination_channel": -1002852905135,
+  "destination_channel": "https://t.me/+fAEG65IvvM05MDY0",
   "delay_between_uploads_sec": 7,
-  "max_videos_per_run": 5,
+  "max_videos_per_run": 2,
   "clean_caption": true
 }

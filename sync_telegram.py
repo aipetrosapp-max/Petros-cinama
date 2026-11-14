@@ -16,7 +16,13 @@ from typing import Dict, Any, List
 try:
     from telethon import TelegramClient, errors
     from telethon.sessions import StringSession
-    from telethon.tl.types import MessageMediaDocument, DocumentAttributeVideo, DocumentAttributeFilename
+    from telethon.tl.types import (
+        MessageMediaDocument,
+        DocumentAttributeVideo,
+        DocumentAttributeFilename,
+        InputPeerChannel
+    )
+    from telethon.tl.functions.messages import ImportChatInviteRequest, CheckChatInviteRequest
 except ImportError:
     print("❌ Telethon is not installed! Run: pip install telethon cryptg")
     sys.exit(1)
@@ -56,7 +62,6 @@ def clean_movie_caption(raw_caption: str) -> str:
         stripped = line.strip()
         # Filter out promotional lines
         if re.search(r'(کانال\s*ما|عضویت|join|channel|sponsored|تبلیغات|پروکسی|proxy|t\.me/|@)', stripped, re.IGNORECASE):
-            # Check if this line is purely an ad or contains a movie title too
             if len(stripped) < 45 or re.match(r'^[\s@#\w\-–—:•|]+$', stripped):
                 continue
         cleaned_lines.append(line)
@@ -70,6 +75,58 @@ def progress_callback(action: str, current: int, total: int):
     tot_mb = total / (1024 * 1024)
     sys.stdout.write(f"\r[{action}] {pct:.1f}% ({curr_mb:.1f} MB / {tot_mb:.1f} MB)")
     sys.stdout.flush()
+
+async def resolve_target(client: TelegramClient, identifier: Any):
+    """
+    Robustly resolves a target peer from:
+    - Invite link (e.g. 'https://t.me/+fAEG65IvvM05MDY0' or '+fAEG65IvvM05MDY0')
+    - Channel username ('@THEFILMO041')
+    - Numerical ID (-1003885570365, 3885570365, etc.)
+    - In-memory dialogs cache search
+    """
+    if isinstance(identifier, str):
+        identifier = identifier.strip()
+        if "t.me/+" in identifier or "joinchat/" in identifier or identifier.startswith("+"):
+            invite_hash = identifier.split("+")[-1] if "+" in identifier else identifier.split("joinchat/")[-1]
+            invite_hash = invite_hash.strip("/? \t\n")
+            try:
+                check = await client(CheckChatInviteRequest(invite_hash))
+                if getattr(check, "chat", None):
+                    return InputPeerChannel(check.chat.id, check.chat.access_hash)
+            except Exception:
+                pass
+            try:
+                imported = await client(ImportChatInviteRequest(invite_hash))
+                if imported.chats:
+                    return InputPeerChannel(imported.chats[0].id, imported.chats[0].access_hash)
+            except Exception:
+                pass
+
+        if identifier.startswith("-100") or identifier.lstrip("-").isdigit():
+            try:
+                identifier = int(identifier)
+            except ValueError:
+                pass
+
+    # Direct resolution
+    try:
+        return await client.get_entity(identifier)
+    except Exception:
+        pass
+
+    # Search through user dialogs
+    async for dialog in client.iter_dialogs():
+        if isinstance(identifier, int):
+            if dialog.id == identifier or dialog.entity.id == abs(identifier) or str(abs(identifier)) in str(dialog.id):
+                return dialog.input_entity
+        elif isinstance(identifier, str):
+            clean_str = identifier.lstrip("@").lower()
+            d_user = (dialog.username or "").lower()
+            if d_user == clean_str or dialog.name == identifier:
+                return dialog.input_entity
+
+    # Final attempt
+    return await client.get_entity(identifier)
 
 async def main():
     print("=" * 65)
@@ -110,7 +167,6 @@ async def main():
         sys.exit(0)
 
     state: Dict[str, int] = load_json(STATE_FILE, {})
-
     os.makedirs(TEMP_DIR, exist_ok=True)
 
     client = TelegramClient(StringSession(session_str.strip()), api_id, api_hash.strip())
@@ -126,8 +182,9 @@ async def main():
 
     # Resolve destination entity
     try:
-        dest_entity = await client.get_entity(destination_channel)
-        print(f"🎯 Target Destination Channel: {getattr(dest_entity, 'title', destination_channel)}")
+        dest_entity = await resolve_target(client, destination_channel)
+        dest_title = getattr(dest_entity, "title", str(destination_channel))
+        print(f"🎯 Target Destination Channel Resolved: {dest_title}")
     except Exception as e:
         print(f"❌ Failed to access destination channel '{destination_channel}': {e}")
         print("💡 Make sure your Telegram user account is an Administrator in the destination channel!")
@@ -142,7 +199,7 @@ async def main():
         print(f"\n📂 Checking Source Channel: {source} (Last Processed ID: {last_processed_id})")
 
         try:
-            source_entity = await client.get_entity(source)
+            source_entity = await resolve_target(client, source)
         except Exception as e:
             print(f"⚠️ Could not resolve source channel {source}: {e}")
             continue
@@ -184,6 +241,7 @@ async def main():
             temp_filepath = os.path.join(TEMP_DIR, filename)
 
             print(f"\n⬇️ Downloading Post #{msg.id} ({filename})...")
+            downloaded = False
             try:
                 await client.download_media(
                     msg,
@@ -191,14 +249,16 @@ async def main():
                     progress_callback=lambda c, t: progress_callback("Downloading", c, t)
                 )
                 print("\n✅ Download completed successfully.")
+                downloaded = True
             except errors.FloodWaitError as fwe:
                 print(f"\n⚠️ FloodWait: Telegram requested waiting {fwe.seconds} seconds...")
                 await asyncio.sleep(fwe.seconds + 5)
-                continue
             except Exception as e:
                 print(f"\n❌ Error downloading message #{msg.id}: {e}")
                 if os.path.exists(temp_filepath):
                     os.remove(temp_filepath)
+
+            if not downloaded or not os.path.exists(temp_filepath):
                 continue
 
             # Upload to destination channel
@@ -235,13 +295,6 @@ async def main():
             # Polite pause between uploads
             print(f"⏳ Waiting {delay_sec}s before next operation...")
             await asyncio.sleep(delay_sec)
-
-        # Update state for channel
-        if messages:
-            last_in_batch = messages[-1].id
-            if last_in_batch > state.get(channel_key, 0):
-                state[channel_key] = last_in_batch
-                save_json(STATE_FILE, state)
 
     # Cleanup temp directory
     if os.path.exists(TEMP_DIR):
