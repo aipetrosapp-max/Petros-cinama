@@ -126,6 +126,7 @@ export function CinematicPlayerScreen({
   const [offlineBlobAvailable, setOfflineBlobAvailable] = useState(false);
   const [streamReady, setStreamReady] = useState(false);
   const [liveTrailerVideoActive, setLiveTrailerVideoActive] = useState(false);
+  const [dismissTelegramBanner, setDismissTelegramBanner] = useState(false);
 
   // Autonomous AI Subtitle Auto-Match & Sync state
   const [aiSyncing, setAiSyncing] = useState(false);
@@ -786,7 +787,7 @@ export function CinematicPlayerScreen({
           </video>
 
           {/* Telegram Source Header Banner & Direct Stream Action */}
-          {isTelegramSource && (
+          {isTelegramSource && !dismissTelegramBanner && (
             <div className="absolute top-14 start-3 end-3 z-30 flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-[#38BDF8]/40 bg-[#060812]/92 px-4 py-2.5 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,0.8)]">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0088cc]/20 text-[#38BDF8] border border-[#0088cc]/40">
@@ -796,24 +797,34 @@ export function CinematicPlayerScreen({
                   <p className="text-xs font-bold text-white flex items-center gap-2">
                     <span>{t('Telegram Source Stream (1080p Full Movie)', 'منبع استریم تلگرام (کیفیت 1080p با زیرنویس فارسی)')}</span>
                     <span className="rounded-full bg-[#38BDF8]/15 text-[#38BDF8] text-[10px] px-2 py-0.5 font-mono">
-                      Post #60929
+                      {telegramUrl.includes('/') ? `Post #${telegramUrl.split('/').filter(Boolean).pop()}` : 'Aipetros'}
                     </span>
                   </p>
                   <p className="text-[11px] text-[#A3AEC2]">
-                    {t('Direct link to private channel storage. Tap to stream directly in Telegram app.', 'پست اختصاصی آرشیو تلگرام. برای پخش مستقیم و بدون محدودیت روی دکمه روبرو بزنید.')}
+                    {t('Direct link to private channel storage. Tap to stream directly in Telegram app.', 'پست اختصاصی آرشیو تلگرام. برای پخش مستقیم در اپلیکیشن تلگرام روی دکمه روبرو بزنید.')}
                   </p>
                 </div>
               </div>
 
-              <a
-                href={telegramUrl || 'https://t.me/c/1380077268/60929'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="min-h-[38px] inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0088cc] to-[#00aaff] hover:from-[#0099e6] hover:to-[#38bdf8] px-4 text-xs font-bold text-white transition-all shadow-lg hover:shadow-[#0088cc]/30 cursor-pointer"
-              >
-                <span>{t('Open & Play in Telegram App', 'پخش مستقیم در اپلیکیشن تلگرام')}</span>
-                <ExternalLink className="h-4 w-4" />
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  href={telegramUrl || 'https://t.me/+fAEG65IvvM05MDY0'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="min-h-[38px] inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0088cc] to-[#00aaff] hover:from-[#0099e6] hover:to-[#38bdf8] px-4 text-xs font-bold text-white transition-all shadow-lg hover:shadow-[#0088cc]/30 cursor-pointer"
+                >
+                  <span>{t('Open & Play in Telegram App', 'پخش مستقیم در اپلیکیشن تلگرام')}</span>
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setDismissTelegramBanner(true)}
+                  aria-label="Dismiss banner"
+                  className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           )}
 
