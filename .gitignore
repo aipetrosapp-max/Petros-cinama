@@ -8,3 +8,6 @@ coverage/
 !.env.example
 .vite/
 .tauri/
+__pycache__/
+*.pyc
+temp_telegram_downloads/

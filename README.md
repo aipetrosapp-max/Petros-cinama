@@ -148,5 +148,13 @@ npm run desktop:electron
 
 ---
 
+## 🤖 سیستم خودکار دانلود و آپلود ویدیوهای تلگرام (Telegram Auto-Sync on GitHub Actions)
+پروژه مجهز به سیستم تمام‌خودکار، بدون نیاز به سرور و رایگان بر بستر GitHub Actions است:
+- **فایل‌های ماژول:** `sync_telegram.py`, `generate_session.py`, `requirements.txt`, `config.json`, `state.json`
+- **ورک‌فلو خودکار:** `.github/workflows/telegram_sync.yml` (اجرا هر ۳۰ دقیقه یکبار)
+- **راهنمای کامل:** برای آموزش گام‌به‌گام ساخت `TG_STRING_SESSION` و تنظیم سکرت‌های گیت‌هاب، فایل [TELEGRAM_SYNC_GUIDE.md](file:///c:/Users/ELI/Desktop/petros-cinama/TELEGRAM_SYNC_GUIDE.md) را مطالعه کنید.
+
+---
+
 ## 📄 مجوز (License)
 پروژه تحت لایسنس MIT منتشر شده و کاملاً رایگان و متن‌باز در اختیار اکوسیستم **ai petros** می‌باشد.
