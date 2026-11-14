@@ -48,8 +48,8 @@ const CURATED_POSTERS = {
   ]
 };
 
-// Telegram Channel and Direct Post Stream Regex (supports @channel, t.me/channel, t.me/channel/123)
-const TELEGRAM_SOURCE_REGEX = /(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?:s\/)?([a-zA-Z0-9_+]+)(?:\/(\d+))?|@([a-zA-Z0-9_]{3,32})/gi;
+// Telegram Channel and Direct Post Stream Regex (supports @channel, t.me/channel, t.me/channel/123, and private channel links t.me/c/12345/678)
+const TELEGRAM_SOURCE_REGEX = /(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?:s\/)?(?:c\/(\d+)\/(\d+)|([a-zA-Z0-9_+]+)(?:\/(\d+))?)|@([a-zA-Z0-9_]{3,32})/gi;
 
 // Universal regex to capture explicit URLs, naked domains, and IP addresses with paths
 const UNIVERSAL_LINK_REGEX = /(?:https?|ftp):\/\/[^\s"'<>\(\)]+|\b(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|io|moe|me|co|tv|cc|to|app|dev|ai|xyz|site|online|live|stream|pro|is|ru|ir|uk|de|eu|media|club|info|link|tech|vip|one|top|cloud|fm|so|gg|in|bz|ms|ws|sh|space|store|pub|tube|video|film|movie|fun|icu|top|world|wiki|page)(?::\d+)?(?:\/[^\s"'<>\(\)]*)?/gi;
@@ -157,35 +157,56 @@ export class InternalAiArchiveParserService {
         continue;
       }
 
-      // Check for Telegram channel or post handles (@channel, t.me/channel/123)
+      // Check for Telegram channel or post handles (@channel, t.me/channel/123, t.me/c/channelId/postId)
       const telegramMatches = Array.from(line.matchAll(TELEGRAM_SOURCE_REGEX));
       if (telegramMatches.length > 0) {
         for (const tm of telegramMatches) {
-          const channelHandle = tm[1] || tm[3];
-          const postId = tm[2] || '';
-          if (channelHandle && channelHandle.toLowerCase() !== 'joinchat' && channelHandle.toLowerCase() !== 's') {
-            const canonicalTelegramUrl = postId 
+          let canonicalTelegramUrl = '';
+          let displayTitle = '';
+
+          // Case A: Private channel post link: t.me/c/CHANNEL_ID/POST_ID
+          if (tm[1] && tm[2]) {
+            const channelId = tm[1];
+            const postId = tm[2];
+            canonicalTelegramUrl = `https://t.me/c/${channelId}/${postId}`;
+            displayTitle = `Telegram Cinema Post #${postId}`;
+          } 
+          // Case B: Public channel or public post link: t.me/channel or t.me/channel/123
+          else if (tm[3]) {
+            const channelHandle = tm[3];
+            const postId = tm[4] || '';
+            if (channelHandle.toLowerCase() === 'joinchat' || channelHandle.toLowerCase() === 's') continue;
+            canonicalTelegramUrl = postId 
               ? `https://t.me/${channelHandle}/${postId}`
               : `https://t.me/${channelHandle}`;
+            displayTitle = postId 
+              ? `Telegram: ${channelHandle} #${postId}`
+              : `Telegram Channel: @${channelHandle}`;
+          }
+          // Case C: @username handle
+          else if (tm[5]) {
+            const handle = tm[5];
+            canonicalTelegramUrl = `https://t.me/${handle}`;
+            displayTitle = `Telegram: @${handle}`;
+          }
 
-            if (!seenUrls.has(canonicalTelegramUrl)) {
-              seenUrls.add(canonicalTelegramUrl);
-              let candidateTitle = line
-                .replace(tm[0], '')
-                .trim()
-                .replace(/^(bullet|item|link|\d+[\.\)]|[-–—:*•|])+/gi, '')
-                .replace(/[-–—:,|]+$/g, '')
-                .trim();
+          if (canonicalTelegramUrl && !seenUrls.has(canonicalTelegramUrl)) {
+            seenUrls.add(canonicalTelegramUrl);
+            let candidateTitle = line
+              .replace(tm[0], '')
+              .trim()
+              .replace(/^(bullet|item|link|\d+[\.\)]|[-–—:*•|])+/gi, '')
+              .replace(/[-–—:,|]+$/g, '')
+              .trim();
 
-              if (candidateTitle.length < 2) {
-                candidateTitle = postId ? `Telegram: ${channelHandle} #${postId}` : `Telegram Channel: @${channelHandle}`;
-              }
-
-              rawPairs.push({
-                title: candidateTitle,
-                url: canonicalTelegramUrl
-              });
+            if (candidateTitle.length < 2) {
+              candidateTitle = displayTitle;
             }
+
+            rawPairs.push({
+              title: candidateTitle,
+              url: canonicalTelegramUrl
+            });
           }
         }
         continue;
