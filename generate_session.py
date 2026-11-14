@@ -34,12 +34,21 @@ def main():
     print("👇 لطفاً شماره موبایل خود را همراه با کد کشور وارد کنید (مثلاً: +989123456789):")
     with TelegramClient(StringSession(), api_id, api_hash) as client:
         session_string = client.session.save()
+        
+        # Save to local file as backup
+        try:
+            with open("telegram_session.txt", "w", encoding="utf-8") as f:
+                f.write(session_string.strip())
+        except Exception:
+            pass
+
         print("\n" + "=" * 70)
         print("🎉 نشست شما (StringSession) با موفقیت تولید شد:")
         print("=" * 70)
         print(session_string)
         print("=" * 70)
-        print("\n📋 این متن طولانی را کپی کنید و در چت بفرستید تا فوراً در گیت‌هاب ست شود.\n")
+        print("\n📁 همچنین نشست در فایل telegram_session.txt ذخیره شد.")
+        print("📋 این متن طولانی را کپی کنید و در چت بفرستید تا فوراً در گیت‌هاب ست شود.\n")
 
 if __name__ == "__main__":
     main()

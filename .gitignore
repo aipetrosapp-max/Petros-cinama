@@ -11,3 +11,6 @@ coverage/
 __pycache__/
 *.pyc
 temp_telegram_downloads/
+telegram_session.txt
+*.session
+*.session*
