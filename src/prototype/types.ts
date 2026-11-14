@@ -13,6 +13,7 @@ export type PrototypeRoute =
   | 'watch';
 
 export type LibraryTab =
+  | 'all'
   | 'continue'
   | 'downloads'
   | 'history'

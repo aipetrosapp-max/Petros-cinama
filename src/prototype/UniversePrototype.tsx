@@ -226,6 +226,8 @@ function UniversePrototypeShell({
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [isTvMode, setIsTvMode] = useState(() => tvRemote.isTvModeEnabled());
   const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
+  const [isAppInitializing, setIsAppInitializing] = useState<boolean>(true);
+  const [syncStatusText, setSyncStatusText] = useState<string>('در حال اتصال به سرور و همگام‌سازی ابری مخزن فیلم و سریال‌ها...');
   const [ownerPortalState, setOwnerPortalState] = useState<{
     isOpen: boolean;
     tab: 'wallets' | 'archive';
@@ -250,11 +252,13 @@ function UniversePrototypeShell({
     return () => window.removeEventListener('hashchange', checkSecretRoute);
   }, []);
 
-  // Dynamic Stream Sync subscription: automatically updates catalog from GitHub public file silently
+  // Dynamic Stream Sync & Initial Cloud Catalog Hydration
   useEffect(() => {
+    let isMounted = true;
     dynamicStreamSync.startPeriodicSync();
 
     const unsubscribe = dynamicStreamSync.subscribe((dynamicStreams, meta) => {
+      if (!isMounted) return;
       setLastSyncTime(meta.lastSyncedAt);
       if (dynamicStreams && dynamicStreams.length > 0) {
         const converted = dynamicStreams.map(convertDynamicStreamToMediaItem);
@@ -266,11 +270,32 @@ function UniversePrototypeShell({
       }
     });
 
+    // Mandatory startup sync: fetch and update streams from public cloud repository
+    (async () => {
+      try {
+        setSyncStatusText(lang === 'fa' ? 'در حال دریافت تازه‌ترین فهرست فیلم‌ها و استریم‌ها از مخزن ابری...' : 'Fetching latest cloud cinema streams...');
+        await dynamicStreamSync.syncNow(true);
+        if (isMounted) {
+          setSyncStatusText(lang === 'fa' ? 'مخزن فیلم و سریال با موفقیت به‌روزرسانی شد.' : 'Cinema catalog synchronized.');
+        }
+      } catch (err) {
+        console.warn('Initial cloud sync error (falling back to cache):', err);
+      } finally {
+        // Smooth transition: brief pause so the user sees clean boot
+        setTimeout(() => {
+          if (isMounted) {
+            setIsAppInitializing(false);
+          }
+        }, 650);
+      }
+    })();
+
     return () => {
+      isMounted = false;
       unsubscribe();
       dynamicStreamSync.stopPeriodicSync();
     };
-  }, []);
+  }, [lang]);
 
   // Spatial Navigation & Android TV Remote Back Key Binding
   useEffect(() => {
@@ -787,6 +812,55 @@ function UniversePrototypeShell({
 
   return (
     <MotionConfig reducedMotion={user.reducedMotion ? 'always' : 'user'}>
+      {/* Full-Screen Cinema Startup Loader */}
+      <AnimatePresence>
+        {isAppInitializing && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.45, ease: 'easeInOut' } }}
+            className="fixed inset-0 z-[500] flex flex-col items-center justify-center bg-[#06070C] text-white p-6 text-center select-none"
+          >
+            {/* Ambient Background Glow */}
+            <div className="absolute w-80 h-80 rounded-full bg-[#F5B942]/10 blur-[100px] pointer-events-none animate-pulse" />
+            
+            <div className="relative z-10 flex flex-col items-center max-w-sm space-y-6">
+              {/* Brand Emblem */}
+              <div className="relative">
+                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#F5B942]/20 via-[#F5B942]/10 to-transparent border border-[#F5B942]/40 flex items-center justify-center text-[#F5B942] font-black text-3xl shadow-2xl shadow-[#F5B942]/20">
+                  P
+                </div>
+                <div className="absolute -inset-1 rounded-3xl border border-[#F5B942]/30 animate-ping opacity-30" />
+              </div>
+
+              {/* Title & Brand */}
+              <div className="space-y-1.5">
+                <h1 className="font-editorial text-2xl sm:text-3xl tracking-[0.16em] text-[#F5B942] font-bold">
+                  ai petros
+                </h1>
+                <p className="text-xs uppercase tracking-widest text-[#A3AEC2]">
+                  Petros Cinema · Aipetros-stream
+                </p>
+              </div>
+
+              {/* Progress Indicator */}
+              <div className="w-48 h-1 rounded-full bg-white/10 overflow-hidden relative">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-[#F5B942] via-[#00F0FF] to-[#F5B942]"
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+                />
+              </div>
+
+              {/* Dynamic Status Text */}
+              <p className="text-xs font-medium text-slate-300 min-h-[32px] transition-all">
+                {syncStatusText}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div
         className={`min-h-[100dvh] bg-[#06070C] text-[#F5F7FA] flex flex-col ${
           user.highContrast ? 'contrast-125' : ''

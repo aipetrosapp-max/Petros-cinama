@@ -60,6 +60,7 @@ interface LibraryScreenProps {
 }
 
 const LIBRARY_TABS: Array<{ id: LibraryTab; fa: string; en: string; icon: React.ReactNode }> = [
+  { id: 'all', fa: 'کل فیلم‌ها و سریال‌ها', en: 'All Movies & Series', icon: <Play className="h-3.5 w-3.5" /> },
   { id: 'continue', fa: 'ادامه تماشا', en: 'Continue Watching', icon: <Clock className="h-3.5 w-3.5" /> },
   { id: 'downloads', fa: 'دانلودهای آفلاین', en: 'Offline Downloads', icon: <Download className="h-3.5 w-3.5" /> },
   { id: 'history', fa: 'تاریخچه تماشا', en: 'Watch History', icon: <History className="h-3.5 w-3.5" /> },
@@ -98,7 +99,7 @@ export function LibraryScreen({
   onClearHistory
 }: LibraryScreenProps) {
   const { t } = useT();
-  const [activeTab, setActiveTab] = useState<LibraryTab>(initialTab ?? 'continue');
+  const [activeTab, setActiveTab] = useState<LibraryTab>(initialTab ?? 'all');
   const [newColName, setNewColName] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'title'>('recent');
 
@@ -132,7 +133,11 @@ export function LibraryScreen({
 
   const activeItems = useMemo(() => {
     let list: ExplainedRecommendation[] = [];
-    if (activeTab === 'continue') {
+    if (activeTab === 'all') {
+      list = catalog
+        .filter((c) => !hiddenIds.has(c.id))
+        .map((item) => toRec(item, 'موجود در مخزن سینما پتروس', 'Available in Petros Cinema Vault'));
+    } else if (activeTab === 'continue') {
       list = Object.values(progressMap)
         .filter((p) => !p.completed && p.positionSec > 5)
         .sort((a, b) => b.lastWatchedAt.localeCompare(a.lastWatchedAt))
