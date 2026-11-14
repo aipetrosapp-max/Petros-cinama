@@ -64,6 +64,7 @@ import { CinematicPlayerScreen } from './screens/CinematicPlayerScreen';
 import { LibraryScreen } from './screens/LibraryScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
+import { globalCinemaAgent } from '../services/globalCinemaAgent';
 import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
 import { tvRemote } from '../services/tvRemoteNavigation';
 import { CryptoAdModal } from '../components/CryptoAdModal';
@@ -278,6 +279,16 @@ function UniversePrototypeShell({
         if (isMounted) {
           setSyncStatusText(lang === 'fa' ? 'مخزن فیلم و سریال با موفقیت به‌روزرسانی شد.' : 'Cinema catalog synchronized.');
         }
+
+        // Autonomous Internal Agent: Hydrate live global movies and series worldwide
+        void globalCinemaAgent.getGlobalCatalog().then((globalItems) => {
+          if (!isMounted || !globalItems || globalItems.length === 0) return;
+          setCatalog((prevCatalog) => {
+            const existingIds = new Set(prevCatalog.map((x) => x.id));
+            const newItems = globalItems.filter((x) => !existingIds.has(x.id));
+            return [...prevCatalog, ...newItems];
+          });
+        });
       } catch (err) {
         console.warn('Initial cloud sync error (falling back to cache):', err);
       } finally {

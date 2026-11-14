@@ -25,6 +25,7 @@ import { blendVector, cosineSimilarity6D, runIntelligentSearch } from '../tasteE
 import { useT } from '../i18n';
 import { Button, MediaCard } from '../components/UiPrimitives';
 import { NetflixTop10Carousel } from '../../components/NetflixTop10Carousel';
+import { globalCinemaAgent } from '../../services/globalCinemaAgent';
 
 interface IntelligentSearchScreenProps {
   catalog: PrototypeMediaItem[];
@@ -178,6 +179,44 @@ export function IntelligentSearchScreen({
   const [aiManualOpen, setAiManualOpen] = useState(false);
   const [showTechSpecs, setShowTechSpecs] = useState(false);
   const [visibleLimit, setVisibleLimit] = useState(4);
+  const [globalSearchResults, setGlobalSearchResults] = useState<PrototypeMediaItem[]>([]);
+  const [isGlobalSearching, setIsGlobalSearching] = useState(false);
+
+  // Live World Cinema Search across global movie & series database
+  useEffect(() => {
+    const q = filters.query?.trim();
+    if (!q || q.length < 2) {
+      setGlobalSearchResults([]);
+      setIsGlobalSearching(false);
+      return;
+    }
+
+    let active = true;
+    setIsGlobalSearching(true);
+    const timer = setTimeout(() => {
+      void globalCinemaAgent.searchGlobal(q).then((results) => {
+        if (active) {
+          setGlobalSearchResults(results);
+          setIsGlobalSearching(false);
+        }
+      });
+    }, 350);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [filters.query]);
+
+  const globalRecommendations: ExplainedRecommendation[] = useMemo(() => {
+    return globalSearchResults.map((item) => ({
+      item,
+      similarityPct: 98,
+      explanationEn: `Live Global Cinema Match (${item.releaseYear})`,
+      explanationFa: `نمایش زنده از کاتالوگ بین‌المللی سینما (${item.releaseYear})`,
+      tasteMatchFactors: item.tags.slice(0, 3)
+    }));
+  }, [globalSearchResults]);
 
   // Live effective taste vector blended with everything user clicked/typed right here
   const liveVector = useMemo(() => {
@@ -856,8 +895,29 @@ export function IntelligentSearchScreen({
         </AnimatePresence>
       </div>
 
+      {/* Live Global Agent Searching Indicator */}
+      {isGlobalSearching && (
+        <div className="flex items-center justify-center gap-2 py-3">
+          <div className="h-2.5 w-2.5 rounded-full bg-[#F5B942] animate-ping" />
+          <span className="text-xs text-[#F5B942] font-mono">
+            {t('AI Agent searching all global movies & series...', 'ایجنت در حال جستجو در آرشیو تمام فیلم‌ها و سریال‌های جهان...')}
+          </span>
+        </div>
+      )}
+
+      {/* World Cinema Live Search Results */}
+      {globalRecommendations.length > 0 && (
+        <div className="space-y-6 pt-2">
+          {renderBucket(
+            'World Cinema Live Showcase',
+            'آرشیو بین‌المللی فیلم و سریال‌های جهان',
+            globalRecommendations
+          )}
+        </div>
+      )}
+
       {/* Live Results Showcase */}
-      {grouped.totalCount === 0 ? (
+      {grouped.totalCount === 0 && globalRecommendations.length === 0 ? (
         <div className="rounded-[28px] border border-white/12 bg-[#0D101A] p-8 text-center space-y-4">
           <h2 className="text-lg font-semibold text-[#F5F7FA]">
             {t('No exact match for these strict constraints', 'موردی دقیقاً با این ترکیب پیدا نشد')}
