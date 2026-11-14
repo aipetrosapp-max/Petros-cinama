@@ -65,6 +65,32 @@ export interface CardinalEntrance {
 const clientDetailsCache = new Map<string, BackendFilmDetailsResponse>();
 
 export function buildFallbackBackendQualities(item: PrototypeMediaItem): BackendStreamQuality[] {
+  if (item.qualities && item.qualities.length > 0) {
+    const valid = item.qualities.filter(q => q.url && q.url.startsWith('http'));
+    if (valid.length > 0) {
+      return valid.map((q, idx) => {
+        const qName = q.quality || '1080p';
+        const is4k = qName.includes('4K') || qName.includes('2160p');
+        const is1080 = qName.includes('1080p');
+        const is720 = qName.includes('720p');
+        return {
+          id: `quality-${idx}-${qName}`,
+          resolution: is4k ? '2160p' : is1080 ? '1080p' : is720 ? '720p' : '480p',
+          label: `${qName} ${is4k ? 'Ultra HD' : 'Direct Stream'}`,
+          fps: is4k ? 60 : 30,
+          bitrateMbps: is4k ? 24 : is1080 ? 8.5 : 4.2,
+          codec: is4k ? 'HEVC / H.265' : 'H.264',
+          audio: 'Stereo AAC',
+          estimatedSizeMb: Math.round((q.bitrate || 6000) * 0.1),
+          batteryMode: is4k ? 'Cinema High Power' : 'Optimal Daily',
+          streamUrl: q.url,
+          recommended: idx === 0,
+          available: true
+        };
+      });
+    }
+  }
+
   const durMin = Math.max(3, Math.round(item.durationSec / 60));
   const is60Fps = item.quality.includes('60FPS');
   return [

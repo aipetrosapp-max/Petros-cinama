@@ -71,31 +71,9 @@ import { CryptoAdModal } from '../components/CryptoAdModal';
 import { InteractiveSpotlightTour } from '../components/InteractiveSpotlightTour';
 import { OwnerSecretPortal } from '../components/OwnerSecretPortal';
 
-const INITIAL_PROGRESS_SEED: Record<string, WatchProgressEntry> = {
-  'proto-01': {
-    contentId: 'proto-01',
-    positionSec: 185,
-    durationSec: 540,
-    completed: false,
-    lastWatchedAt: new Date(Date.now() - 3600_000).toISOString()
-  },
-  'proto-03': {
-    contentId: 'proto-03',
-    positionSec: 210,
-    durationSec: 615,
-    completed: false,
-    lastWatchedAt: new Date(Date.now() - 7200_000).toISOString()
-  }
-};
+const INITIAL_PROGRESS_SEED: Record<string, WatchProgressEntry> = {};
 
-const INITIAL_COLLECTIONS_SEED: UserCollection[] = [
-  {
-    id: 'col-late-night',
-    name: 'شب‌های بارانی و آرام',
-    itemIds: ['proto-01', 'proto-03'],
-    createdAt: new Date().toISOString()
-  }
-];
+const INITIAL_COLLECTIONS_SEED: UserCollection[] = [];
 
 const INITIAL_SEARCH_FILTERS: SearchFilterState = {
   query: '',
@@ -165,25 +143,31 @@ function UniversePrototypeShell({
   const [libraryTabRequest, setLibraryTabRequest] = useState<LibraryTab | undefined>(undefined);
   const [langPickerOpen, setLangPickerOpen] = useState(false);
 
-  const [catalog, setCatalog] = useState<PrototypeMediaItem[]>(
-    () => initialVault?.catalog ?? PROTOTYPE_MEDIA_CATALOG
-  );
+  const [catalog, setCatalog] = useState<PrototypeMediaItem[]>(() => {
+    const raw = initialVault?.catalog && initialVault.catalog.length > 0
+      ? initialVault.catalog
+      : dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem);
+    return raw.filter((item) => Boolean(
+      (item.streamUrl && item.streamUrl.startsWith('http') && !item.streamUrl.includes('oceans.mp4') && !item.streamUrl.includes('t.me/')) ||
+      (item.qualities && item.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4') && !q.url.includes('t.me/')))
+    ));
+  });
   const [user, setUser] = useState<UserAccountState>(() => initialVault?.user ?? INITIAL_USER_STATE);
   const [userVector, setUserVector] = useState<TasteVector6D>(
     () => initialVault?.userVector ?? DEFAULT_TASTE_VECTOR
   );
 
   const [progressMap, setProgressMap] = useState<Record<string, WatchProgressEntry>>(
-    () => initialVault?.progressMap ?? INITIAL_PROGRESS_SEED
+    () => initialVault?.progressMap ?? {}
   );
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(
-    () => new Set(initialVault?.favoriteIds ?? ['proto-01', 'proto-05'])
+    () => new Set(initialVault?.favoriteIds ?? [])
   );
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(
     () => new Set(initialVault?.hiddenIds ?? [])
   );
   const [recentIds, setRecentIds] = useState<string[]>(
-    () => initialVault?.recentIds ?? ['proto-01', 'proto-03']
+    () => initialVault?.recentIds ?? []
   );
   const [feedbackMap, setFeedbackMap] = useState<Record<string, FeedbackRecord>>(
     () => initialVault?.feedbackMap ?? {}
@@ -262,12 +246,13 @@ function UniversePrototypeShell({
       if (!isMounted) return;
       setLastSyncTime(meta.lastSyncedAt);
       if (dynamicStreams && dynamicStreams.length > 0) {
-        const converted = dynamicStreams.map(convertDynamicStreamToMediaItem);
-        setCatalog((prevCatalog) => {
-          const newIds = new Set(converted.map((c) => c.id));
-          const rest = prevCatalog.filter((item) => !newIds.has(item.id));
-          return [...converted, ...rest];
-        });
+        const validConverted = dynamicStreams
+          .filter((s) => Boolean(
+            (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http') && !s.defaultStreamUrl.includes('oceans.mp4') && !s.defaultStreamUrl.includes('t.me/')) ||
+            (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4') && !q.url.includes('t.me/')))
+          ))
+          .map(convertDynamicStreamToMediaItem);
+        setCatalog(validConverted);
       }
     });
 
@@ -277,18 +262,17 @@ function UniversePrototypeShell({
         setSyncStatusText(lang === 'fa' ? 'در حال دریافت تازه‌ترین فهرست فیلم‌ها و استریم‌ها از مخزن ابری...' : 'Fetching latest cloud cinema streams...');
         await dynamicStreamSync.syncNow(true);
         if (isMounted) {
+          const validOnly = dynamicStreamSync.getStreams()
+            .filter((s) => Boolean(
+              (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http') && !s.defaultStreamUrl.includes('oceans.mp4') && !s.defaultStreamUrl.includes('t.me/')) ||
+              (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4') && !q.url.includes('t.me/')))
+            ))
+            .map(convertDynamicStreamToMediaItem);
+          if (validOnly.length > 0) {
+            setCatalog(validOnly);
+          }
           setSyncStatusText(lang === 'fa' ? 'مخزن فیلم و سریال با موفقیت به‌روزرسانی شد.' : 'Cinema catalog synchronized.');
         }
-
-        // Autonomous Internal Agent: Hydrate live global movies and series worldwide
-        void globalCinemaAgent.getGlobalCatalog().then((globalItems) => {
-          if (!isMounted || !globalItems || globalItems.length === 0) return;
-          setCatalog((prevCatalog) => {
-            const existingIds = new Set(prevCatalog.map((x) => x.id));
-            const newItems = globalItems.filter((x) => !existingIds.has(x.id));
-            return [...prevCatalog, ...newItems];
-          });
-        });
       } catch (err) {
         console.warn('Initial cloud sync error (falling back to cache):', err);
       } finally {
@@ -768,13 +752,19 @@ function UniversePrototypeShell({
       void deleteOfflineMediaBlob(id);
     });
     void clearVaultSnapshot();
-    setCatalog(PROTOTYPE_MEDIA_CATALOG);
+    const validOnly = dynamicStreamSync.getStreams()
+      .filter((s) => Boolean(
+        (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http') && !s.defaultStreamUrl.includes('oceans.mp4') && !s.defaultStreamUrl.includes('t.me/')) ||
+        (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4') && !q.url.includes('t.me/')))
+      ))
+      .map(convertDynamicStreamToMediaItem);
+    setCatalog(validOnly);
     setUser(INITIAL_USER_STATE);
     setUserVector(DEFAULT_TASTE_VECTOR);
-    setProgressMap(INITIAL_PROGRESS_SEED);
-    setFavoriteIds(new Set(['proto-01', 'proto-05']));
+    setProgressMap({});
+    setFavoriteIds(new Set());
     setHiddenIds(new Set());
-    setRecentIds(['proto-01', 'proto-03']);
+    setRecentIds([]);
     setFeedbackMap({});
     setCollections(INITIAL_COLLECTIONS_SEED);
     setDownloadsMap({});
@@ -1296,17 +1286,18 @@ function UniversePrototypeShell({
               }
             }}
             onRefreshCatalog={() => {
-              const updatedStreams = dynamicStreamSync.getStreams();
+              const updatedStreams = dynamicStreamSync.getStreams()
+                .filter((s) => Boolean(
+                  (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http') && !s.defaultStreamUrl.includes('oceans.mp4') && !s.defaultStreamUrl.includes('t.me/')) ||
+                  (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4') && !q.url.includes('t.me/')))
+                ));
               if (updatedStreams.length > 0) {
                 const converted = updatedStreams.map(convertDynamicStreamToMediaItem);
-                setCatalog((prev) => {
-                  const newIds = new Set(converted.map((c) => c.id));
-                  return [...converted, ...prev.filter((i) => !newIds.has(i.id))];
-                });
+                setCatalog(converted);
                 showToast(
                   lang === 'fa'
-                    ? `کاتالوگ با ${converted.length} فیلم و سریال جدید در پلتفرم کش و بارگذاری شد!`
-                    : `Catalog updated & cached with ${converted.length} streams!`
+                    ? `کاتالوگ با ${converted.length} فیلم و سریال واقعی به‌روزرسانی شد!`
+                    : `Catalog updated with ${converted.length} active streams!`
                 );
               }
             }}
