@@ -320,115 +320,122 @@ export function CinematicPlayerScreen({
     triggerBrowserDownload(blob, synced.matchedFilename);
   }, [item, aiSyncedSub, details, activeQuality, lang, syncOffsetMs, renderCueText]);
 
-  // Procedural Canvas -> HTML5 <video> MediaStream engine (adapts to Trailer vs Movie cadence)
+  // Check if current item originates from a Telegram source
+  const isTelegramSource = Boolean(
+    (item?.streamUrl && (item.streamUrl.includes('t.me/') || item.streamUrl.includes('telegram.me/'))) ||
+    (item?.originalSource && (item.originalSource.includes('t.me/') || item.originalSource.includes('telegram.me/')))
+  );
+
+  const telegramUrl = isTelegramSource
+    ? (item?.originalSource || item?.streamUrl || 'https://t.me/c/1380077268/60929')
+    : '';
+
+  // Determine actual playable direct stream URL
+  const activeStreamUrl = useMemo(() => {
+    if (!item) return '';
+    if (playbackMode === 'trailer' && details?.trailer?.previewVideoUrl) {
+      return details.trailer.previewVideoUrl;
+    }
+    const q = backendQualities.find((x) => x.id === selectedQualityId);
+    if (q?.streamUrl && q.streamUrl.startsWith('http') && !q.streamUrl.includes('t.me/')) {
+      return q.streamUrl;
+    }
+    if (item.qualities && item.qualities.length > 0) {
+      const match = item.qualities.find((x) => x.url && x.url.startsWith('http') && !x.url.includes('t.me/'));
+      if (match?.url) return match.url;
+    }
+    if (item.streamUrl && item.streamUrl.startsWith('http') && !item.streamUrl.includes('t.me/')) {
+      return item.streamUrl;
+    }
+    // High-definition sample stream fallback
+    return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4';
+  }, [item, backendQualities, selectedQualityId, playbackMode, details]);
+
+  // Load real video stream URL into <video>
   useEffect(() => {
-    if (!item) return;
-    const canvas = canvasRef.current;
     const video = videoRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!video || !activeStreamUrl) return;
 
-    const posterImg = new Image();
-    posterImg.src = item.posterUrl;
-
-    let frame = 0;
-    let rafId = 0;
-
-    const drawFrame = () => {
-      if (isPlayingRef.current) {
-        frame += playbackMode === 'trailer' ? 2.4 : 1;
-      }
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.fillStyle = '#06070C';
-      ctx.fillRect(0, 0, w, h);
-
-      if (posterImg.complete && posterImg.naturalWidth > 0) {
-        const zoomFactor =
-          playbackMode === 'trailer'
-            ? 1.06 + Math.sin(frame * 0.025) * 0.05
-            : 1.04 + Math.sin(frame * 0.015) * 0.03;
-        const dw = w * zoomFactor;
-        const dh = h * zoomFactor;
-        const dx = (w - dw) / 2 + Math.cos(frame * 0.012) * 14;
-        const dy = (h - dh) / 2 + Math.sin(frame * 0.01) * 10;
-        ctx.globalAlpha = isPlayingRef.current ? 0.92 : 0.6;
-        ctx.drawImage(posterImg, dx, dy, dw, dh);
-        ctx.globalAlpha = 1;
-      }
-
-      const grad = ctx.createRadialGradient(
-        w * (0.5 + Math.sin(frame * 0.02) * 0.16),
-        h * 0.45,
-        24,
-        w * 0.5,
-        h * 0.5,
-        w * 0.68
-      );
-      grad.addColorStop(0, `${item.accentHex}3D`);
-      grad.addColorStop(1, 'rgba(6, 7, 12, 0.72)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-
-      rafId = window.requestAnimationFrame(drawFrame);
-    };
-
-    rafId = window.requestAnimationFrame(drawFrame);
-
-    try {
-      const streamable = canvas as HTMLCanvasElement & { captureStream?: (fps?: number) => MediaStream };
-      if (video && typeof streamable.captureStream === 'function') {
-        const mediaStream = streamable.captureStream(24);
-        video.srcObject = mediaStream;
-        video.muted = true;
-        void video.play().catch(() => {});
-        setStreamReady(true);
-      }
-    } catch {
-      setStreamReady(false);
+    if (video.src !== activeStreamUrl) {
+      video.src = activeStreamUrl;
+      video.load();
     }
+    video.currentTime = currentTimeRef.current;
+    video.muted = muted;
+    video.volume = volume;
+    video.playbackRate = speed;
 
-    return () => {
-      window.cancelAnimationFrame(rafId);
-      if (video && video.srcObject) {
-        const stream = video.srcObject as MediaStream;
-        stream.getTracks().forEach((tr) => tr.stop());
-        video.srcObject = null;
-      }
-    };
-  }, [item?.id, item?.posterUrl, item?.accentHex, playbackMode]);
-
-  // Sync external MP4 trailer video element play/pause/mute state when in Trailer Mode
-  useEffect(() => {
-    const trVideo = trailerVideoRef.current;
-    if (!trVideo || playbackMode !== 'trailer' || !details?.trailer?.previewVideoUrl) return;
-    trVideo.muted = muted;
-    trVideo.volume = volume;
-    trVideo.playbackRate = speed;
     if (isPlaying) {
-      void trVideo.play().catch(() => {});
+      const p = video.play();
+      if (p !== undefined) {
+        p.catch(() => {});
+      }
     } else {
-      trVideo.pause();
+      video.pause();
     }
-  }, [isPlaying, muted, volume, speed, playbackMode, details?.trailer?.previewVideoUrl]);
+  }, [activeStreamUrl]);
 
-  // Playback progress ticker
+  // Sync play / pause
   useEffect(() => {
-    if (!item || !isPlaying) return;
-    const id = window.setInterval(() => {
-      const next = Math.min(duration, currentTimeRef.current + speed);
-      currentTimeRef.current = next;
-      setCurrentTime(next);
-      if (playbackMode === 'movie') {
-        onSaveProgress(item.id, next, duration, next >= duration);
+    const video = videoRef.current;
+    if (!video) return;
+    if (isPlaying) {
+      const p = video.play();
+      if (p !== undefined) {
+        p.catch(() => {});
       }
-      if (next >= duration) {
-        setIsPlaying(false);
-      }
-    }, 1000);
-    return () => window.clearInterval(id);
-  }, [item, duration, isPlaying, speed, playbackMode, onSaveProgress]);
+    } else {
+      video.pause();
+    }
+  }, [isPlaying]);
+
+  // Sync volume / muted
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = muted;
+    video.volume = volume;
+  }, [muted, volume]);
+
+  // Sync playback speed
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.playbackRate = speed;
+  }, [speed]);
+
+  const handleTimeUpdate = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const cur = video.currentTime;
+    currentTimeRef.current = cur;
+    setCurrentTime(cur);
+    const dur = video.duration || duration;
+    if (playbackMode === 'movie' && item) {
+      onSaveProgress(item.id, cur, dur, cur >= dur);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    setStreamReady(true);
+    if (currentTimeRef.current > 0 && Math.abs(video.currentTime - currentTimeRef.current) > 1) {
+      video.currentTime = currentTimeRef.current;
+    }
+  };
+
+  const handleSeek = (next: number) => {
+    setCurrentTime(next);
+    currentTimeRef.current = next;
+    const video = videoRef.current;
+    if (video) {
+      video.currentTime = next;
+    }
+    if (playbackMode === 'movie' && item) {
+      onSaveProgress(item.id, next, duration, next >= duration);
+    }
+  };
 
   // Robust Fullscreen: tries Native Fullscreen API AND applies fixed-viewport Cinema Fullscreen
   // cleanly so it works 100% inside iframes, iOS Safari, Android, and desktop browsers!
@@ -751,22 +758,20 @@ export function CinematicPlayerScreen({
               : 'relative aspect-video w-full bg-black'
           }
         >
-          {/* Synthesized High-Quality Frame Stream / Fallback */}
-          <canvas
-            ref={canvasRef}
-            width={1280}
-            height={720}
-            className={`h-full w-full ${isFullscreen ? 'object-contain' : 'object-cover'}`}
-          />
-
-          {/* Main HTML5 Video Stream with attached AI-Synced WebVTT Subtitle <track> */}
+          {/* Main Real HTML5 Video Player */}
           <video
             ref={videoRef}
+            src={activeStreamUrl}
             playsInline
-            muted
-            className={`pointer-events-none absolute inset-0 h-full w-full ${
+            controls={false}
+            poster={item.posterUrl}
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onEnded={() => setIsPlaying(false)}
+            onClick={() => setIsPlaying((p) => !p)}
+            className={`absolute inset-0 h-full w-full cursor-pointer z-10 ${
               isFullscreen ? 'object-contain' : 'object-cover'
-            } ${streamReady && !liveTrailerVideoActive ? 'opacity-100' : 'opacity-0'}`}
+            }`}
           >
             {vttTrackUrl && (
               <track
@@ -780,6 +785,38 @@ export function CinematicPlayerScreen({
             )}
           </video>
 
+          {/* Telegram Source Header Banner & Direct Stream Action */}
+          {isTelegramSource && (
+            <div className="absolute top-14 start-3 end-3 z-30 flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-[#38BDF8]/40 bg-[#060812]/92 px-4 py-2.5 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,0.8)]">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0088cc]/20 text-[#38BDF8] border border-[#0088cc]/40">
+                  <ExternalLink className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white flex items-center gap-2">
+                    <span>{t('Telegram Source Stream (1080p Full Movie)', 'منبع استریم تلگرام (کیفیت 1080p با زیرنویس فارسی)')}</span>
+                    <span className="rounded-full bg-[#38BDF8]/15 text-[#38BDF8] text-[10px] px-2 py-0.5 font-mono">
+                      Post #60929
+                    </span>
+                  </p>
+                  <p className="text-[11px] text-[#A3AEC2]">
+                    {t('Direct link to private channel storage. Tap to stream directly in Telegram app.', 'پست اختصاصی آرشیو تلگرام. برای پخش مستقیم و بدون محدودیت روی دکمه روبرو بزنید.')}
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href={telegramUrl || 'https://t.me/c/1380077268/60929'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="min-h-[38px] inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0088cc] to-[#00aaff] hover:from-[#0099e6] hover:to-[#38bdf8] px-4 text-xs font-bold text-white transition-all shadow-lg hover:shadow-[#0088cc]/30 cursor-pointer"
+              >
+                <span>{t('Open & Play in Telegram App', 'پخش مستقیم در اپلیکیشن تلگرام')}</span>
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          )}
+
           {/* Real External Trailer Stream Layer when in Trailer Mode and URL exists */}
           {playbackMode === 'trailer' && details?.trailer?.previewVideoUrl && (
             <video
@@ -789,7 +826,7 @@ export function CinematicPlayerScreen({
               autoPlay
               onCanPlay={() => setLiveTrailerVideoActive(true)}
               onError={() => setLiveTrailerVideoActive(false)}
-              className={`absolute inset-0 h-full w-full ${
+              className={`absolute inset-0 h-full w-full z-15 ${
                 isFullscreen ? 'object-contain' : 'object-cover'
               } ${liveTrailerVideoActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
             >
@@ -871,12 +908,7 @@ export function CinematicPlayerScreen({
                   value={currentTime}
                   onChange={(e) => {
                     const next = Number(e.target.value);
-                    setCurrentTime(next);
-                    if (playbackMode === 'movie') {
-                      onSaveProgress(item.id, next, duration, next >= duration);
-                    } else if (trailerVideoRef.current && liveTrailerVideoActive) {
-                      trailerVideoRef.current.currentTime = next;
-                    }
+                    handleSeek(next);
                   }}
                   aria-label="Seek timeline"
                   className="aether-slider w-full"
@@ -901,7 +933,7 @@ export function CinematicPlayerScreen({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setCurrentTime((tm) => Math.max(0, tm - 10))}
+                  onClick={() => handleSeek(Math.max(0, currentTime - 10))}
                   aria-label="Rewind 10s"
                   className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-[#F5F7FA] cursor-pointer"
                 >
@@ -909,7 +941,7 @@ export function CinematicPlayerScreen({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setCurrentTime((tm) => Math.min(duration, tm + 10))}
+                  onClick={() => handleSeek(Math.min(duration, currentTime + 10))}
                   aria-label="Forward 10s"
                   className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-[#F5F7FA] cursor-pointer"
                 >

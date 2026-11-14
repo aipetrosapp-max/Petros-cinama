@@ -105,6 +105,8 @@ export interface PrototypeMediaItem {
   consentVerified: boolean;
   sourceName: string;
   streamUrl?: string;
+  defaultStreamUrl?: string;
+  originalSource?: string;
   qualities?: { quality: string; url: string; format?: string }[];
   subtitles: SubtitleLine[];
   chapters: ChapterMarker[];

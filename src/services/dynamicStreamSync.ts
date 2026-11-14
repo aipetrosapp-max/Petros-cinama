@@ -325,6 +325,8 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     consentVerified: true,
     sourceName: 'GitHub Cloud Sync (Petros Cinema)',
     streamUrl: stream.defaultStreamUrl,
+    defaultStreamUrl: stream.defaultStreamUrl,
+    originalSource: stream.originalSource,
     qualities: stream.qualities,
     subtitles: [
       { startSec: 1, endSec: 8, en: stream.title, fa: stream.titleFa || stream.title },
