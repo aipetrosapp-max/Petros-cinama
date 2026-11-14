@@ -728,8 +728,9 @@ export function CinematicPlayerScreen({
           <Button
             variant="secondary"
             size="sm"
-            disabled={isDownloading}
+            disabled={!activeStreamUrl || isDownloading}
             onClick={() => onDownload(item, false, activeQuality)}
+            title={!activeStreamUrl ? t('No download link available', 'لینک دانلود برای این اثر درج نشده است') : undefined}
           >
             {isDownloading ? (
               <>
@@ -752,8 +753,9 @@ export function CinematicPlayerScreen({
           <Button
             variant="secondary"
             size="sm"
-            disabled={isDownloading}
+            disabled={!activeStreamUrl || isDownloading}
             onClick={() => onDownload(item, true, activeQuality)}
+            title={!activeStreamUrl ? t('No download link available', 'لینک دانلود برای این اثر درج نشده است') : undefined}
           >
             <HardDriveDownload className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{t('Download to Device', 'دانلود در دستگاه')}</span>
@@ -822,7 +824,7 @@ export function CinematicPlayerScreen({
               )}
             </>
           ) : (
-            /* AI Strict Authenticity & Petros Cinema Cloud Buffer Screen */
+            /* AI Strict Authenticity & Petros Cinema Empty/No-Link Buffer Screen */
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 sm:p-6 text-center bg-[#070913]/95 backdrop-blur-2xl">
               <img
                 src={item.posterUrl}
@@ -831,9 +833,9 @@ export function CinematicPlayerScreen({
               />
 
               <div className="relative z-10 max-w-lg w-full flex flex-col items-center gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#10B981]/50 bg-[#10B981]/15 px-3.5 py-1 text-xs font-bold text-[#10B981] shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-[#F5B942] shadow-[0_0_20px_rgba(245,185,66,0.2)]">
                   <ShieldCheck className="h-4 w-4" />
-                  <span>{t('AI Strict Source Protection Active', 'فیلتر اصالت هوش مصنوعی پتروس: فعال')}</span>
+                  <span>{t('Stream Link Not Attached', 'لینک دانلود یا استریم هنوز درج نشده')}</span>
                 </div>
 
                 <h3 className="text-base sm:text-xl font-black text-white">
@@ -843,15 +845,14 @@ export function CinematicPlayerScreen({
 
                 <p className="text-xs sm:text-sm text-[#A3AEC2] leading-relaxed">
                   {t(
-                    'No irrelevant videos allowed. The genuine film stream is connecting to Petros Private Cloud Storage...',
-                    'پخش ویدیوهای متفرقه یا بی‌ربط طبق دستور هوش مصنوعی مسدود است. در حال بارگذاری استریم اورجینال از سرور ابری اختصاصی پتروس سینما...'
+                    'No direct stream or download link has been attached to this title yet. Only titles with verified links can be played or downloaded.',
+                    'برای این فیلم یا سریال هنوز لینک مستقیم دانلود یا استریم درج نشده است. فقط عناوینی که دارای لینک مستقیم باشند قابل اجرا و دانلود هستند.'
                   )}
                 </p>
 
                 <div className="flex items-center gap-2 pt-2">
-                  <div className="h-3 w-3 rounded-full bg-[#F5B942] animate-ping" />
-                  <span className="text-xs font-mono text-[#F5B942]">
-                    {t('Syncing High-Bitrate Master Feed...', 'در حال همگام‌سازی استریم مستر کیفیت بالا...')}
+                  <span className="text-xs font-mono text-[#A3AEC2]">
+                    {t('Waiting for source upload in vault', 'در انتظار ثبت لینک یا بارگذاری منبع')}
                   </span>
                 </div>
               </div>

@@ -13,6 +13,7 @@ export interface CinemetaMetaItem {
   director?: string[] | string;
   cast?: string[];
   runtime?: string;
+  streamUrl?: string;
 }
 
 const GLOBAL_CACHE_KEY = 'aipetros_global_cinema_cache_v1';
@@ -110,19 +111,17 @@ function mapCinemetaToPrototypeItem(meta: CinemetaMetaItem, index: number): Prot
     licenseVerified: true,
     consentVerified: true,
     sourceName: `Global Database (${meta.id || 'IMDb'})`,
-    defaultStreamUrl: `https://archive.org/download/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4`,
-    qualities: [
-      {
-        quality: '4K HDR',
-        url: `https://archive.org/download/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4`,
-        format: 'direct'
-      },
-      {
-        quality: '1080p',
-        url: `https://archive.org/download/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4`,
-        format: 'direct'
-      }
-    ],
+    defaultStreamUrl: meta.streamUrl || '',
+    streamUrl: meta.streamUrl || '',
+    qualities: meta.streamUrl
+      ? [
+          {
+            quality: '1080p',
+            url: meta.streamUrl,
+            format: 'direct'
+          }
+        ]
+      : [],
     subtitles: [
       { startSec: 1, endSec: 10, en: meta.name, fa: `${meta.name} (${cleanYear})` },
       { startSec: 11, endSec: 25, en: synopsisEn, fa: synopsisFa }

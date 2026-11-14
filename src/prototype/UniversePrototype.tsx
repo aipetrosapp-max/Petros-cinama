@@ -498,6 +498,22 @@ function UniversePrototypeShell({
       const itemTitle = t(item.titleEn, item.titleFa);
       const effectiveQuality = selectedQuality?.resolution || item.quality;
 
+      const hasDownloadUrl = Boolean(
+        (item.streamUrl && item.streamUrl.startsWith('http')) ||
+        (item.defaultStreamUrl && item.defaultStreamUrl.startsWith('http')) ||
+        (item.qualities && item.qualities.some((q) => q.url && q.url.startsWith('http'))) ||
+        item.id === 'petros-stream-xmen-apocalypse'
+      );
+
+      if (!hasDownloadUrl) {
+        showToast(
+          lang === 'fa'
+            ? `«${itemTitle}» فاقد لینک مستقیم است؛ تنها آثار دارای لینک معتبر قابل دانلود هستند.`
+            : `No download link for "${itemTitle}". Only titles with verified links can be downloaded.`
+        );
+        return;
+      }
+
       if (existing?.status === 'completed') {
         const cachedBlob = await loadOfflineMediaBlob(item.id);
         if (cachedBlob) {
