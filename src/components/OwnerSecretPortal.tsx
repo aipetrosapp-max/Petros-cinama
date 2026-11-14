@@ -473,7 +473,7 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
                       <span>Archive Ingestion Box (Raw Text / File Upload)</span>
                     </h2>
                     <p className="text-xs text-[#A3AEC2]">
-                      Upload files (.txt, .m3u, .json, .csv) or paste messy text/links directly.
+                      Upload files or paste direct links, m3u playlists, and Telegram channels/posts (@channel, t.me/channel/123).
                     </p>
                   </div>
 
@@ -530,14 +530,17 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
                   <textarea
                     rows={7}
-                    placeholder={`Paste any messy dump here, for example:
-#EXTINF:-1 tvg-id="" tvg-name="Dune 2", Dune Part Two 4K UHD
-https://cdn.example.com/movies/dune2_4k.m3u8?utm_source=ad&token=123
+                    placeholder={`Paste any movie links, M3U playlists, or Telegram channel/post sources here:
 
-Or plain links:
-Interstellar 2014 1080p https://stream.box/interstellar.mp4
-Breaking Bad Season 1 Episode 1 https://server.net/bb_s01e01.m3u8
-Attack on Titan Final Season https://anime.stream/aot_final.m3u8`}
+# Telegram Channel & Post Examples:
+1. فیلم اینتراستلار دوبله: https://t.me/cinema_channel/4080
+2. کانال رسمی سریال: @serial_box_official
+3. انیمه اتک آن تایتان: t.me/anime_stream_ir/992
+
+# Direct Web & Stream Links:
+Dune Part Two 4K: https://cdn.example.com/movies/dune2_4k.m3u8
+Interstellar 2014 1080p: https://stream.box/interstellar.mp4
+Breaking Bad S01E01: https://server.net/bb_s01e01.m3u8`}
                     value={rawArchiveText}
                     onChange={(e) => setRawArchiveText(e.target.value)}
                     className="w-full p-3.5 rounded-2xl bg-black/70 border border-white/15 focus:border-[#00F0FF] font-mono text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none transition-colors"

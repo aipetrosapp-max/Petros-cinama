@@ -48,6 +48,9 @@ const CURATED_POSTERS = {
   ]
 };
 
+// Telegram Channel and Direct Post Stream Regex (supports @channel, t.me/channel, t.me/channel/123)
+const TELEGRAM_SOURCE_REGEX = /(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?:s\/)?([a-zA-Z0-9_+]+)(?:\/(\d+))?|@([a-zA-Z0-9_]{3,32})/gi;
+
 // Universal regex to capture explicit URLs, naked domains, and IP addresses with paths
 const UNIVERSAL_LINK_REGEX = /(?:https?|ftp):\/\/[^\s"'<>\(\)]+|\b(?:[a-zA-Z0-9-]+\.)+(?:com|org|net|edu|gov|io|moe|me|co|tv|cc|to|app|dev|ai|xyz|site|online|live|stream|pro|is|ru|ir|uk|de|eu|media|club|info|link|tech|vip|one|top|cloud|fm|so|gg|in|bz|ms|ws|sh|space|store|pub|tube|video|film|movie|fun|icu|top|world|wiki|page)(?::\d+)?(?:\/[^\s"'<>\(\)]*)?/gi;
 
@@ -154,6 +157,40 @@ export class InternalAiArchiveParserService {
         continue;
       }
 
+      // Check for Telegram channel or post handles (@channel, t.me/channel/123)
+      const telegramMatches = Array.from(line.matchAll(TELEGRAM_SOURCE_REGEX));
+      if (telegramMatches.length > 0) {
+        for (const tm of telegramMatches) {
+          const channelHandle = tm[1] || tm[3];
+          const postId = tm[2] || '';
+          if (channelHandle && channelHandle.toLowerCase() !== 'joinchat' && channelHandle.toLowerCase() !== 's') {
+            const canonicalTelegramUrl = postId 
+              ? `https://t.me/${channelHandle}/${postId}`
+              : `https://t.me/${channelHandle}`;
+
+            if (!seenUrls.has(canonicalTelegramUrl)) {
+              seenUrls.add(canonicalTelegramUrl);
+              let candidateTitle = line
+                .replace(tm[0], '')
+                .trim()
+                .replace(/^(bullet|item|link|\d+[\.\)]|[-–—:*•|])+/gi, '')
+                .replace(/[-–—:,|]+$/g, '')
+                .trim();
+
+              if (candidateTitle.length < 2) {
+                candidateTitle = postId ? `Telegram: ${channelHandle} #${postId}` : `Telegram Channel: @${channelHandle}`;
+              }
+
+              rawPairs.push({
+                title: candidateTitle,
+                url: canonicalTelegramUrl
+              });
+            }
+          }
+        }
+        continue;
+      }
+
       // Match all URLs and naked domains in this line
       const matches = line.match(UNIVERSAL_LINK_REGEX);
 
@@ -250,6 +287,8 @@ export class InternalAiArchiveParserService {
           ? pair.poster
           : posterPool[index % posterPool.length];
 
+      const isTelegramSource = cleanUrl.includes('t.me/') || cleanUrl.includes('telegram.me/');
+
       // Check if cleanUrl is a direct media stream or a web page / API URL
       const isDirectStream = /\.(?:m3u8|mp4|webm|mkv|mov|ts|m4v)(\?.*)?$/i.test(cleanUrl) ||
         cleanUrl.includes('stream') || cleanUrl.includes('video') || cleanUrl.includes('playlist') || cleanUrl.includes('hls');
@@ -285,7 +324,9 @@ export class InternalAiArchiveParserService {
             bitrate: quality === '4K' ? 14000 : 6000
           }
         ],
-        tags: [category.toUpperCase(), quality, 'AI Sanitized', 'Archive']
+        tags: isTelegramSource
+          ? ['TELEGRAM', category.toUpperCase(), quality, 'Telegram Stream Cached']
+          : [category.toUpperCase(), quality, 'AI Sanitized', 'Archive']
       };
 
       uniqueUrlMap.set(cleanUrl, streamItem);
