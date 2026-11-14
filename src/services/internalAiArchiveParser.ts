@@ -37,6 +37,17 @@ export function normalizeComparableString(str: string): string {
     .trim();
 }
 
+function normalizeComparableUrl(url: string): string {
+  if (!url) return '';
+  return url
+    .toLowerCase()
+    .trim()
+    .replace(/^https?:\/\//, '')
+    .replace(/^www\./, '')
+    .replace(/\/+$/, '')
+    .trim();
+}
+
 export function isItemInRepository(
   candidate: DynamicStreamItem,
   existingCatalog: DynamicStreamItem[] = []
@@ -48,14 +59,15 @@ export function isItemInRepository(
   const candNormTitle = normalizeComparableString(candidate.title || '');
   const candNormTitleFa = normalizeComparableString(candidate.titleFa || '');
 
-  // Collect all valid URLs from candidate (stripping trailing slashes and query strings where appropriate)
+  // Collect all normalized URLs from candidate
   const candUrls = [
     candidate.defaultStreamUrl,
     candidate.originalSource,
     ...(candidate.qualities || []).map((q) => q.url)
   ]
-    .filter((u): u is string => Boolean(u && u.trim().length > 6))
-    .map((u) => u.toLowerCase().trim().replace(/\/+$/, ''));
+    .filter((u): u is string => Boolean(u && u.trim().length > 3))
+    .map((u) => normalizeComparableUrl(u))
+    .filter((u) => u.length > 3);
 
   for (const existing of existingCatalog) {
     // 1. Direct ID match
@@ -63,18 +75,19 @@ export function isItemInRepository(
       return { exists: true, matchedItem: existing, reason: `شناسه اثر (${existing.title}) در مخزن ثبت شده است.` };
     }
 
-    // 2. Direct URL / Source matching across all qualities and stream links
+    // 2. Direct URL / Source matching across all qualities, stream links, and hostnames
     const existUrls = [
       existing.defaultStreamUrl,
       existing.originalSource,
       ...(existing.qualities || []).map((q) => q.url)
     ]
-      .filter((u): u is string => Boolean(u && u.trim().length > 6))
-      .map((u) => u.toLowerCase().trim().replace(/\/+$/, ''));
+      .filter((u): u is string => Boolean(u && u.trim().length > 3))
+      .map((u) => normalizeComparableUrl(u))
+      .filter((u) => u.length > 3);
 
     for (const cUrl of candUrls) {
       for (const eUrl of existUrls) {
-        if (cUrl === eUrl) {
+        if (cUrl === eUrl || (cUrl.length > 8 && (cUrl.includes(eUrl) || eUrl.includes(cUrl)))) {
           return {
             exists: true,
             matchedItem: existing,
@@ -90,14 +103,11 @@ export function isItemInRepository(
     // 3. English Title match
     if (candNormTitle && existNormTitle && candNormTitle.length >= 3) {
       if (candNormTitle === existNormTitle) {
-        const yearDiff = (candidate.year && existing.year) ? Math.abs(candidate.year - existing.year) : 0;
-        if (yearDiff <= 1) {
-          return {
-            exists: true,
-            matchedItem: existing,
-            reason: `فیلم «${existing.title}» (${existing.year || ''}) از قبل در مخزن سایت موجود است.`
-          };
-        }
+        return {
+          exists: true,
+          matchedItem: existing,
+          reason: `فیلم «${existing.title}» (${existing.year || ''}) از قبل در مخزن سایت موجود است.`
+        };
       }
     }
 
@@ -408,13 +418,17 @@ export class InternalAiArchiveParserService {
       }
     }
 
+    const validStreamsCount = enrichedItems.filter(
+      (item) => Boolean(item.defaultStreamUrl && item.defaultStreamUrl.trim() && item.qualities && item.qualities.length > 0)
+    ).length;
+
     return {
       ...baseResult,
       sanitizedItems: enrichedItems,
       newItemsToIngest,
       existingItemsInRepo,
       alreadyInRepoCount: existingItemsInRepo.length,
-      validStreamsCount: enrichedItems.length
+      validStreamsCount
     };
   }
 
@@ -628,6 +642,21 @@ export class InternalAiArchiveParserService {
             });
           }
         }
+      } else {
+        // Line has no URL, treat as potential movie title or search query
+        const cleanTitle = line
+          .replace(/^(bullet|item|link|\d+[\.\)]|[-–—:*•|])+/gi, '')
+          .replace(/[-–—:,|]+$/g, '')
+          .trim();
+        if (
+          cleanTitle.length >= 2 &&
+          !/^(کیفیت|زیرنویس|فصل|قسمت|حجم|فرمت|quality|sub|season|episode|1080p|720p|480p)$/i.test(cleanTitle)
+        ) {
+          rawPairs.push({
+            title: titleHint?.trim() || cleanTitle,
+            url: ''
+          });
+        }
       }
     }
 
@@ -670,17 +699,17 @@ export class InternalAiArchiveParserService {
     const detectedCategories: Record<string, number> = {};
 
     pairs.forEach((pair, index) => {
-      const cleanUrl = this.sanitizeUrl(pair.url);
-      if (!cleanUrl) return;
+      const cleanUrl = pair.url ? this.sanitizeUrl(pair.url) : '';
+      const rawTitle = pair.title || (cleanUrl ? this.extractTitleFromUrl(cleanUrl) : 'Untitled Film');
+      const cleanedTitle = this.cleanTitleString(rawTitle);
 
-      if (uniqueUrlMap.has(cleanUrl)) {
+      const dedupeKey = cleanUrl || cleanedTitle.toLowerCase().trim();
+      if (!dedupeKey) return;
+
+      if (uniqueUrlMap.has(dedupeKey)) {
         duplicateCount++;
         return;
       }
-
-      // AI title extraction and cleaning
-      const rawTitle = pair.title || this.extractTitleFromUrl(cleanUrl);
-      const cleanedTitle = this.cleanTitleString(rawTitle);
       const quality = this.detectQuality(cleanedTitle, cleanUrl);
       const year = this.detectYear(cleanedTitle) || 2026;
 
@@ -760,13 +789,17 @@ export class InternalAiArchiveParserService {
         ]
       };
 
-      uniqueUrlMap.set(cleanUrl, streamItem);
+      uniqueUrlMap.set(dedupeKey, streamItem);
       sanitizedItems.push(streamItem);
     });
 
+    const validStreamsCount = sanitizedItems.filter(
+      (item) => Boolean(item.defaultStreamUrl && item.defaultStreamUrl.trim() && item.qualities && item.qualities.length > 0)
+    ).length;
+
     return {
       totalExtracted: pairs.length,
-      validStreamsCount: sanitizedItems.length,
+      validStreamsCount,
       duplicateCount,
       alreadyInRepoCount: 0,
       moviesCount,

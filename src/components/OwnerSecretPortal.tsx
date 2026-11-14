@@ -177,18 +177,10 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
       setAiIngestionResult(result);
 
       if (result.newItemsToIngest.length > 0) {
-        // Automatic live cache & sync ONLY genuine new items to platform!
-        const updatedList = [...result.newItemsToIngest, ...streams];
-        setStreams(updatedList);
-
-        // Save & broadcast directly to dynamicStreamSync and frontend catalog
-        dynamicStreamSync.saveCustomStreams(updatedList);
-        onRefreshCatalog?.();
-
         setStreamSavedMessage(
-          `✅ مخزن سایت بررسی شد: تعداد ${result.newItemsToIngest.length} فیلم جدید به مخزن اضافه شد.${
+          `✅ آنالیز کامل شد: تعداد ${result.newItemsToIngest.length} فیلم جدید آماده افزودن به مخزن است.${
             result.alreadyInRepoCount > 0
-              ? ` (${result.alreadyInRepoCount} مورد چون از قبل در مخزن موجود بود اضافه نشد).`
+              ? ` (${result.alreadyInRepoCount} مورد چون از قبل در مخزن سایت وجود داشت صرف‌نظر شد).`
               : ''
           }`
         );
@@ -197,11 +189,11 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
         // ALL entered items already exist in the repository!
         const firstExisting = result.existingItemsInRepo[0];
         setStreamSavedMessage(
-          `⚠️ بررسی مخزن: تمامی عناوین وارد شده قبلاً در مخزن سایت موجود هستند («${firstExisting?.item.title || ''}»). طبق دستور شما هیچ آیتم تکراری اضافه نشد و مخزن دست‌نخورده باقی ماند.`
+          `⚠️ بررسی مخزن: تمام عناوین وارد شده از قبل در مخزن سایت موجود هستند («${firstExisting?.item.title || ''}»). طبق دستور شما هیچ آیتم تکراری اضافه نمی‌شود و مخزن دست‌نخورده باقی ماند.`
         );
         setTimeout(() => setStreamSavedMessage(null), 6000);
       } else {
-        setStreamSavedMessage(`⚠️ هیچ استریم معتبری یافت نشد. لطفاً لینک یا نام فیلم را وارد نمایید.`);
+        setStreamSavedMessage(`⚠️ هیچ عنوان یا لینک معتبری یافت نشد. لطفاً نام فیلم یا لینک استریم را وارد نمایید.`);
         setTimeout(() => setStreamSavedMessage(null), 4000);
       }
     } catch (err) {
@@ -237,21 +229,24 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
     onRefreshCatalog?.();
 
     setIsCommittingGithub(true);
-    setStreamSavedMessage(`⏳ در حال ثبت دائمی در سرور گیت‌هاب...`);
+    setStreamSavedMessage(`⏳ در حال ثبت دائمی در سرور اصلی گیت‌هاب...`);
 
     const gitOk = await commitToGitHubRepo(updatedList);
     setIsCommittingGithub(false);
 
     if (gitOk) {
       setStreamSavedMessage(
-        `✅ با موفقیت در مخزن اصلی ذخیره شد و روی کل سایت منتشر گردید! (${updatedList.length} اثر)`
+        `✅ تعداد ${aiIngestionResult.newItemsToIngest.length} فیلم جدید با موفقیت در مخزن اصلی ذخیره شد و روی کل سایت منتشر گردید! (کل مخزن: ${updatedList.length} اثر)`
       );
+      setAiIngestionResult(null);
+      setRawArchiveText('');
+      setCustomTitleHint('');
     } else {
       setStreamSavedMessage(
         `✅ کاتالوگ فرانت‌ند با موفقیت به‌روز شد (${updatedList.length} اثر)`
       );
     }
-    setTimeout(() => setStreamSavedMessage(null), 5000);
+    setTimeout(() => setStreamSavedMessage(null), 6000);
   };
 
   const handleDeleteStream = (id: string) => {
