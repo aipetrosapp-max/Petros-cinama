@@ -5,14 +5,17 @@ echo ======================================================================
 echo    Telegram StringSession Generator - Petros Cinema
 echo ======================================================================
 echo.
-echo Installing required libraries (telethon cryptg)...
-python -m pip install telethon cryptg
-echo.
-echo Starting session generator...
-echo.
 python generate_session.py
 echo.
-echo ======================================================================
-echo Done! Please copy the session string above and paste it in chat.
-echo ======================================================================
+
+if exist telegram_session.txt (
+    type telegram_session.txt | clip
+    echo ======================================================================
+    echo [SUCCESS] Text has been AUTOMATICALLY COPIED to your Clipboard!
+    echo Just come to our chat and press (Ctrl + V) to Paste it!
+    echo ======================================================================
+    start notepad telegram_session.txt
+)
+
+echo.
 pause
