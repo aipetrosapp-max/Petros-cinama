@@ -81,7 +81,7 @@ export function buildFallbackBackendQualities(item: PrototypeMediaItem): Backend
           bitrateMbps: is4k ? 24 : is1080 ? 8.5 : 4.2,
           codec: is4k ? 'HEVC / H.265' : 'H.264',
           audio: 'Stereo AAC',
-          estimatedSizeMb: Math.round((q.bitrate || 6000) * 0.1),
+          estimatedSizeMb: Math.round(((q as { bitrate?: number }).bitrate || 6000) * 0.1),
           batteryMode: is4k ? 'Cinema High Power' : 'Optimal Daily',
           streamUrl: q.url,
           recommended: idx === 0,

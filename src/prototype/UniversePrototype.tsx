@@ -64,7 +64,7 @@ import { CinematicPlayerScreen } from './screens/CinematicPlayerScreen';
 import { LibraryScreen } from './screens/LibraryScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
-import { globalCinemaAgent } from '../services/globalCinemaAgent';
+import { autoUpdateService } from '../services/autoUpdateService';
 import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
 import { tvRemote } from '../services/tvRemoteNavigation';
 import { CryptoAdModal } from '../components/CryptoAdModal';
@@ -236,6 +236,21 @@ function UniversePrototypeShell({
     window.addEventListener('hashchange', checkSecretRoute);
     return () => window.removeEventListener('hashchange', checkSecretRoute);
   }, []);
+
+  // Zero-reinstall real-time update detector
+  useEffect(() => {
+    const unsub = autoUpdateService.onNewVersion((newVer) => {
+      showToast(
+        lang === 'fa'
+          ? `نسخه جدید پتروس سینما بارگذاری شد (${newVer}). به‌روزرسانی آنی...`
+          : `New Petros Cinema version loaded (${newVer}). Updating...`
+      );
+      setTimeout(() => {
+        autoUpdateService.forceApplyUpdate();
+      }, 1500);
+    });
+    return unsub;
+  }, [lang, showToast]);
 
   // Dynamic Stream Sync & Initial Cloud Catalog Hydration
   useEffect(() => {

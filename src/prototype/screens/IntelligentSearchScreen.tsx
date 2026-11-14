@@ -211,10 +211,9 @@ export function IntelligentSearchScreen({
   const globalRecommendations: ExplainedRecommendation[] = useMemo(() => {
     return globalSearchResults.map((item) => ({
       item,
-      similarityPct: 98,
-      explanationEn: `Live Global Cinema Match (${item.releaseYear})`,
-      explanationFa: `نمایش زنده از کاتالوگ بین‌المللی سینما (${item.releaseYear})`,
-      tasteMatchFactors: item.tags.slice(0, 3)
+      score: 98,
+      reasonEn: `Live Global Cinema Match (${item.releaseYear})`,
+      reasonFa: `نمایش زنده از کاتالوگ بین‌المللی سینما (${item.releaseYear})`
     }));
   }, [globalSearchResults]);
 

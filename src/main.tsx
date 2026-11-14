@@ -2,6 +2,10 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { autoUpdateService } from './services/autoUpdateService';
+
+// Initialize zero-reinstall auto update listener
+autoUpdateService.init().catch(() => {});
 
 interface ErrorBoundaryState {
   hasError: boolean;
