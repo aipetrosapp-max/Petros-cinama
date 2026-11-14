@@ -19,18 +19,27 @@
       "durationSec": 8640,
       "rating": "6.8/10",
       "director": "Bryan Singer",
-      "tags": ["X-Men", "X-man", "Xman", "مردان ایکس", "Marvel", "Action", "Sci-Fi", "Superhero", "1080p", "Apocalypse"],
+      "tags": [
+        "X-Men",
+        "X-man",
+        "Xman",
+        "مردان ایکس",
+        "Marvel",
+        "Action",
+        "Sci-Fi",
+        "Superhero",
+        "1080p",
+        "Apocalypse"
+      ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
-      "originalSource": "https://t.me/+fAEG65IvvM05MDY0",
+      "defaultStreamUrl": "",
+      "originalSource": "https://t.me/c/3885570365/2",
       "mediaFolder": "Movies/X-Men Apocalypse/1080p",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://vjs.zencdn.net/v/oceans.mp4",
-          "format": "mp4",
-          "bitrate": 8500,
-          "fps": 60
+          "url": "https://t.me/c/3885570365/2",
+          "format": "direct"
         }
       ],
       "featured": true,
@@ -50,7 +59,13 @@
       "durationSec": 720,
       "rating": "9.8/10",
       "director": "Petros AI Visionary Core",
-      "tags": ["Cyberpunk", "4K", "AI Cinema", "Space", "HDR"],
+      "tags": [
+        "Cyberpunk",
+        "4K",
+        "AI Cinema",
+        "Space",
+        "HDR"
+      ],
       "sourceType": "mp4",
       "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
@@ -93,7 +108,12 @@
       "durationSec": 840,
       "rating": "9.6/10",
       "director": "Elena Vance & Petros Studio",
-      "tags": ["Neural", "Deep Space", "Atmospheric", "Cinema"],
+      "tags": [
+        "Neural",
+        "Deep Space",
+        "Atmospheric",
+        "Cinema"
+      ],
       "sourceType": "mp4",
       "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
@@ -129,7 +149,12 @@
       "durationSec": 630,
       "rating": "9.7/10",
       "director": "Kaito Morimoto",
-      "tags": ["Noir", "Detective", "Futuristic", "Soundtrack"],
+      "tags": [
+        "Noir",
+        "Detective",
+        "Futuristic",
+        "Soundtrack"
+      ],
       "sourceType": "mp4",
       "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
@@ -165,7 +190,13 @@
       "durationSec": 0,
       "rating": "Live 4K",
       "director": "Petros Stream Master",
-      "tags": ["Live", "24/7", "Binaural", "Stream", "Continuous"],
+      "tags": [
+        "Live",
+        "24/7",
+        "Binaural",
+        "Stream",
+        "Continuous"
+      ],
       "sourceType": "hls",
       "defaultStreamUrl": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
       "qualities": [
@@ -197,7 +228,12 @@
       "durationSec": 540,
       "rating": "9.5/10",
       "director": "Dr. Sarah Lin",
-      "tags": ["Bio-Art", "Surreal", "Mars", "Visual Feast"],
+      "tags": [
+        "Bio-Art",
+        "Surreal",
+        "Mars",
+        "Visual Feast"
+      ],
       "sourceType": "mp4",
       "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
@@ -226,7 +262,12 @@
       "durationSec": 980,
       "rating": "9.9/10",
       "director": "Petros Heritage Initiative",
-      "tags": ["History", "AI Reconstruction", "Documentary", "Philosophy"],
+      "tags": [
+        "History",
+        "AI Reconstruction",
+        "Documentary",
+        "Philosophy"
+      ],
       "sourceType": "mp4",
       "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [

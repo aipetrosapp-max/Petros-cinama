@@ -327,29 +327,34 @@ export function CinematicPlayerScreen({
     (item?.originalSource && (item.originalSource.includes('t.me/') || item.originalSource.includes('telegram.me/')))
   );
 
-  const telegramUrl = isTelegramSource
-    ? (item?.originalSource || item?.streamUrl || 'https://t.me/c/1380077268/60929')
-    : '';
+  const telegramUrl = useMemo(() => {
+    if (!isTelegramSource) return '';
+    const src = item?.originalSource || item?.streamUrl || '';
+    if (src.includes('fAEG65IvvM05MDY0') || src.includes('3885570365')) {
+      return 'https://t.me/c/3885570365/2';
+    }
+    return src || 'https://t.me/c/3885570365/2';
+  }, [isTelegramSource, item]);
 
-  // Determine actual playable direct stream URL
+  // Determine actual playable direct stream URL (Strict AI Policy: Never play irrelevant videos)
   const activeStreamUrl = useMemo(() => {
     if (!item) return '';
     if (playbackMode === 'trailer' && details?.trailer?.previewVideoUrl) {
       return details.trailer.previewVideoUrl;
     }
     const q = backendQualities.find((x) => x.id === selectedQualityId);
-    if (q?.streamUrl && q.streamUrl.startsWith('http') && !q.streamUrl.includes('t.me/')) {
+    if (q?.streamUrl && q.streamUrl.startsWith('http') && !q.streamUrl.includes('t.me/') && !q.streamUrl.includes('oceans.mp4')) {
       return q.streamUrl;
     }
     if (item.qualities && item.qualities.length > 0) {
-      const match = item.qualities.find((x) => x.url && x.url.startsWith('http') && !x.url.includes('t.me/'));
+      const match = item.qualities.find((x) => x.url && x.url.startsWith('http') && !x.url.includes('t.me/') && !x.url.includes('oceans.mp4'));
       if (match?.url) return match.url;
     }
-    if (item.streamUrl && item.streamUrl.startsWith('http') && !item.streamUrl.includes('t.me/')) {
+    if (item.streamUrl && item.streamUrl.startsWith('http') && !item.streamUrl.includes('t.me/') && !item.streamUrl.includes('oceans.mp4')) {
       return item.streamUrl;
     }
-    // High-definition sample stream fallback
-    return 'https://vjs.zencdn.net/v/oceans.mp4';
+    // Strict AI Policy: Return empty string if no verified film stream exists yet
+    return '';
   }, [item, backendQualities, selectedQualityId, playbackMode, details]);
 
   // Load real video stream URL into <video>
@@ -783,85 +788,96 @@ export function CinematicPlayerScreen({
               : 'relative aspect-video w-full bg-black'
           }
         >
-          {/* Main Real HTML5 Video Player */}
-          <video
-            ref={videoRef}
-            src={activeStreamUrl}
-            playsInline
-            controls={false}
-            poster={item.posterUrl}
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={() => setIsPlaying(false)}
-            onClick={togglePlay}
-            className={`absolute inset-0 h-full w-full cursor-pointer z-10 ${
-              isFullscreen ? 'object-contain' : 'object-cover'
-            }`}
-          >
-            {vttTrackUrl && (
-              <track
-                key={`${vttTrackUrl}-${lang}`}
-                kind="subtitles"
-                src={vttTrackUrl}
-                srcLang={lang}
-                label={languageInfo.nativeName}
-                default
-              />
-            )}
-          </video>
+          {/* Main Real HTML5 Video Player OR AI Strict Authenticity Screen */}
+          {activeStreamUrl ? (
+            <>
+              <video
+                ref={videoRef}
+                src={activeStreamUrl}
+                playsInline
+                controls={false}
+                poster={item.posterUrl}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onEnded={() => setIsPlaying(false)}
+                onClick={togglePlay}
+                className={`absolute inset-0 h-full w-full cursor-pointer z-10 ${
+                  isFullscreen ? 'object-contain' : 'object-cover'
+                }`}
+              >
+                {vttTrackUrl && (
+                  <track
+                    key={`${vttTrackUrl}-${lang}`}
+                    kind="subtitles"
+                    src={vttTrackUrl}
+                    srcLang={lang}
+                    label={languageInfo.nativeName}
+                    default
+                  />
+                )}
+              </video>
 
-          {/* Big Center Play Button when paused */}
-          {!isPlaying && (
-            <button
-              type="button"
-              onClick={togglePlay}
-              aria-label="Play video"
-              className="absolute inset-0 m-auto z-20 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-[#F5B942]/90 hover:bg-[#F5B942] text-[#06070C] shadow-[0_0_40px_rgba(245,185,66,0.6)] backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer pointer-events-auto"
-            >
-              <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-current translate-x-0.5" />
-            </button>
-          )}
-
-          {/* Telegram Source Header Banner & Direct Stream Action */}
-          {isTelegramSource && !dismissTelegramBanner && (
-            <div className="absolute top-14 start-3 end-3 z-30 flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-[#38BDF8]/40 bg-[#060812]/92 px-4 py-2.5 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,0.8)]">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0088cc]/20 text-[#38BDF8] border border-[#0088cc]/40">
-                  <ExternalLink className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-white flex items-center gap-2">
-                    <span>{t('Telegram Source Stream (1080p Full Movie)', 'منبع استریم تلگرام (کیفیت 1080p با زیرنویس فارسی)')}</span>
-                    <span className="rounded-full bg-[#38BDF8]/15 text-[#38BDF8] text-[10px] px-2 py-0.5 font-mono">
-                      {telegramUrl.includes('/') ? `Post #${telegramUrl.split('/').filter(Boolean).pop()}` : 'Aipetros'}
-                    </span>
-                  </p>
-                  <p className="text-[11px] text-[#A3AEC2]">
-                    {t('Direct link to private channel storage. Tap to stream directly in Telegram app.', 'پست اختصاصی آرشیو تلگرام. برای پخش مستقیم در اپلیکیشن تلگرام روی دکمه روبرو بزنید.')}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <a
-                  href={telegramUrl || 'https://t.me/+fAEG65IvvM05MDY0'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="min-h-[38px] inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0088cc] to-[#00aaff] hover:from-[#0099e6] hover:to-[#38bdf8] px-4 text-xs font-bold text-white transition-all shadow-lg hover:shadow-[#0088cc]/30 cursor-pointer"
-                >
-                  <span>{t('Open & Play in Telegram App', 'پخش مستقیم در اپلیکیشن تلگرام')}</span>
-                  <ExternalLink className="h-4 w-4" />
-                </a>
+              {/* Big Center Play Button when paused */}
+              {!isPlaying && (
                 <button
                   type="button"
-                  onClick={() => setDismissTelegramBanner(true)}
-                  aria-label="Dismiss banner"
-                  className="h-8 w-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors cursor-pointer"
+                  onClick={togglePlay}
+                  aria-label="Play video"
+                  className="absolute inset-0 m-auto z-20 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-[#F5B942]/90 hover:bg-[#F5B942] text-[#06070C] shadow-[0_0_40px_rgba(245,185,66,0.6)] backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer pointer-events-auto"
                 >
-                  ✕
+                  <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-current translate-x-0.5" />
                 </button>
+              )}
+            </>
+          ) : (
+            /* AI Strict Authenticity & Telegram Direct Stream Gateway Screen */
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 sm:p-6 text-center bg-[#070913]/95 backdrop-blur-2xl">
+              <img
+                src={item.posterUrl}
+                alt={item.titleEn}
+                className="absolute inset-0 h-full w-full object-cover opacity-15 filter blur-lg pointer-events-none"
+              />
+
+              <div className="relative z-10 max-w-lg w-full flex flex-col items-center gap-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#10B981]/50 bg-[#10B981]/15 px-3.5 py-1 text-xs font-bold text-[#10B981] shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>{t('AI Strict Source Protection Active', 'فیلتر اصالت هوش مصنوعی پتروس: فعال')}</span>
+                </div>
+
+                <h3 className="text-base sm:text-xl font-black text-white">
+                  {item.titleFa || item.titleEn}
+                  {item.releaseYear ? ` (${item.releaseYear})` : ''}
+                </h3>
+
+                <p className="text-xs sm:text-sm text-[#A3AEC2] leading-relaxed">
+                  {t(
+                    'No irrelevant videos allowed. The genuine 1080p full movie (2.7 GB with Persian subtitles) is ready in your Telegram channel.',
+                    'پخش ویدیوهای متفرقه یا بی‌ربط طبق دستور هوش مصنوعی مسدود است. نسخه اصلی و کامل فیلم (کیفیت 1080p با حجم ۲.۷ گیگابایت) در کانال تلگرام شما آماده پخش است.'
+                  )}
+                </p>
+
+                <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
+                  <a
+                    href={telegramUrl || 'https://t.me/c/3885570365/2'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0088cc] via-[#00aaff] to-[#38BDF8] px-5 text-xs sm:text-sm font-bold text-white shadow-[0_8px_24px_rgba(0,136,204,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    <span>{t('Stream Full Movie in Telegram App (Post #2)', 'پخش مستقیم فیلم در اپلیکیشن تلگرام (پست #2)')}</span>
+                  </a>
+
+                  <a
+                    href="https://web.telegram.org/a/#-1003885570365_2"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.08] hover:bg-white/[0.14] px-4 text-xs sm:text-sm font-semibold text-white transition-all cursor-pointer"
+                  >
+                    <span>{t('Telegram Web Player', 'پخش در وب تلگرام')}</span>
+                  </a>
+                </div>
               </div>
             </div>
           )}
