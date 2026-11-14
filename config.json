@@ -1,11 +1,7 @@
 {
-  "source_channels": [
-    -1001380077268,
-    "@THEFILMO041"
-  ],
+  "bot_token": "9299438212:AAGCaLJ3RWA4hjg7e-zG7WwbTh0I3NT2D-A",
+  "channel_id": -1003885570365,
   "destination_channel": "https://t.me/+fAEG65IvvM05MDY0",
-  "server_side_copy": true,
-  "enrich_with_imdb": true,
-  "delay_between_uploads_sec": 2,
-  "max_videos_per_run": 20
+  "delay_between_uploads_sec": 1,
+  "max_videos_per_run": 50
 }

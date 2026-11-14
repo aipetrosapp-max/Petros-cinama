@@ -3,9 +3,9 @@ import urllib.request
 import re
 import sys
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-BASE_URL = "https://www.myf2ms.top/"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
 def fetch_url(url, timeout=12):
@@ -25,7 +25,7 @@ def normalize_title(s):
     s = re.sub(r'[^\w\s]', '', s)
     return s.strip()
 
-def process_movie_post(post_url, post_title, existing_titles, existing_urls):
+def process_movie_post(post_url, post_title, fa_alt_title, existing_titles, existing_urls):
     en_match = re.search(r'([A-Za-z0-9\s:\-\'.]+(?:19|20)\d{2})', post_title)
     year_match = re.search(r'\b(19\d{2}|20\d{2})\b', post_title)
     year = int(year_match.group(1)) if year_match else 2026
@@ -46,6 +46,9 @@ def process_movie_post(post_url, post_title, existing_titles, existing_urls):
         return {"status": "error", "title": title_en_clean, "reason": "Failed to fetch page"}
 
     dl_matches = list(set(re.findall(r'href="(https?://[^"]+\.(?:mkv|mp4)[^"]*)"', post_html, re.IGNORECASE)))
+    if not dl_matches:
+        return {"status": "error", "title": title_en_clean, "reason": "No direct streams"}
+
     qualities = []
     default_stream = ""
 
@@ -79,15 +82,19 @@ def process_movie_post(post_url, post_title, existing_titles, existing_urls):
     desc_m = re.findall(r'<meta property="og:description" content="([^"]+)"', post_html)
     synopsis = desc_m[0] if desc_m else f"Official streaming presentation for {title_en_clean}."
 
-    is_series = "series" in post_url.lower() or "سریال" in post_title
+    is_series = "series" in post_url.lower() or "سریال" in post_title or "سریال" in fa_alt_title
     category = "series" if is_series else "movie"
+
+    # Clean Persian title
+    clean_fa = fa_alt_title or post_title
+    clean_fa = clean_fa.replace('بدون سانسور با زیرنویس فارسی چسبیده', '').replace('دانلود فیلم', '').replace('دانلود سریال', '').strip()
 
     return {
         "status": "added",
         "item": {
             "id": f"f2m-{year}-{re.sub(r'[^a-zA-Z0-9]', '', title_en_clean).lower()[:20]}",
             "title": title_en_clean,
-            "titleFa": post_title.replace('بدون سانسور با زیرنویس فارسی چسبیده', '').replace('دانلود فیلم', '').replace('دانلود سریال', '').strip(),
+            "titleFa": clean_fa,
             "category": category,
             "year": year,
             "durationSec": 2700 if is_series else 7200,
@@ -114,60 +121,101 @@ def main():
         manifest = json.load(f)
 
     existing_streams = manifest.get("streams", [])
-    print(f"[*] Current repository has {len(existing_streams)} items.", flush=True)
+    print(f"[*] کاتالوگ فعلی سایت پتروس سینما: {len(existing_streams)} اثر", flush=True)
     existing_titles = set(normalize_title(s.get("title", "")) for s in existing_streams if s.get("title"))
     existing_urls = set((s.get("defaultStreamUrl") or s.get("originalSource") or "").lower().strip() for s in existing_streams)
 
-    print(f"[*] Fetching target site: {BASE_URL} ...", flush=True)
-    home_html = fetch_url(BASE_URL)
-    if not home_html:
-        print("[!] Failed to fetch target site homepage.", flush=True)
-        return
+    # Categories to crawl across the site
+    crawl_sections = [
+        "https://www.myf2ms.top/",
+        "https://www.myf2ms.top/genres/action/",
+        "https://www.myf2ms.top/genres/action/page/2/",
+        "https://www.myf2ms.top/genres/comedy/",
+        "https://www.myf2ms.top/genres/comedy/page/2/",
+        "https://www.myf2ms.top/genres/animation/",
+        "https://www.myf2ms.top/genres/sci-fi/",
+        "https://www.myf2ms.top/genres/horror/",
+        "https://www.myf2ms.top/genres/drama/",
+        "https://www.myf2ms.top/genres/thriller/",
+        "https://www.myf2ms.top/genres/crime/",
+        "https://www.myf2ms.top/genres/adventure/",
+        "https://www.myf2ms.top/genres/mystery/",
+        "https://www.myf2ms.top/genres/fantasy/",
+        "https://www.myf2ms.top/series/",
+        "https://www.myf2ms.top/series/page/2/"
+    ]
 
-    posts = re.findall(r'<a\s+href="(https?://www\.myf2ms\.top/(?:[0-9]+|series)/[^"/]+/?)"[^>]*title="([^"]+)"', home_html)
-    if not posts:
-        posts = re.findall(r'<a\s+href="(https?://www\.myf2ms\.top/[^"/]+/[^"/]+/?)"[^>]*title="([^"]+)"', home_html)
+    movie_targets = {}
+    print(f"[*] در حال خزش {len(crawl_sections)} بخش و دسته‌بندی مختلف سایت مرجع...", flush=True)
 
-    movie_links = {}
-    for link, title in posts:
-        clean_url = link.rstrip('/') + '/'
-        clean_title = title.strip()
-        if clean_url not in movie_links and len(clean_title) > 3:
-            movie_links[clean_url] = clean_title
+    for section_url in crawl_sections:
+        html = fetch_url(section_url)
+        if not html:
+            continue
+        articles = re.findall(r'<article class="entry">([\s\S]*?)</article>', html)
+        if not articles:
+            articles = re.findall(r'<article[^>]*>([\s\S]*?)</article>', html)
 
-    total_target = len(movie_links)
-    print(f"[*] Found {total_target} unique movie/series posts on target site!", flush=True)
+        count_added = 0
+        for art in articles:
+            m = re.search(r'<a\s+href="(https?://www\.myf2ms\.top/(?:[0-9]+|series)/[^"/]+/?)"[^>]*>([\s\S]*?)</a>', art)
+            if m:
+                post_url = m.group(1).rstrip('/') + '/'
+                post_title = re.sub(r'<[^>]+>', '', m.group(2)).strip()
+                alt_m = re.search(r'alt="([^"]+)"', art)
+                fa_alt = alt_m.group(1).strip() if alt_m else post_title
+                if post_url not in movie_targets and len(post_title) > 2:
+                    movie_targets[post_url] = (post_title, fa_alt)
+                    count_added += 1
 
-    items_to_crawl = list(movie_links.items())
-    print(f"[*] Scraping and analyzing all {len(items_to_crawl)} items in parallel...", flush=True)
+        print(f"    - {section_url} -> {count_added} عنوان جدید شناسایی شد (مجموع کل: {len(movie_targets)})", flush=True)
+
+    total_target = len(movie_targets)
+    print(f"\n[*] مجموع کل عناوین منحصر‌به‌فرد یافت شده در سایت مرجع: {total_target} اثر", flush=True)
+
+    # Filter out items already in repo
+    pending_to_scrape = []
+    skipped_count = 0
+    for url, (title, fa_alt) in movie_targets.items():
+        en_match = re.search(r'([A-Za-z0-9\s:\-\'.]+(?:19|20)\d{2})', title)
+        cand_en = en_match.group(1).strip() if en_match else title
+        norm = normalize_title(cand_en)
+        if norm in existing_titles or url.lower() in existing_urls:
+            skipped_count += 1
+        else:
+            pending_to_scrape.append((url, title, fa_alt))
+
+    print(f"[*] عناوین موجود در مخزن سایت شما (بدون تکرار و نادیده گرفته شده): {skipped_count}", flush=True)
+    print(f"[*] اختلاف موجودی (عناوین کاملاً جدید که باید استخراج شوند): {len(pending_to_scrape)} اثر", flush=True)
 
     new_items = []
-    skipped_count = 0
-
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = {executor.submit(process_movie_post, url, title, existing_titles, existing_urls): (url, title) for url, title in items_to_crawl}
-        for future in as_completed(futures):
-            res = future.result()
-            if res["status"] == "added":
-                new_items.append(res["item"])
-                print(f"  [+] Added: {res['item']['title']} ({len(res['item']['qualities'])} stream links)", flush=True)
-            elif res["status"] == "skipped":
-                skipped_count += 1
-                print(f"  [-] Skipped (in repo): {res['title']}", flush=True)
+    if pending_to_scrape:
+        print(f"[*] در حال استخراج موازی جزئیات و لینک‌های استریم با ۸ نخ پردازشی...", flush=True)
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = {executor.submit(process_movie_post, url, title, fa_alt, existing_titles, existing_urls): (url, title) for url, title, fa_alt in pending_to_scrape}
+            for future in as_completed(futures):
+                res = future.result()
+                if res["status"] == "added":
+                    new_items.append(res["item"])
+                    existing_titles.add(normalize_title(res["item"]["title"]))
+                    print(f"  [+] اضافه شد: {res['item']['title']} ({len(res['item']['qualities'])} کیفیت استریم)", flush=True)
+                elif res["status"] == "skipped":
+                    skipped_count += 1
 
     print(f"\n==========================================", flush=True)
-    print(f"[*] TARGET SITE TOTAL POSTS: {total_target}", flush=True)
-    print(f"[*] SITE REPOSITORY (CURRENT): {len(existing_streams)}", flush=True)
-    print(f"[*] INVENTORY DIFFERENCE (NEW MOVIES TO ADD): {len(new_items)}", flush=True)
-    print(f"[*] SKIPPED (DUPLICATES/ALREADY IN REPO): {skipped_count}", flush=True)
+    print(f"[*] مجموع عناوین شناسایی شده در سایت مبدا: {total_target}", flush=True)
+    print(f"[*] تکراری (از قبل در مخزن سایت شما موجود بود): {skipped_count}", flush=True)
+    print(f"[*] اختلاف موجودی (عناوین جدید افزوده شده): {len(new_items)}", flush=True)
     print(f"==========================================", flush=True)
 
     if new_items:
         manifest["streams"] = new_items + existing_streams
-        manifest["updatedAt"] = "2026-11-15T00:25:00.000Z"
+        manifest["updatedAt"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         with open(repo_file, "w", encoding="utf-8") as f:
             json.dump(manifest, f, ensure_ascii=False, indent=2)
-        print(f"[SUCCESS] Updated {repo_file}! Total repository streams now: {len(manifest['streams'])}", flush=True)
+        print(f"✅ مخزن سایت با موفقیت به‌روز شد! مجموع کل فیلم‌ها و سریال‌های پتروس سینما: {len(manifest['streams'])}", flush=True)
+    else:
+        print("ℹ️ تمامی این عناوین از قبل در مخزن سایت موجود بودند و نیازی به تغییر مخزن نبود.", flush=True)
 
 if __name__ == "__main__":
     main()
