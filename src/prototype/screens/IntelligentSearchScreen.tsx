@@ -185,7 +185,7 @@ export function IntelligentSearchScreen({
   }, [userVector, aiSignals]);
 
   const queryActive = filters.query.trim().length > 0;
-  const isAiCardOpen = !aiDismissed && (queryActive || aiSignals.length > 0 || aiManualOpen);
+  const isAiCardOpen = !aiDismissed && (aiManualOpen || (aiSignals.length > 0 && !queryActive));
 
   const topicCtx = useMemo(() => detectTopicContext(filters.query), [filters.query]);
 
@@ -507,14 +507,16 @@ export function IntelligentSearchScreen({
 
   return (
     <div className="space-y-7 pb-10">
-      {/* Netflix-Style Live Top 10 Trending Movies, Series & Anime */}
-      <div id="tour-step-top10" className="w-full">
-        <NetflixTop10Carousel
-          catalog={catalog}
-          onOpenDetail={onOpenDetail}
-          onPlay={onPlay}
-        />
-      </div>
+      {/* Netflix-Style Live Top 10 Trending Movies, Series & Anime (only in discovery mode) */}
+      {!queryActive && (
+        <div id="tour-step-top10" className="w-full">
+          <NetflixTop10Carousel
+            catalog={catalog}
+            onOpenDetail={onOpenDetail}
+            onPlay={onPlay}
+          />
+        </div>
+      )}
 
       {/* Redesigned AI Discovery Search Console */}
       <div className="relative overflow-hidden rounded-[26px] sm:rounded-[30px] border border-white/12 bg-gradient-to-b from-[#111626] via-[#0B0E18] to-[#080A12] p-4 sm:p-6 shadow-[0_26px_70px_-24px_rgba(0,0,0,0.9)] space-y-4">

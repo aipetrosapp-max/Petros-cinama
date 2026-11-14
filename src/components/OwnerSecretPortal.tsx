@@ -66,6 +66,7 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
   // Internal AI Archive Ingestion State (Air-Gapped & Offline)
   const [rawArchiveText, setRawArchiveText] = useState('');
+  const [customTitleHint, setCustomTitleHint] = useState('');
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [isProcessingAi, setIsProcessingAi] = useState(false);
   const [aiIngestionResult, setAiIngestionResult] = useState<IngestionResult | null>(null);
@@ -117,7 +118,7 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
     setIsProcessingAi(true);
     try {
-      const result = await internalAiArchiveParser.ingestAndEnrichArchive(rawArchiveText);
+      const result = await internalAiArchiveParser.ingestAndEnrichArchive(rawArchiveText, customTitleHint);
       setAiIngestionResult(result);
 
         if (result.sanitizedItems.length > 0) {
@@ -360,8 +361,8 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
                   <div className="p-4 rounded-2xl bg-black/40 border border-white/5">
                     <p className="text-[11px] text-[#A3AEC2] uppercase font-semibold">Winning Ad Network</p>
-                    <p className="text-lg font-bold text-[#F5B942] mt-1">{winningNetwork?.networkName || 'A-Ads Crypto'}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Effective CPM: ${(winningNetwork?.cpmUsd || 4.2).toFixed(2)}</p>
+                    <p className="text-lg font-bold text-[#F5B942] mt-1">{winningNetwork?.name || 'A-Ads Crypto'}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Effective CPM: ${(winningNetwork?.eCpmUsd || 4.2).toFixed(2)}</p>
                   </div>
                 </div>
               </div>
@@ -510,6 +511,21 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
                       <span>Export JSON</span>
                     </button>
                   </div>
+                </div>
+
+                {/* Optional Explicit Title Input for Single Post or Bare Link */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-[#F5B942] flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>عنوان فیلم یا سریال (اختیاری - دریافت مستقیم مشخصات و پوستر از IMDb):</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={customTitleHint}
+                    onChange={(e) => setCustomTitleHint(e.target.value)}
+                    placeholder="مثال: X-Men: Apocalypse یا Breaking Bad یا مردان ایکس (در صورت وارد کردن، تمام جزییات از IMDb واکشی می‌شود)"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 focus:border-[#F5B942] text-xs text-white placeholder:text-slate-500 focus:outline-none transition-colors"
+                  />
                 </div>
 
                 {/* Raw Text Input Area */}

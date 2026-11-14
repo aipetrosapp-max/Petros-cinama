@@ -1,11 +1,42 @@
 {
   "version": "2.4.0",
-  "updatedAt": "2026-11-13T20:00:00.000Z",
+  "updatedAt": "2026-11-14T14:40:00.000Z",
   "brand": "ai petros",
   "platform": "Aipetros-stream",
   "channelName": "Petros Cinema Official Cloud Feed",
   "syncSource": "https://raw.githubusercontent.com/aipetrosapp-max/Petros-cinama/main/data/streams.json",
   "streams": [
+    {
+      "id": "petros-stream-xmen-apocalypse",
+      "title": "X-Men: Apocalypse",
+      "titleFa": "مردان ایکس: آخر الزمان (۲۰۱۶)",
+      "synopsis": "In the 1980s, the X-Men must defeat an ancient all-powerful mutant, En Sabah Nur, who intends to thrive by bringing destruction to the world.",
+      "synopsisFa": "در دهه ۱۹۸۰، جهش‌یافتگان مردان ایکس با قوی‌ترین جهش‌یافته باستانی تاریخ «آپوکالیپس» روبرو می‌شوند که قصد نابودی نظم کنونی جهان را دارد. کیفیت 1080p با زیرنویس فارسی اختصاصی.",
+      "category": "movie",
+      "posterUrl": "https://m.media-amazon.com/images/M/MV5BNjVhNWY3NjItNmZjOS00NTU3LWFiZTctNzdjNGM5Y2Y0MDUwXkEyXkFqcGc@._V1_QL75_UX380_CR0,0,380,562_.jpg",
+      "backdropUrl": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=1200&auto=format&fit=crop",
+      "year": 2016,
+      "durationSec": 8640,
+      "rating": "6.8/10",
+      "director": "Bryan Singer",
+      "tags": ["X-Men", "X-man", "Xman", "مردان ایکس", "Marvel", "Action", "Sci-Fi", "Superhero", "1080p", "Apocalypse"],
+      "sourceType": "mp4",
+      "defaultStreamUrl": "https://t.me/c/1380077268/60929",
+      "originalSource": "https://t.me/c/1380077268/60929",
+      "mediaFolder": "Movies/X-Men Apocalypse/1080p",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/c/1380077268/60929",
+          "format": "mp4",
+          "bitrate": 8500,
+          "fps": 60
+        }
+      ],
+      "featured": true,
+      "trendingRank": 1,
+      "isLive": false
+    },
     {
       "id": "petros-stream-01",
       "title": "Cosmic Neon Odyssey",

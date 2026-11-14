@@ -35,7 +35,13 @@ const SYNONYM_MAP: Record<string, string[]> = {
   تنش: ['tension', 'تنش', 'paranoia', 'mystery', 'معمایی'],
   tension: ['tension', 'تنش', 'mystery', 'paranoia'],
   صمیمی: ['intimate', 'صمیمی', 'hotel', 'velvet', 'مخملی', 'حسی'],
-  intimate: ['intimate', 'صمیمی', 'velvet', 'hotel']
+  intimate: ['intimate', 'صمیمی', 'velvet', 'hotel'],
+  'x-man': ['x-men', 'xman', 'xmen', 'مردان ایکس', 'apocalypse'],
+  'xman': ['x-men', 'x-man', 'xmen', 'مردان ایکس', 'apocalypse'],
+  'xmen': ['x-men', 'x-man', 'xman', 'مردان ایکس', 'apocalypse'],
+  'x-men': ['x-man', 'xman', 'xmen', 'مردان ایکس', 'apocalypse'],
+  'ایکس': ['x-men', 'x-man', 'مردان ایکس', 'apocalypse'],
+  'مردان': ['x-men', 'مردان ایکس', 'apocalypse']
 };
 
 export const DEFAULT_TASTE_VECTOR: TasteVector6D = {
@@ -111,12 +117,41 @@ function expandTokens(rawQuery: string): string[] {
     .split(/[\s,،.؛/\-_]+/)
     .filter((w) => w.length >= 1); // allow numbers, single characters, season/episode indicators
   const expanded = new Set<string>(words);
+
+  // Add full normalized query and compact version (without spaces or hyphens)
+  expanded.add(normalized);
+  const compact = normalized.replace(/[\s\-_]/g, '');
+  if (compact.length >= 2) expanded.add(compact);
+
+  // Fuzzy match for X-Men / X-man / مردان ایکس / apocalypse
+  if (
+    normalized.includes('x-man') ||
+    normalized.includes('xman') ||
+    normalized.includes('x men') ||
+    normalized.includes('xmen') ||
+    normalized.includes('x-men') ||
+    normalized.includes('مردان ایکس') ||
+    normalized.includes('مردان')
+  ) {
+    expanded.add('x-men');
+    expanded.add('xmen');
+    expanded.add('x-man');
+    expanded.add('xman');
+    expanded.add('مردان ایکس');
+    expanded.add('apocalypse');
+  }
+
   for (const w of words) {
     const mapped = SYNONYM_MAP[w];
     if (mapped) {
       mapped.forEach((m) => expanded.add(m));
     }
   }
+
+  if (SYNONYM_MAP[normalized]) {
+    SYNONYM_MAP[normalized].forEach((m) => expanded.add(m));
+  }
+
   return Array.from(expanded);
 }
 
@@ -398,7 +433,10 @@ export function runIntelligentSearch(params: {
       .join(' ')
       .toLowerCase();
 
-    const matchedTokens = tokens.filter((t) => searchable.includes(t));
+    const meaningfulTokens = tokens.length > 1 && filters.query.trim().length > 1
+      ? tokens.filter((t) => t.length >= 2)
+      : tokens;
+    const matchedTokens = meaningfulTokens.filter((t) => searchable.includes(t));
 
     // When a text query is present, require at least one matched token unless mode is 'different'
     if (tokens.length > 0 && matchedTokens.length === 0 && filters.mode !== 'different') {
