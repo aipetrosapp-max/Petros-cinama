@@ -36,6 +36,12 @@ export interface DynamicStreamItem {
   featured?: boolean;
   trendingRank?: number;
   isLive?: boolean;
+  // AI Smart Routing & Folder Organization
+  season?: number;
+  episode?: number;
+  seriesTitle?: string;
+  mediaFolder?: string; // e.g. "Series/Breaking Bad/Season 01/1080p", "Movies/Interstellar/4K", "Telegram/LordMovie/Series/S01E05"
+  originalSource?: string;
 }
 
 export interface DynamicStreamsManifest {
@@ -290,8 +296,22 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     accentHex: '#F5B942',
     synopsisEn: stream.synopsis,
     synopsisFa: stream.synopsisFa || stream.synopsis,
-    tags: stream.tags || ['Aipetros', '4K'],
-    tagsFa: stream.tags || ['پتروس', 'کیفیت بالا'],
+    tags: [
+      ...(Array.isArray(stream.tags) ? stream.tags : ['Aipetros', '4K']),
+      ...(stream.mediaFolder ? [stream.mediaFolder] : []),
+      ...(stream.season ? [`Season ${stream.season}`] : []),
+      ...(stream.episode ? [`Episode ${stream.episode}`] : []),
+      ...(stream.seriesTitle ? [stream.seriesTitle] : []),
+      ...(stream.defaultStreamUrl ? [stream.defaultStreamUrl] : []),
+      ...(stream.originalSource ? [stream.originalSource] : [])
+    ],
+    tagsFa: [
+      ...(Array.isArray(stream.tags) ? stream.tags : ['پتروس', 'کیفیت بالا']),
+      ...(stream.mediaFolder ? [stream.mediaFolder] : []),
+      ...(stream.season ? [`فصل ${stream.season}`] : []),
+      ...(stream.episode ? [`قسمت ${stream.episode}`] : []),
+      ...(stream.seriesTitle ? [stream.seriesTitle] : [])
+    ],
     vector: {
       tension: 0.8,
       pace: 0.6,

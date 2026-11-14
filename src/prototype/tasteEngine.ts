@@ -106,11 +106,10 @@ export function calibrateColdStartVector(selectedPresets: string[]): TasteVector
 }
 
 function expandTokens(rawQuery: string): string[] {
-  const words = rawQuery
-    .toLowerCase()
-    .trim()
-    .split(/[\s,،.؛]+/)
-    .filter((w) => w.length >= 2);
+  const normalized = rawQuery.toLowerCase().trim();
+  const words = normalized
+    .split(/[\s,،.؛/\-_]+/)
+    .filter((w) => w.length >= 1); // allow numbers, single characters, season/episode indicators
   const expanded = new Set<string>(words);
   for (const w of words) {
     const mapped = SYNONYM_MAP[w];
@@ -391,8 +390,10 @@ export function runIntelligentSearch(params: {
       item.synopsisEn,
       item.creatorFa || '',
       item.creatorEn || '',
-      ...item.tags,
-      ...item.tagsFa
+      item.sourceName || '',
+      item.streamUrl || '',
+      ...(item.tags || []),
+      ...(item.tagsFa || [])
     ]
       .join(' ')
       .toLowerCase();

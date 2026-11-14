@@ -190,8 +190,7 @@ export class InternalAiArchiveParserService {
             displayTitle = `Telegram: @${handle}`;
           }
 
-          if (canonicalTelegramUrl && !seenUrls.has(canonicalTelegramUrl)) {
-            seenUrls.add(canonicalTelegramUrl);
+          if (canonicalTelegramUrl) {
             let candidateTitle = line
               .replace(tm[0], '')
               .trim()
@@ -218,9 +217,7 @@ export class InternalAiArchiveParserService {
       if (matches && matches.length > 0) {
         for (const rawUrl of matches) {
           const cleanedUrl = this.sanitizeUrl(rawUrl);
-          if (cleanedUrl && !seenUrls.has(cleanedUrl)) {
-            seenUrls.add(cleanedUrl);
-
+          if (cleanedUrl) {
             // Derive candidate title from text preceding or following the URL
             let candidateTitle = line
               .replace(rawUrl, '')
@@ -290,10 +287,26 @@ export class InternalAiArchiveParserService {
       }
 
       // AI title extraction and cleaning
-      const cleanedTitle = this.cleanTitleString(pair.title || this.extractTitleFromUrl(cleanUrl));
-      const category = this.detectCategory(cleanedTitle, cleanUrl, pair.group || pair.category);
+      const rawTitle = pair.title || this.extractTitleFromUrl(cleanUrl);
+      const cleanedTitle = this.cleanTitleString(rawTitle);
       const quality = this.detectQuality(cleanedTitle, cleanUrl);
       const year = this.detectYear(cleanedTitle) || 2026;
+
+      const isTelegramSource = cleanUrl.includes('t.me/') || cleanUrl.includes('telegram.me/');
+
+      // Extract precise Series/Season/Episode structure
+      const seriesStruct = this.extractSeriesStructure(cleanedTitle, cleanUrl);
+      const initialCat = this.detectCategory(cleanedTitle, cleanUrl, pair.group || pair.category);
+      const category = seriesStruct.isSeries ? 'series' : initialCat;
+
+      const mediaFolder = this.computeMediaFolder({
+        category,
+        seriesTitle: seriesStruct.seriesTitle || cleanedTitle,
+        season: seriesStruct.season,
+        episode: seriesStruct.episode,
+        quality,
+        sourceType: isTelegramSource ? 'telegram' : 'web'
+      });
 
       if (category === 'series') seriesCount++;
       else if (category === 'anime') animeCount++;
@@ -307,8 +320,6 @@ export class InternalAiArchiveParserService {
         pair.poster && pair.poster.startsWith('http')
           ? pair.poster
           : posterPool[index % posterPool.length];
-
-      const isTelegramSource = cleanUrl.includes('t.me/') || cleanUrl.includes('telegram.me/');
 
       // Check if cleanUrl is a direct media stream or a web page / API URL
       const isDirectStream = /\.(?:m3u8|mp4|webm|mkv|mov|ts|m4v)(\?.*)?$/i.test(cleanUrl) ||
@@ -333,9 +344,14 @@ export class InternalAiArchiveParserService {
         year,
         durationSec: category === 'series' ? 2700 : category === 'anime' ? 1440 : 6600,
         posterUrl: assignedPoster,
-        synopsis: `Autonomous archive ingestion for "${cleanedTitle}". High-definition ${quality} stream optimized for Petros Cinema. Original link: ${cleanUrl}`,
-        synopsisFa: `آرشیو پالایش‌شده هوشمند برای «${cleanedTitle}». منبع استریم اختصاصی با کیفیت ${quality} در سینما پتروس. منبع: ${cleanUrl}`,
+        synopsis: `Autonomous archive ingestion for "${cleanedTitle}". High-definition ${quality} stream organized in folder: [${mediaFolder}]. Original source: ${cleanUrl}`,
+        synopsisFa: `آرشیو سازمان‌دهی‌شده هوشمند برای «${cleanedTitle}». کیفیت ${quality} - پوشه: [${mediaFolder}] - منبع استریم: ${cleanUrl}`,
         defaultStreamUrl: activePlayableUrl,
+        season: seriesStruct.season,
+        episode: seriesStruct.episode,
+        seriesTitle: seriesStruct.seriesTitle,
+        mediaFolder: mediaFolder,
+        originalSource: cleanUrl,
         sourceType: isDirectStream && cleanUrl.includes('.m3u8') ? 'hls' : 'mp4',
         qualities: [
           {
@@ -345,9 +361,17 @@ export class InternalAiArchiveParserService {
             bitrate: quality === '4K' ? 14000 : 6000
           }
         ],
-        tags: isTelegramSource
-          ? ['TELEGRAM', category.toUpperCase(), quality, 'Telegram Stream Cached']
-          : [category.toUpperCase(), quality, 'AI Sanitized', 'Archive']
+        tags: [
+          ...(isTelegramSource ? ['TELEGRAM', 'Telegram Stream Cached'] : ['Archive', 'AI Sanitized']),
+          category.toUpperCase(),
+          quality,
+          ...(seriesStruct.season ? [`Season ${seriesStruct.season}`, `S${seriesStruct.season}`] : []),
+          ...(seriesStruct.episode ? [`Episode ${seriesStruct.episode}`, `E${seriesStruct.episode}`] : []),
+          ...(seriesStruct.seriesTitle ? [seriesStruct.seriesTitle] : []),
+          mediaFolder,
+          cleanedTitle,
+          cleanUrl
+        ]
       };
 
       uniqueUrlMap.set(cleanUrl, streamItem);
@@ -452,6 +476,86 @@ export class InternalAiArchiveParserService {
       return parsed.hostname.replace(/^www\./, '');
     } catch {}
     return 'Stream Broadcast';
+  }
+
+  /**
+   * AI Season & Episode & Series Title Extraction Engine
+   */
+  public extractSeriesStructure(title: string, url: string): {
+    isSeries: boolean;
+    seriesTitle: string;
+    season?: number;
+    episode?: number;
+  } {
+    const raw = `${title} ${url}`;
+
+    // S01E02 or s1e2 or S01-E02
+    const seMatch = raw.match(/\bs(?:eason)?\s*(\d{1,2})[\s._-]*e(?:pisode)?\s*(\d{1,3})\b/i);
+    if (seMatch) {
+      const season = parseInt(seMatch[1], 10);
+      const episode = parseInt(seMatch[2], 10);
+      const cleanSeriesTitle = title.replace(/\bs(?:eason)?\s*\d{1,2}[\s._-]*e(?:pisode)?\s*\d{1,3}\b/gi, '').trim() || 'Untitled Series';
+      return { isSeries: true, seriesTitle: cleanSeriesTitle, season, episode };
+    }
+
+    // Persian: فصل 1 قسمت 2
+    const faMatch = raw.match(/فصل\s*(\d{1,2})[\s,_\-]*قسمت\s*(\d{1,3})/);
+    if (faMatch) {
+      const season = parseInt(faMatch[1], 10);
+      const episode = parseInt(faMatch[2], 10);
+      const cleanSeriesTitle = title.replace(/فصل\s*\d{1,2}[\s,_\-]*قسمت\s*\d{1,3}/g, '').trim() || 'Untitled Series';
+      return { isSeries: true, seriesTitle: cleanSeriesTitle, season, episode };
+    }
+
+    // Season only
+    const sOnly = raw.match(/\b(?:season|فصل)\s*(\d{1,2})\b/i);
+    if (sOnly) {
+      const season = parseInt(sOnly[1], 10);
+      const cleanSeriesTitle = title.replace(/\b(?:season|فصل)\s*\d{1,2}\b/gi, '').trim() || 'Untitled Series';
+      return { isSeries: true, seriesTitle: cleanSeriesTitle, season };
+    }
+
+    // Episode only
+    const epOnly = raw.match(/\b(?:episode|ep|قسمت)\s*(\d{1,3})\b/i);
+    if (epOnly) {
+      const episode = parseInt(epOnly[1], 10);
+      const cleanSeriesTitle = title.replace(/\b(?:episode|ep|قسمت)\s*\d{1,3}\b/gi, '').trim() || 'Untitled Series';
+      return { isSeries: true, seriesTitle: cleanSeriesTitle, episode };
+    }
+
+    return { isSeries: false, seriesTitle: title };
+  }
+
+  /**
+   * Computes precise virtual file folder path (e.g. "Series/Breaking Bad/Season 01/1080p")
+   */
+  public computeMediaFolder(params: {
+    category: string;
+    seriesTitle: string;
+    season?: number;
+    episode?: number;
+    quality: string;
+    sourceType: string;
+  }): string {
+    const { category, seriesTitle, season, episode, quality, sourceType } = params;
+    const cleanName = seriesTitle.replace(/[\\/:*?"<>|]+/g, '_').trim() || 'General';
+
+    if (category === 'series') {
+      const seasonFolder = season ? `Season ${String(season).padStart(2, '0')}` : 'Season 01';
+      const epFolder = episode ? `Episode ${String(episode).padStart(2, '0')}` : '';
+      return `Series/${cleanName}/${seasonFolder}${epFolder ? '/' + epFolder : ''}/${quality}`;
+    }
+
+    if (category === 'anime') {
+      const epFolder = episode ? `Episode ${String(episode).padStart(2, '0')}` : '';
+      return `Anime/${cleanName}${epFolder ? '/' + epFolder : ''}/${quality}`;
+    }
+
+    if (sourceType === 'telegram') {
+      return `Telegram/${cleanName}/${quality}`;
+    }
+
+    return `Movies/${cleanName}/${quality}`;
   }
 
   /**
