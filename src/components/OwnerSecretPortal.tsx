@@ -123,9 +123,11 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
         if (result.sanitizedItems.length > 0) {
           // Automatic live cache & sync to platform
-          const existingUrls = new Set(streams.map((s) => s.defaultStreamUrl.toLowerCase().trim()));
+          const existingSources = new Set(
+            streams.map((s) => (s.originalSource || s.defaultStreamUrl).toLowerCase().trim())
+          );
           const newUnique = result.sanitizedItems.filter(
-            (item) => !existingUrls.has(item.defaultStreamUrl.toLowerCase().trim())
+            (item) => !existingSources.has((item.originalSource || item.defaultStreamUrl).toLowerCase().trim())
           );
           const updatedList = [...newUnique, ...streams];
           setStreams(updatedList);
@@ -159,9 +161,11 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
       updatedList = aiIngestionResult.sanitizedItems;
     } else {
       // Merge and deduplicate with existing streams
-      const existingUrls = new Set(streams.map((s) => s.defaultStreamUrl.toLowerCase().trim()));
+      const existingSources = new Set(
+        streams.map((s) => (s.originalSource || s.defaultStreamUrl).toLowerCase().trim())
+      );
       const newUnique = aiIngestionResult.sanitizedItems.filter(
-        (item) => !existingUrls.has(item.defaultStreamUrl.toLowerCase().trim())
+        (item) => !existingSources.has((item.originalSource || item.defaultStreamUrl).toLowerCase().trim())
       );
       updatedList = [...newUnique, ...streams];
     }
@@ -203,11 +207,15 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
   const filteredStreams = streams.filter((s) => {
     const matchesCategory = categoryFilter === 'all' || s.category === categoryFilter;
+    const q = archiveSearchQuery.toLowerCase().trim();
     const matchesQuery =
-      !archiveSearchQuery.trim() ||
-      s.title.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
-      s.titleFa.toLowerCase().includes(archiveSearchQuery.toLowerCase()) ||
-      s.defaultStreamUrl.toLowerCase().includes(archiveSearchQuery.toLowerCase());
+      !q ||
+      s.title.toLowerCase().includes(q) ||
+      s.titleFa.toLowerCase().includes(q) ||
+      s.defaultStreamUrl.toLowerCase().includes(q) ||
+      (s.originalSource && s.originalSource.toLowerCase().includes(q)) ||
+      (s.mediaFolder && s.mediaFolder.toLowerCase().includes(q)) ||
+      (s.tags && s.tags.some((t) => t.toLowerCase().includes(q)));
     return matchesCategory && matchesQuery;
   });
 
@@ -733,7 +741,7 @@ Breaking Bad S01E01: https://server.net/bb_s01e01.m3u8`}
                             </div>
                             <p className="text-[11px] text-[#A3AEC2] truncate">{s.titleFa}</p>
                             <p className="font-mono text-[10px] text-[#00F0FF] truncate" dir="ltr">
-                              {s.defaultStreamUrl}
+                              {s.originalSource || s.defaultStreamUrl}
                             </p>
                           </div>
                         </div>
