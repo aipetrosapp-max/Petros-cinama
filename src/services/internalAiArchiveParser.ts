@@ -571,16 +571,8 @@ export class InternalAiArchiveParserService {
       const isDirectStream = /\.(?:m3u8|mp4|webm|mkv|mov|ts|m4v)(\?.*)?$/i.test(cleanUrl) ||
         cleanUrl.includes('stream') || cleanUrl.includes('video') || cleanUrl.includes('playlist') || cleanUrl.includes('hls');
 
-      // Resilient 4K/1080p cloud video stream fallback for non-video web pages (GitHub, APIs, Homepages)
-      const playableCloudStreams = [
-        'https://vjs.zencdn.net/v/oceans.mp4',
-        'https://vjs.zencdn.net/v/oceans.mp4',
-        'https://vjs.zencdn.net/v/oceans.mp4',
-        'https://vjs.zencdn.net/v/oceans.mp4',
-        'https://vjs.zencdn.net/v/oceans.mp4'
-      ];
-      const fallbackPlayable = playableCloudStreams[index % playableCloudStreams.length];
-      const activePlayableUrl = isDirectStream ? cleanUrl : fallbackPlayable;
+      // Strict Authenticity Policy: Only direct streams have playable URLs. Non-stream links are kept empty!
+      const activePlayableUrl = isDirectStream ? cleanUrl : '';
 
       const streamItem: DynamicStreamItem = {
         id: `stream-ai-${Date.now()}-${index}`,
@@ -599,14 +591,16 @@ export class InternalAiArchiveParserService {
         mediaFolder: mediaFolder,
         originalSource: cleanUrl,
         sourceType: isDirectStream && cleanUrl.includes('.m3u8') ? 'hls' : 'mp4',
-        qualities: [
-          {
-            quality,
-            url: activePlayableUrl,
-            format: isDirectStream && cleanUrl.includes('.m3u8') ? 'hls' : 'mp4',
-            bitrate: quality === '4K' ? 14000 : 6000
-          }
-        ],
+        qualities: isDirectStream
+          ? [
+              {
+                quality,
+                url: cleanUrl,
+                format: isDirectStream && cleanUrl.includes('.m3u8') ? 'hls' : 'mp4',
+                bitrate: quality === '4K' ? 14000 : 6000
+              }
+            ]
+          : [],
         tags: [
           ...(isTelegramSource ? ['Petros Cloud', 'Fast Stream'] : ['Archive', 'AI Sanitized']),
           category.toUpperCase(),
