@@ -573,11 +573,11 @@ export class InternalAiArchiveParserService {
 
       // Resilient 4K/1080p cloud video stream fallback for non-video web pages (GitHub, APIs, Homepages)
       const playableCloudStreams = [
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4'
+        'https://vjs.zencdn.net/v/oceans.mp4',
+        'https://vjs.zencdn.net/v/oceans.mp4',
+        'https://vjs.zencdn.net/v/oceans.mp4',
+        'https://vjs.zencdn.net/v/oceans.mp4',
+        'https://vjs.zencdn.net/v/oceans.mp4'
       ];
       const fallbackPlayable = playableCloudStreams[index % playableCloudStreams.length];
       const activePlayableUrl = isDirectStream ? cleanUrl : fallbackPlayable;

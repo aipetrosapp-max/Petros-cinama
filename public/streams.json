@@ -21,25 +21,25 @@
       "director": "Petros AI Visionary Core",
       "tags": ["Cyberpunk", "4K", "AI Cinema", "Space", "HDR"],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
         {
           "quality": "4K",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 18500,
           "fps": 60
         },
         {
           "quality": "1080p",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 8500,
           "fps": 60
         },
         {
           "quality": "720p",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 3500,
           "fps": 30
@@ -64,18 +64,18 @@
       "director": "Elena Vance & Petros Studio",
       "tags": ["Neural", "Deep Space", "Atmospheric", "Cinema"],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
         {
           "quality": "4K",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 16000,
           "fps": 60
         },
         {
           "quality": "1080p",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 6000,
           "fps": 60
@@ -100,18 +100,18 @@
       "director": "Kaito Morimoto",
       "tags": ["Noir", "Detective", "Futuristic", "Soundtrack"],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 7200,
           "fps": 60
         },
         {
           "quality": "720p",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 3000,
           "fps": 30
@@ -168,11 +168,11 @@
       "director": "Dr. Sarah Lin",
       "tags": ["Bio-Art", "Surreal", "Mars", "Visual Feast"],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 5500,
           "fps": 60
@@ -197,11 +197,11 @@
       "director": "Petros Heritage Initiative",
       "tags": ["History", "AI Reconstruction", "Documentary", "Philosophy"],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 6200,
           "fps": 30

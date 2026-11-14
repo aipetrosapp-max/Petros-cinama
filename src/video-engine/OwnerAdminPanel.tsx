@@ -692,7 +692,7 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
                         <button
                           type="button"
                           onClick={() => setBulkText(
-                            'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4\nhttps://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4\nhttps://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4'
+                            'https://vjs.zencdn.net/v/oceans.mp4\nhttps://vjs.zencdn.net/v/oceans.mp4\nhttps://vjs.zencdn.net/v/oceans.mp4'
                           )}
                           className="px-3 py-1 rounded-full liquid-glass-active text-rose-100 text-[11px] font-medium transition-colors cursor-pointer"
                         >
@@ -765,7 +765,7 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
                           dir="ltr"
                           value={bulkText}
                           onChange={e => setBulkText(e.target.value)}
-                          placeholder="https://provider-one.example/embed/video123&#10;https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4&#10;https://provider-two.example/embed/video456"
+                          placeholder="https://provider-one.example/embed/video123&#10;https://vjs.zencdn.net/v/oceans.mp4&#10;https://provider-two.example/embed/video456"
                           className="w-full px-4 py-3 rounded-xl bg-black/70 border border-white/15 text-white font-mono text-xs placeholder:text-white/20 focus:outline-none focus:border-rose-500/60 leading-relaxed"
                         />
                       </div>

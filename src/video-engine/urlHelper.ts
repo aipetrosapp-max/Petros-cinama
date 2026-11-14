@@ -157,21 +157,21 @@ export function generateSampleVideosForDomain(domainUrl: string, sourceName?: st
     {
       title: `مجموعه منتخب 4K اول‌شخص از ${name}`,
       original_video_url: domainUrl,
-      authorized_embed_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+      authorized_embed_url: 'https://vjs.zencdn.net/v/oceans.mp4',
       playback_type: 'direct_video',
       description: `ویدئوی تاییدشده مدیر از منبع رسمی ${name} با کیفیت بالا`
     },
     {
       title: `سکانس اوج و ریتم داغ سینمایی از ${name}`,
       original_video_url: domainUrl,
-      authorized_embed_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+      authorized_embed_url: 'https://vjs.zencdn.net/v/oceans.mp4',
       playback_type: 'direct_video',
       description: `ویدئوی منتخب سردبیری از ${name}`
     },
     {
       title: `نمای نزدیک POV مجموعه ${name}`,
       original_video_url: domainUrl,
-      authorized_embed_url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+      authorized_embed_url: 'https://vjs.zencdn.net/v/oceans.mp4',
       playback_type: 'direct_video',
       description: `ویدئوی کیفیت فوق‌العاده منبع ${name}`
     }

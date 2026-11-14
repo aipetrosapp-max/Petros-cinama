@@ -349,7 +349,7 @@ export function CinematicPlayerScreen({
       return item.streamUrl;
     }
     // High-definition sample stream fallback
-    return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4';
+    return 'https://vjs.zencdn.net/v/oceans.mp4';
   }, [item, backendQualities, selectedQualityId, playbackMode, details]);
 
   // Load real video stream URL into <video>
@@ -376,17 +376,41 @@ export function CinematicPlayerScreen({
     }
   }, [activeStreamUrl]);
 
+  const togglePlay = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      setIsPlaying(true);
+      const p = video.play();
+      if (p !== undefined) {
+        p.catch((err) => {
+          console.warn('Playback gesture fallback, retrying muted...', err);
+          video.muted = true;
+          setMuted(true);
+          video.play().catch(() => {});
+        });
+      }
+    } else {
+      setIsPlaying(false);
+      video.pause();
+    }
+  };
+
   // Sync play / pause
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     if (isPlaying) {
-      const p = video.play();
-      if (p !== undefined) {
-        p.catch(() => {});
+      if (video.paused) {
+        const p = video.play();
+        if (p !== undefined) {
+          p.catch(() => {});
+        }
       }
     } else {
-      video.pause();
+      if (!video.paused) {
+        video.pause();
+      }
     }
   }, [isPlaying]);
 
@@ -768,8 +792,10 @@ export function CinematicPlayerScreen({
             poster={item.posterUrl}
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
             onEnded={() => setIsPlaying(false)}
-            onClick={() => setIsPlaying((p) => !p)}
+            onClick={togglePlay}
             className={`absolute inset-0 h-full w-full cursor-pointer z-10 ${
               isFullscreen ? 'object-contain' : 'object-cover'
             }`}
@@ -785,6 +811,18 @@ export function CinematicPlayerScreen({
               />
             )}
           </video>
+
+          {/* Big Center Play Button when paused */}
+          {!isPlaying && (
+            <button
+              type="button"
+              onClick={togglePlay}
+              aria-label="Play video"
+              className="absolute inset-0 m-auto z-20 flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-[#F5B942]/90 hover:bg-[#F5B942] text-[#06070C] shadow-[0_0_40px_rgba(245,185,66,0.6)] backdrop-blur-md transition-all hover:scale-110 active:scale-95 cursor-pointer pointer-events-auto"
+            >
+              <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-current translate-x-0.5" />
+            </button>
+          )}
 
           {/* Telegram Source Header Banner & Direct Stream Action */}
           {isTelegramSource && !dismissTelegramBanner && (
@@ -936,7 +974,7 @@ export function CinematicPlayerScreen({
               <div className="flex items-center gap-1 sm:gap-2">
                 <button
                   type="button"
-                  onClick={() => setIsPlaying((p) => !p)}
+                  onClick={togglePlay}
                   aria-label={isPlaying ? 'Pause' : 'Play'}
                   className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] inline-flex items-center justify-center rounded-full bg-[#F5B942] text-[#06070C] cursor-pointer"
                 >
