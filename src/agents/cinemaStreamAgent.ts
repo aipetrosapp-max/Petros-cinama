@@ -97,15 +97,21 @@ export class CinemaStreamAgent extends AdkAgent<ResolveStreamInput, AiStreamReso
     const isInvalid = !isPlayableDirectMediaUrl(chosenUrl);
 
     if (isInvalid) {
-      const bestNode = await this.invokeTool<typeof UNBLOCKED_CINEMA_CDN_NODES[0]>('resolveGenuineStream', {
-        movieTitle: title,
-        genre: input.item?.categoryEn
-      }, ctx);
+      // If it's a Telegram item, do NOT substitute random ocean/cartoon clips!
+      if (input.item?.sourceType === 'telegram' || input.item?.telegramUrl || input.item?.defaultStreamUrl?.includes('t.me')) {
+        chosenUrl = '';
+        nodeName = 'Telegram Cinema Stream (Native)';
+      } else {
+        const bestNode = await this.invokeTool<typeof UNBLOCKED_CINEMA_CDN_NODES[0]>('resolveGenuineStream', {
+          movieTitle: title,
+          genre: input.item?.categoryEn
+        }, ctx);
 
-      chosenUrl = bestNode.url;
-      nodeName = `ADK Stream Node (${bestNode.name})`;
-      matchedGenre = bestNode.genreCategory;
-      quality = bestNode.quality;
+        chosenUrl = bestNode.url;
+        nodeName = `ADK Stream Node (${bestNode.name})`;
+        matchedGenre = bestNode.genreCategory;
+        quality = bestNode.quality;
+      }
     }
 
     const elapsed = Math.round(performance.now() - start);

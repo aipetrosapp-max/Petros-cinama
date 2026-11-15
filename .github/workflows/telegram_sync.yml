@@ -45,14 +45,14 @@ jobs:
         run: |
           python sync_telegram.py
 
-      - name: Commit and push updated state.json
+      - name: Commit and push updated catalog and state
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add state.json
+          git add state.json data/streams.json public/data/streams.json public/streams.json
           if git diff --staged --quiet; then
-            echo "No state changes to commit."
+            echo "No state or catalog changes to commit."
           else
-            git commit -m "chore(sync): update telegram state [skip ci]"
+            git commit -m "chore(sync): update telegram catalog and state [skip ci]"
             git push
           fi

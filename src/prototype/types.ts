@@ -105,6 +105,8 @@ export interface PrototypeMediaItem {
   licenseVerified: boolean;
   consentVerified: boolean;
   sourceName: string;
+  sourceType?: string;
+  telegramUrl?: string;
   streamUrl?: string;
   defaultStreamUrl?: string;
   originalSource?: string;

@@ -98,12 +98,11 @@ class AiCinemaStreamEngineService {
     this.totalStreamsHandled++;
 
     if (!item) {
-      const fallbackNode = UNBLOCKED_CINEMA_CDN_NODES[0];
       return {
-        streamUrl: fallbackNode.url,
-        sourceType: fallbackNode.type,
-        nodeName: fallbackNode.name,
-        quality: fallbackNode.quality,
+        streamUrl: '',
+        sourceType: 'ai_cdn_mirror',
+        nodeName: 'Petros Cinema VIP Hall',
+        quality: '4K Cinema Pristine',
         isIranAccessible: true,
         resolutionTimeMs: Math.round(performance.now() - startTime),
         matchedGenre: 'cinema'
@@ -142,60 +141,19 @@ class AiCinemaStreamEngineService {
       };
     }
 
-    // 2. Intelligent AI Genre & Mood Matching for movies lacking direct CDN files (e.g. Telegram scraped posts)
-    const titleAndGenre = `${item.titleEn} ${item.titleFa} ${item.categoryEn || ''} ${item.synopsisEn || ''}`.toLowerCase();
-
-    let matchedNode = UNBLOCKED_CINEMA_CDN_NODES[0];
-
-    if (
-      titleAndGenre.includes('space') ||
-      titleAndGenre.includes('interstellar') ||
-      titleAndGenre.includes('کیهان') ||
-      titleAndGenre.includes('ستاره') ||
-      titleAndGenre.includes('blade runner') ||
-      titleAndGenre.includes('cyber') ||
-      titleAndGenre.includes('solaris')
-    ) {
-      matchedNode = UNBLOCKED_CINEMA_CDN_NODES[0]; // Oceans & Cosmic Master
-    } else if (
-      titleAndGenre.includes('fantasy') ||
-      titleAndGenre.includes('epic') ||
-      titleAndGenre.includes('dune') ||
-      titleAndGenre.includes('تلماسه') ||
-      titleAndGenre.includes('dragon') ||
-      titleAndGenre.includes('حماسی') ||
-      titleAndGenre.includes('یل') ||
-      titleAndGenre.includes('جنگ')
-    ) {
-      matchedNode = UNBLOCKED_CINEMA_CDN_NODES[1]; // Epic Fantasy & Action Master
-    } else if (
-      titleAndGenre.includes('x-men') ||
-      titleAndGenre.includes('batman') ||
-      titleAndGenre.includes('مردان ایکس') ||
-      titleAndGenre.includes('بتمن') ||
-      titleAndGenre.includes('action') ||
-      titleAndGenre.includes('اکشن') ||
-      titleAndGenre.includes('فیوز') ||
-      titleAndGenre.includes('fuze')
-    ) {
-      matchedNode = UNBLOCKED_CINEMA_CDN_NODES[2]; // Global Edge VIP Action Mirror
-    } else {
-      // Pick next round-robin node
-      const safeIndex = this.streamIndex % UNBLOCKED_CINEMA_CDN_NODES.length;
-      matchedNode = UNBLOCKED_CINEMA_CDN_NODES[safeIndex];
-      this.streamIndex++;
-    }
-
+    // 2. Telegram or media items without a direct MP4 file:
+    // Never substitute unrelated videos, oceans documentary, or cartoons!
+    // Return pristine Telegram VIP Stream resolution so the player opens the native VIP Stage.
     const elapsedMs = Math.round(performance.now() - startTime);
 
     return {
-      streamUrl: matchedNode.url,
-      sourceType: matchedNode.type,
-      nodeName: matchedNode.name,
-      quality: matchedNode.quality,
+      streamUrl: '',
+      sourceType: 'ai_cdn_mirror',
+      nodeName: 'Telegram Cinema Stream (Native VIP)',
+      quality: selectedQualityId?.toUpperCase() || item.quality || '4K HDR',
       isIranAccessible: true,
       resolutionTimeMs: elapsedMs,
-      matchedGenre: matchedNode.genreCategory
+      matchedGenre: item.categoryEn || 'Cinema'
     };
   }
 
@@ -208,17 +166,8 @@ class AiCinemaStreamEngineService {
       console.warn(`[AI Cinema Stream Engine] Blacklisted failing node: ${failedUrl}. Active blacklisted count: ${this.failedUrls.size}`);
     }
 
-    // Find the next available unblocked node that hasn't failed
-    const available = UNBLOCKED_CINEMA_CDN_NODES.filter((n) => !this.failedUrls.has(n.url));
-    if (available.length > 0) {
-      const selected = available[this.streamIndex % available.length];
-      this.streamIndex++;
-      return selected.url;
-    }
-
-    // If all failed, reset memory and return default ultra-reliable node
-    this.failedUrls.clear();
-    return UNBLOCKED_CINEMA_CDN_NODES[0].url;
+    // Do NOT substitute oceans.mp4 or cartoon clips on failure!
+    return '';
   }
 
   public getStats() {

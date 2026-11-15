@@ -31,7 +31,8 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://vjs.zencdn.net/v/oceans.mp4',
+    streamUrl: '',
+    defaultStreamUrl: 'https://t.me/Aipetros',
     subtitles: [],
     chapters: [],
     spatialPos: { x: -4, y: 1.5, z: -8 }
@@ -62,7 +63,8 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
+    streamUrl: '',
+    defaultStreamUrl: 'https://t.me/Aipetros',
     subtitles: [],
     chapters: [],
     spatialPos: { x: 4, y: 1.5, z: -8 }
@@ -93,7 +95,8 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://vjs.zencdn.net/v/oceans.mp4',
+    streamUrl: '',
+    defaultStreamUrl: 'https://t.me/Aipetros',
     subtitles: [],
     chapters: [],
     spatialPos: { x: 0, y: 2, z: -10 }
@@ -124,7 +127,8 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://download.blender.org/durian/trailer/sintel_trailer-1080p.mp4',
+    streamUrl: '',
+    defaultStreamUrl: 'https://t.me/Aipetros',
     subtitles: [],
     chapters: [],
     spatialPos: { x: -6, y: 1.5, z: -6 }
@@ -155,7 +159,8 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://vjs.zencdn.net/v/oceans.mp4',
+    streamUrl: '',
+    defaultStreamUrl: 'https://t.me/Aipetros',
     subtitles: [],
     chapters: [],
     spatialPos: { x: 6, y: 1.5, z: -6 }

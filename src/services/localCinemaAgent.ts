@@ -106,20 +106,26 @@ class LocalCinemaAgentService {
         resolutionTimeMs: 4,
         matchedGenre: item.categoryEn || 'Cinema'
       };
-    } else {
-      const bestNode = resolutionTool?.execute({
-        movieTitle: title,
-        genre: item?.categoryEn
-      }, ctx);
-
+    } else if (item?.defaultStreamUrl && isPlayableDirectMediaUrl(item.defaultStreamUrl)) {
       resolution = {
-        streamUrl: bestNode?.url || UNBLOCKED_CINEMA_CDN_NODES[0].url,
+        streamUrl: item.defaultStreamUrl,
         sourceType: 'direct_mp4',
-        nodeName: `ADK Stream Node (${bestNode?.name || 'Hollywood VIP Action'})`,
-        quality: bestNode?.quality || '4K HDR Cinema',
+        nodeName: 'Default Master Stream',
+        quality: preferredQuality?.toUpperCase() || item.quality || '4K HDR',
         isIranAccessible: true,
-        resolutionTimeMs: 8,
-        matchedGenre: bestNode?.genreCategory || 'action'
+        resolutionTimeMs: 4,
+        matchedGenre: item.categoryEn || 'Cinema'
+      };
+    } else {
+      // Telegram source item: Never replace with unrelated videos or ocean clips!
+      resolution = {
+        streamUrl: '',
+        sourceType: 'ai_cdn_mirror',
+        nodeName: 'Telegram Cinema Stream',
+        quality: item?.quality || '4K HDR',
+        isIranAccessible: true,
+        resolutionTimeMs: 4,
+        matchedGenre: item?.categoryEn || 'Cinema'
       };
     }
 

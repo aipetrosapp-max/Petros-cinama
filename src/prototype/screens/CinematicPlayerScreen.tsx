@@ -815,11 +815,9 @@ export function CinematicPlayerScreen({
                     if (now - lastErrorRecoveryRef.current < 800) return;
                     lastErrorRecoveryRef.current = now;
                     errorRetryCountRef.current++;
-                    if (errorRetryCountRef.current > 4) {
-                      video.src = UNBLOCKED_CINEMA_CDN_NODES[0].url;
-                      video.muted = true;
-                      setMuted(true);
-                      video.play().catch(() => setIsPlaying(false));
+                    if (errorRetryCountRef.current > 3) {
+                      // Do not silently force oceans.mp4 or cartoon clips!
+                      setIsPlaying(false);
                       return;
                     }
                     const nextUrl = localCinemaAgent.handlePlaybackError(video.src, video);
@@ -897,37 +895,50 @@ export function CinematicPlayerScreen({
                 )}
               </>
             ) : (
-              /* Fallback with high-res poster and Direct Play action */
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 sm:p-6 text-center bg-[#070913]/90 backdrop-blur-md">
+              /* Theatrical VIP Telegram Stream & Playback Screen */
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 sm:p-8 text-center bg-[#070913]/95 backdrop-blur-xl overflow-hidden select-none">
+                {/* Ambient Movie Poster Blur in Background */}
                 <img
                   src={item.posterUrl}
                   alt={item.titleEn}
-                  className="absolute inset-0 h-full w-full object-cover opacity-30 filter blur-sm pointer-events-none"
+                  className="absolute inset-0 h-full w-full object-cover opacity-25 filter blur-md scale-105 pointer-events-none"
                 />
-                <div className="relative z-10 max-w-lg w-full flex flex-col items-center gap-3">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3.5 py-1 text-xs font-bold text-cyan-400 shadow-[0_0_20px_rgba(0,240,255,0.2)]">
-                    <Send className="h-4 w-4" />
-                    <span>{t('Petros Cinema High-Bitrate Stream', 'پخش مستقیم سینما پتروس')}</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/85 to-transparent pointer-events-none" />
+
+                <div className="relative z-10 max-w-xl w-full flex flex-col items-center gap-3.5">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-black/60 px-4 py-1 text-xs font-bold text-[#F3D06B] shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                    <Send className="h-4 w-4 text-amber-400" />
+                    <span>{t('Petros Telegram Cinema Cloud Feed', 'اکران اختصاصی کانال تلگرام پتروس سینما')}</span>
                   </div>
 
-                  <h3 className="text-base sm:text-2xl font-black text-white font-cinzel">
+                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFF4BA] via-[#F3D06B] to-[#D4AF37] font-cinzel drop-shadow-[0_4px_20px_rgba(212,175,55,0.4)]">
                     {item.titleFa || item.titleEn}
                     {item.releaseYear ? ` (${item.releaseYear})` : ''}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                    {item.synopsisFa || item.synopsisEn || t('Ready for 4K cinema projection.', 'آماده پخش آنلاین با کیفیت سینمایی 4K.')}
+                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md line-clamp-3">
+                    {item.synopsisFa || item.synopsisEn || t('High-speed cinema master ready for direct streaming.', 'آماده پخش آنلاین با کیفیت سینمایی 4K.')}
                   </p>
 
-                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-3 w-full max-w-md">
                     <a
-                      href={item.streamUrl || 'https://t.me/Aipetros'}
+                      href={item.telegramUrl || item.defaultStreamUrl || item.streamUrl || 'https://t.me/Aipetros'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                      className="flex-1 min-h-[46px] sm:min-h-[50px] inline-flex items-center justify-center gap-2 px-5 rounded-2xl bg-gradient-to-r from-[#F3D06B] via-[#E5C158] to-[#D4AF37] text-black font-extrabold text-xs sm:text-sm shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.03] active:scale-95 transition-all cursor-pointer"
                     >
-                      <ExternalLink className="w-4 h-4" />
-                      <span>{t('Play Direct Stream', 'پخش مستقیم سالن')}</span>
+                      <Play className="w-4 h-4 fill-current" />
+                      <span>{t('Play in Telegram', 'ورود و پخش در تلگرام')}</span>
+                    </a>
+
+                    <a
+                      href={item.telegramUrl || item.defaultStreamUrl || item.streamUrl || 'https://t.me/Aipetros'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="min-h-[46px] sm:min-h-[50px] px-5 rounded-2xl border border-white/20 bg-[#141620]/80 backdrop-blur-xl text-white font-bold text-xs sm:text-sm hover:bg-white/10 active:scale-95 transition-all flex items-center gap-2 cursor-pointer shadow-lg"
+                    >
+                      <Download className="w-4 h-4 text-amber-300" />
+                      <span>{t('Download File', 'دانلود فایل')}</span>
                     </a>
                   </div>
                 </div>
