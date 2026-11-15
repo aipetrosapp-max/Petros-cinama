@@ -234,7 +234,7 @@ class LocalCinemaAgentService {
   }
 
   public getMeshStatus() {
-    return petrosAdkMesh.getAgentsStatus();
+    return petrosAdkMesh.getSupremeHealthReport();
   }
 }
 

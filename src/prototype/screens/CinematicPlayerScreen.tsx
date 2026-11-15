@@ -40,6 +40,7 @@ import type {
 import { formatBytes, loadOfflineMediaBlob, triggerBrowserDownload } from '../downloadEngine';
 import { aiCinemaStreamEngine } from '../../services/aiCinemaStreamEngine';
 import { localCinemaAgent } from '../../services/localCinemaAgent';
+import { monetizationAdAgent, securityGuardAgent, masterSupremeOrchestratorAgent } from '../../agents';
 import {
   fetchBackendFilmDetails,
   pickRandomCardinalEntrances,
@@ -146,6 +147,20 @@ export function CinematicPlayerScreen({
   const [offlineBlobAvailable, setOfflineBlobAvailable] = useState(false);
   const [streamReady, setStreamReady] = useState(false);
   const [liveTrailerVideoActive, setLiveTrailerVideoActive] = useState(false);
+
+  // ADK Monetization: 1-Hour Watch Policy Evaluation
+  const [adPayload, setAdPayload] = useState<any>(null);
+  const [adActive, setAdActive] = useState(false);
+
+  useEffect(() => {
+    const evaluation = monetizationAdAgent.evaluatePreRoll();
+    if (evaluation.shouldShowAd && evaluation.adPayload) {
+      setAdPayload(evaluation.adPayload);
+      setAdActive(true);
+    } else {
+      setAdActive(false);
+    }
+  }, [item?.id]);
 
   // Autonomous AI Subtitle Auto-Match & Sync state
   const [aiSyncing, setAiSyncing] = useState(false);
@@ -446,8 +461,14 @@ export function CinematicPlayerScreen({
     if (progress.effectiveDurationSec > 0 && Math.abs(mediaDuration - progress.effectiveDurationSec) > 0.5) {
       setMediaDuration(progress.effectiveDurationSec);
     }
+    const prevTime = currentTimeRef.current;
     currentTimeRef.current = progress.currentSec;
     setCurrentTime(progress.currentSec);
+
+    // Record session watch seconds for the ADK 1-Hour policy
+    if (progress.currentSec > prevTime && progress.currentSec - prevTime <= 2) {
+      monetizationAdAgent.recordWatchSeconds(progress.currentSec - prevTime);
+    }
     if (playbackMode === 'movie' && item) {
       onSaveProgress(item.id, progress.currentSec, progress.effectiveDurationSec, progress.currentSec >= progress.effectiveDurationSec);
     }
@@ -812,6 +833,36 @@ export function CinematicPlayerScreen({
                   >
                     <Play className="h-8 w-8 sm:h-10 sm:w-10 fill-current translate-x-0.5" />
                   </button>
+                )}
+
+                {/* ADK Monetization Pre-Roll (Strictly triggered only after > 1 Hour of Session Watch Time) */}
+                {adActive && adPayload && (
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-30 max-w-[280px] sm:max-w-xs p-3 rounded-2xl bg-[#090a10]/95 border border-amber-400/40 backdrop-blur-xl shadow-2xl flex flex-col gap-1.5 animate-fadeIn">
+                    <div className="flex items-center justify-between text-[10px]">
+                      <span className="text-amber-300 font-bold bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-400/30">
+                        {adPayload.badgeText}
+                      </span>
+                      <button
+                        onClick={() => setAdActive(false)}
+                        className="text-zinc-400 hover:text-white text-xs cursor-pointer px-1 py-0.5"
+                      >
+                        ✕ Skip
+                      </button>
+                    </div>
+                    <p className="text-xs font-bold text-white leading-tight">{adPayload.title}</p>
+                    <p className="text-[10px] text-zinc-300 line-clamp-2">{adPayload.description}</p>
+                    <a
+                      href={adPayload.targetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1 mt-0.5"
+                    >
+                      {adPayload.ctaText} →
+                    </a>
+                    <span className="text-[8px] text-zinc-500 font-mono">
+                      100% Revenue Deposited to Owner Wallet: {monetizationAdAgent.getOwnerWallet().slice(0, 8)}...
+                    </span>
+                  </div>
                 )}
               </>
             ) : (

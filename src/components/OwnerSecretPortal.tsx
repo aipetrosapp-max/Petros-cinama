@@ -29,6 +29,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { aiAdOptimizationAgent, DEFAULT_PUBLISHER_WALLETS } from '../services/aiAdOptimizationAgent';
 import { dynamicStreamSync, type DynamicStreamItem } from '../services/dynamicStreamSync';
 import { internalAiArchiveParser, type IngestionResult } from '../services/internalAiArchiveParser';
+import { monetizationAdAgent, securityGuardAgent } from '../agents';
 
 interface OwnerSecretPortalProps {
   initialTab?: 'wallets' | 'archive';
@@ -133,19 +134,33 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
   const impressionsCount = aiAdOptimizationAgent.getImpressionsCount();
   const winningNetwork = aiAdOptimizationAgent.getWinningNetwork();
 
+  const [lockoutMsg, setLockoutMsg] = useState<string | null>(null);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pinInput.trim() === OWNER_MASTER_PIN) {
+    const isSuccess = pinInput.trim() === OWNER_MASTER_PIN;
+    const secResult = securityGuardAgent.recordPinAttempt(isSuccess);
+
+    if (secResult.isLockedOut) {
+      setLockoutMsg(secResult.reason || 'Security lockout active.');
+      setPinError(true);
+      return;
+    }
+
+    if (isSuccess) {
       setIsAuthenticated(true);
       sessionStorage.setItem('aipetros_owner_auth', 'granted');
       setPinError(false);
+      setLockoutMsg(null);
     } else {
       setPinError(true);
+      setLockoutMsg(secResult.reason || 'Incorrect PIN.');
     }
   };
 
   const handleSaveWallets = () => {
     aiAdOptimizationAgent.setPayoutWalletAddress(wallets.usdt);
+    monetizationAdAgent.setOwnerWallet(wallets.usdt);
     setWalletSaved(true);
     setTimeout(() => setWalletSaved(false), 3000);
   };
@@ -348,7 +363,7 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
               {pinError && (
                 <p className="text-xs text-red-400 font-semibold">
-                  Access Denied: Incorrect Master Passkey.
+                  {lockoutMsg || 'Access Denied: Incorrect Master Passkey.'}
                 </p>
               )}
 
