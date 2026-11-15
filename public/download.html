@@ -178,7 +178,7 @@
   <canvas id="cinema-3d-canvas"></canvas>
 
   <!-- MAIN RESPONSIVE CONTAINER (Mobile-First, Scales to Tablet/Desktop) -->
-  <main class="relative z-10 w-full max-w-[460px] md:max-w-[780px] lg:max-w-[980px] mx-auto px-3.5 pt-3 pb-28 flex flex-col items-center">
+  <main class="relative z-10 w-full max-w-[460px] md:max-w-[780px] lg:max-w-[980px] mx-auto px-3.5 pt-3 pb-12 flex flex-col items-center">
 
     <!-- 1. TOP 3D HOLOGRAPHIC IMAX PROJECTOR & VOLUMETRIC LIGHT -->
     <section class="relative w-full flex flex-col items-center pt-2 pb-3">
@@ -439,8 +439,8 @@
     </section>
 
     <!-- 4. BOTTOM PRIMARY ACTION ROW (LAUNCH SPATIAL CINEMA + DOWNLOAD CLIENTS) -->
-    <section class="w-full mt-5 flex items-center gap-2.5 sm:gap-4">
-      <a href="./app.html" class="gold-cta-btn flex-1 py-3.5 sm:py-4 px-5 rounded-full text-center font-serif font-extrabold text-xs sm:text-sm md:text-base tracking-wider uppercase">
+    <section class="w-full mt-6 mb-8 flex items-center gap-2.5 sm:gap-4">
+      <a href="./app.html" class="gold-cta-btn flex-1 py-3.5 sm:py-4 px-5 rounded-full text-center font-serif font-extrabold text-xs sm:text-sm md:text-base tracking-wider uppercase shadow-[0_0_30px_rgba(212,175,55,0.4)]">
         LAUNCH SPATIAL CINEMA
       </a>
       <button id="download-btn" onclick="triggerClientDownload()" class="spatial-section-frame py-3.5 sm:py-4 px-4 sm:px-6 rounded-full text-[10.5px] sm:text-xs font-bold tracking-wider text-amber-200/95 hover:border-amber-300 transition uppercase shrink-0">
@@ -449,30 +449,6 @@
     </section>
 
   </main>
-
-  <!-- 5. FLOATING VISION-OS BOTTOM NAVIGATION DOCK -->
-  <nav class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 w-[94%] max-w-[440px] spatial-section-frame rounded-full px-4 py-2 flex items-center justify-around">
-    <a href="./app.html#universe" class="flex flex-col items-center gap-0.5 text-amber-300">
-      <svg class="w-5 h-5 drop-shadow-[0_0_8px_rgba(252,231,156,0.8)]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
-      <span class="text-[9.5px] font-semibold">Universe</span>
-    </a>
-    <a href="./app.html#discover" class="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-      <span class="text-[9.5px] font-medium">Discover</span>
-    </a>
-    <a href="./app.html#search" class="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <span class="text-[9.5px] font-medium">Search</span>
-    </a>
-    <a href="./app.html#library" class="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="7" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="17" y2="20"/></svg>
-      <span class="text-[9.5px] font-medium">Library</span>
-    </a>
-    <a href="./app.html#settings" class="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      <span class="text-[9.5px] font-medium">Settings</span>
-    </a>
-  </nav>
 
   <!-- INTERACTIVE SCRIPTS & THREE.JS 3D SCENE -->
   <script>

@@ -370,7 +370,7 @@ export const AipetrosLandingScreen: React.FC<AipetrosLandingProps> = ({
       />
 
       {/* MAIN RESPONSIVE CONTAINER (Mobile-First, Scales to Tablet/Desktop) */}
-      <main className="relative z-10 w-full max-w-[460px] md:max-w-[780px] lg:max-w-[980px] mx-auto px-3.5 pt-3 pb-28 flex flex-col items-center">
+      <main className="relative z-10 w-full max-w-[460px] md:max-w-[780px] lg:max-w-[980px] mx-auto px-3.5 pt-3 pb-12 flex flex-col items-center">
         {/* 1. TOP 3D HOLOGRAPHIC IMAX PROJECTOR & VOLUMETRIC LIGHT */}
         <section className="relative w-full flex flex-col items-center pt-2 pb-3">
           <div className="projector-beam" />
@@ -803,88 +803,6 @@ export const AipetrosLandingScreen: React.FC<AipetrosLandingProps> = ({
           </button>
         </section>
       </main>
-
-      {/* 5. FLOATING VISION-OS BOTTOM NAVIGATION DOCK */}
-      <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 w-[94%] max-w-[440px] spatial-section-frame rounded-full px-4 py-2 flex items-center justify-around">
-        <button
-          onClick={() => handleTabClick('universe')}
-          className="flex flex-col items-center gap-0.5 text-amber-300 cursor-pointer bg-transparent border-0"
-        >
-          <svg
-            className="w-5 h-5 drop-shadow-[0_0_8px_rgba(252,231,156,0.8)]"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-          </svg>
-          <span className="text-[9.5px] font-semibold">Universe</span>
-        </button>
-        <button
-          onClick={() => handleTabClick('discover')}
-          className="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition cursor-pointer bg-transparent border-0"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            viewBox="0 0 24 24"
-          >
-            <circle cx="12" cy="12" r="9" />
-            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-          </svg>
-          <span className="text-[9.5px] font-medium">Discover</span>
-        </button>
-        <button
-          onClick={() => handleTabClick('search')}
-          className="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition cursor-pointer bg-transparent border-0"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            viewBox="0 0 24 24"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <span className="text-[9.5px] font-medium">Search</span>
-        </button>
-        <button
-          onClick={() => handleTabClick('library')}
-          className="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition cursor-pointer bg-transparent border-0"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            viewBox="0 0 24 24"
-          >
-            <rect x="3" y="4" width="18" height="16" rx="2" />
-            <line x1="7" y1="4" x2="7" y2="20" />
-            <line x1="17" y1="4" x2="17" y2="20" />
-          </svg>
-          <span className="text-[9.5px] font-medium">Library</span>
-        </button>
-        <button
-          onClick={() => handleTabClick('settings')}
-          className="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition cursor-pointer bg-transparent border-0"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            viewBox="0 0 24 24"
-          >
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-          <span className="text-[9.5px] font-medium">Settings</span>
-        </button>
-      </nav>
     </div>
   );
 };
