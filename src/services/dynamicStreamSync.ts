@@ -32,7 +32,10 @@ export interface DynamicStreamItem {
   tags?: string[];
   qualities: VideoStreamQualitySource[];
   defaultStreamUrl: string;
-  sourceType: 'hls' | 'mp4' | 'embed' | 'direct';
+  sourceType?: 'hls' | 'mp4' | 'embed' | 'direct' | 'telegram' | string;
+  telegramUrl?: string;
+  telegramPostId?: number;
+  poster?: string;
   featured?: boolean;
   trendingRank?: number;
   isLive?: boolean;
@@ -139,7 +142,7 @@ class DynamicStreamSyncService {
   }
 
   /**
-   * Fetch and synchronize the latest stream list from public GitHub repository
+   * Fetch and synchronize the latest stream list from public GitHub repository or local bundle
    */
   public async syncNow(force = true): Promise<{ success: boolean; count: number; error?: string }> {
     if (this.isSyncing) {
@@ -148,28 +151,43 @@ class DynamicStreamSyncService {
 
     this.isSyncing = true;
     try {
-      const targetUrl = this.syncUrl + (this.syncUrl.includes('?') ? '&' : '?') + `_t=${Date.now()}`;
-      let response: Response;
+      const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || './';
+      const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
-      try {
-        response = await fetch(targetUrl, {
-          cache: force ? 'no-cache' : 'default',
-          headers: {
-            'Accept': 'application/json'
+      const candidateUrls = [
+        `${cleanBase}data/streams.json`,
+        `${cleanBase}streams.json`,
+        './data/streams.json',
+        './streams.json',
+        '/data/streams.json',
+        this.syncUrl
+      ];
+
+      let data: DynamicStreamsManifest | null = null;
+      let lastErr: any = null;
+
+      for (const candidate of candidateUrls) {
+        try {
+          const targetUrl = candidate + (candidate.includes('?') ? '&' : '?') + `_t=${Date.now()}`;
+          const res = await fetch(targetUrl, {
+            cache: force ? 'no-cache' : 'default',
+            headers: { 'Accept': 'application/json' }
+          });
+          if (res.ok) {
+            const parsed = await res.json();
+            if (parsed && Array.isArray(parsed.streams) && parsed.streams.length > 0) {
+              data = parsed;
+              console.log(`[DynamicStreamSync] Successfully hydrated ${parsed.streams.length} titles from: ${candidate}`);
+              break;
+            }
           }
-        });
-      } catch {
-        // Fallback to local mirror or cache if network failed
-        response = await fetch(FALLBACK_MIRROR_URL + `?_t=${Date.now()}`);
+        } catch (e) {
+          lastErr = e;
+        }
       }
 
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
-      }
-
-      const data: DynamicStreamsManifest = await response.json();
       if (!data || !Array.isArray(data.streams)) {
-        throw new Error('Invalid streams format in public GitHub manifest');
+        throw new Error(`Failed to load valid cinema streams from candidates: ${lastErr?.message || 'Empty or unreachable manifest'}`);
       }
 
       // Merge remote streams with existing local custom streams so user streams are never lost
@@ -183,7 +201,7 @@ class DynamicStreamSyncService {
         localStorage.setItem(STORAGE_SYNC_KEY, JSON.stringify(this.currentStreams));
         localStorage.setItem(STORAGE_SYNC_META, JSON.stringify({
           lastSyncedAt: this.lastSyncedAt,
-          version: data.version || '1.0.0',
+          version: data.version || '2.4.0',
           source: this.syncUrl,
           count: this.currentStreams.length
         }));
@@ -195,7 +213,7 @@ class DynamicStreamSyncService {
       return { success: true, count: this.currentStreams.length };
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      console.warn('[ai petros Stream Sync] Failed to sync with remote GitHub file:', errorMessage);
+      console.warn('[ai petros Stream Sync] Failed to sync with stream repository:', errorMessage);
       return { success: false, count: this.currentStreams.length, error: errorMessage };
     } finally {
       this.isSyncing = false;
@@ -307,10 +325,10 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     clusterLabelEn: 'Aipetros Cloud Stream',
     clusterLabelFa: 'استریم ابری پتروس',
     durationSec: stream.durationSec || 600,
-    quality: stream.qualities.some(q => q.quality === '4K') ? '4K HDR' : '1080p',
+    quality: (stream.qualities && Array.isArray(stream.qualities) && stream.qualities.some(q => q.quality === '4K')) ? '4K HDR' : '1080p',
     releaseYear: stream.year || 2026,
     addedDaysAgo: 0,
-    posterUrl: stream.posterUrl || getFallbackPoster(stream.id),
+    posterUrl: stream.posterUrl || (stream as any).poster || getFallbackPoster(stream.id),
     accentHex: '#F5B942',
     synopsisEn: stream.synopsis,
     synopsisFa: stream.synopsisFa || stream.synopsis,
@@ -341,11 +359,13 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     availabilityStatus: 'available',
     licenseVerified: true,
     consentVerified: true,
-    sourceName: 'GitHub Cloud Sync (Petros Cinema)',
-    streamUrl: stream.defaultStreamUrl,
-    defaultStreamUrl: stream.defaultStreamUrl,
+    sourceName: 'Petros Cinema Telegram Stream',
+    streamUrl: (stream.sourceType === 'telegram' || stream.defaultStreamUrl?.includes('t.me') || stream.telegramUrl?.includes('t.me')) ? '' : stream.defaultStreamUrl,
+    defaultStreamUrl: stream.defaultStreamUrl || stream.telegramUrl,
+    telegramUrl: stream.telegramUrl || stream.defaultStreamUrl,
+    sourceType: stream.sourceType || (stream.defaultStreamUrl?.includes('t.me') ? 'telegram' : 'direct_mp4'),
     originalSource: stream.originalSource,
-    qualities: stream.qualities,
+    qualities: stream.qualities || [],
     subtitles: [
       { startSec: 1, endSec: 8, en: stream.title, fa: stream.titleFa || stream.title },
       { startSec: 9, endSec: 25, en: stream.synopsis, fa: stream.synopsisFa || stream.synopsis }

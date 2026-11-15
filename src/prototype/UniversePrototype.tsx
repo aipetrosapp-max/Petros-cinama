@@ -67,6 +67,7 @@ import { LibraryScreen } from './screens/LibraryScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { AipetrosLandingScreen } from './screens/AipetrosLandingScreen';
 import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
+import { telegramCatalogAgent } from '../agents/telegramCatalogAgent';
 import { autoUpdateService } from '../services/autoUpdateService';
 import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
 import { tvRemote } from '../services/tvRemoteNavigation';
@@ -158,18 +159,19 @@ function UniversePrototypeShell({
   const [langPickerOpen, setLangPickerOpen] = useState(false);
 
   const [catalog, setCatalog] = useState<PrototypeMediaItem[]>(() => {
-    const fromVault = initialVault?.catalog && initialVault.catalog.length > 0
-      ? initialVault.catalog
-      : [];
+    // Purify and ignore legacy seed mock movies (X-Men, Interstellar mock seeds, etc.)
+    const rawVault = initialVault?.catalog || [];
+    const fromVault = rawVault.filter(item => 
+      !item.id.startsWith('film-x-men') &&
+      !item.id.startsWith('film-interstellar') &&
+      !item.id.startsWith('film-blade-runner') &&
+      !item.id.startsWith('film-dune') &&
+      !item.id.startsWith('film-batman')
+    );
     const fromDynamic = dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem);
-    const combined = fromVault.length > 0 ? fromVault : fromDynamic.length > 0 ? fromDynamic : PROTOTYPE_MEDIA_CATALOG;
-    const valid = combined.filter((item) => Boolean(
-      (item.streamUrl && item.streamUrl.startsWith('http')) ||
-      (item.qualities && item.qualities.some((q) => q.url && q.url.startsWith('http'))) ||
-      item.streamUrl?.includes('t.me/') ||
-      item.id?.startsWith('tg-')
-    ));
-    return valid.length > 0 ? valid : PROTOTYPE_MEDIA_CATALOG;
+    if (fromDynamic.length > 0) return fromDynamic;
+    if (fromVault.length > 0) return fromVault;
+    return PROTOTYPE_MEDIA_CATALOG;
   });
   const [user, setUser] = useState<UserAccountState>(() => initialVault?.user ?? INITIAL_USER_STATE);
   const [userVector, setUserVector] = useState<TasteVector6D>(
@@ -292,32 +294,24 @@ function UniversePrototypeShell({
       }
     });
 
-    // Mandatory startup sync: fetch and update streams from public cloud repository
+    // Autonomous Telegram Catalog Check & Purification at startup
     (async () => {
       try {
-        setSyncStatusText(lang === 'fa' ? 'در حال دریافت تازه‌ترین فهرست فیلم‌ها و استریم‌ها از مخزن ابری...' : 'Fetching latest cloud cinema streams...');
-        await dynamicStreamSync.syncNow(true);
-        if (isMounted) {
-          const validOnly = dynamicStreamSync.getStreams()
-            .filter((s) => Boolean(
-              (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http')) ||
-              (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http')))
-            ))
-            .map(convertDynamicStreamToMediaItem);
-          if (validOnly.length > 0) {
-            setCatalog(validOnly);
-          }
-          setSyncStatusText(lang === 'fa' ? 'مخزن فیلم و سریال با موفقیت به‌روزرسانی شد.' : 'Cinema catalog synchronized.');
+        setSyncStatusText(lang === 'fa' ? 'ایجنت پتروس سینما در حال پاک‌سازی و همگام‌سازی مخزن با تلگرام...' : 'Checking & purifying cinema repository against Telegram...');
+        const { catalog: purifiedCatalog, report } = await telegramCatalogAgent.purifyAndSync(catalog);
+        if (isMounted && purifiedCatalog && purifiedCatalog.length > 0) {
+          setCatalog(purifiedCatalog);
+          setSyncStatusText(lang === 'fa' ? report.messageFa : 'Cinema catalog synchronized.');
         }
       } catch (err) {
-        console.warn('Initial cloud sync error (falling back to cache):', err);
+        console.warn('Initial Telegram repository check & purification error:', err);
       } finally {
         // Smooth transition: brief pause so the user sees clean boot
         setTimeout(() => {
           if (isMounted) {
             setIsAppInitializing(false);
           }
-        }, 650);
+        }, 500);
       }
     })();
 

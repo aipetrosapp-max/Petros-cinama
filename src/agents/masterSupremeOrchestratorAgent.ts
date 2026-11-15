@@ -14,6 +14,7 @@ import { cacheStorageAgent } from './cacheStorageAgent';
 import { monetizationAdAgent } from './monetizationAdAgent';
 import { securityGuardAgent } from './securityGuardAgent';
 import { catalogHealthAgent } from './catalogHealthAgent';
+import { telegramCatalogAgent } from './telegramCatalogAgent';
 import type { PrototypeMediaItem } from '../prototype/types';
 
 export interface SupremeAgentStatus {
@@ -53,7 +54,8 @@ export class MasterSupremeOrchestratorAgent extends AdkAgent {
         cacheStorageAgent,
         monetizationAdAgent,
         securityGuardAgent,
-        catalogHealthAgent
+        catalogHealthAgent,
+        telegramCatalogAgent
       ]
     });
   }

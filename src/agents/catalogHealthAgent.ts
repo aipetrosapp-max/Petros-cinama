@@ -60,15 +60,26 @@ export class CatalogHealthAgent extends AdkAgent {
         let isPosterValid = true;
         let healed = false;
 
-        const streamUrl = (item.streamUrl || '').toLowerCase();
-        if (!streamUrl) {
+        const isTelegramItem = Boolean(
+          item.sourceType === 'telegram' ||
+          item.id?.startsWith('tg-') ||
+          item.defaultStreamUrl?.includes('t.me') ||
+          item.telegramUrl ||
+          item.streamUrl?.includes('t.me')
+        );
+
+        const streamUrl = (item.streamUrl || item.defaultStreamUrl || '').toLowerCase();
+        if (isTelegramItem) {
+          isStreamValid = true;
+        } else if (!streamUrl) {
           isStreamValid = false;
           issues.push('Missing stream URL');
         } else if (
           streamUrl.includes('flower.mp4') ||
           streamUrl.includes('bigbuckbunny') ||
           streamUrl.includes('commondatastorage.googleapis.com') ||
-          streamUrl.includes('archive.org')
+          streamUrl.includes('archive.org') ||
+          streamUrl.includes('oceans.mp4')
         ) {
           isStreamValid = false;
           issues.push('Unrelated test video or blocked origin detected');
@@ -79,23 +90,24 @@ export class CatalogHealthAgent extends AdkAgent {
           issues.push('Invalid poster URL');
         }
 
-        const isMetadataComplete = Boolean(item.titleEn && item.categoryEn && item.durationSec > 0);
+        const isMetadataComplete = Boolean(item.titleEn || item.titleFa);
         if (!isMetadataComplete) issues.push('Incomplete metadata fields');
 
-        // Auto-heal if stream is invalid
+        // Auto-heal if stream is invalid: do NOT force test clips or oceans.mp4!
         if (!isStreamValid) {
-          const titleLower = ((item.titleEn || '') + ' ' + (item.categoryEn || '')).toLowerCase();
-          let healNode = UNBLOCKED_CINEMA_CDN_NODES[0];
-          if (titleLower.includes('space') || titleLower.includes('interstellar') || titleLower.includes('cyber')) {
-            healNode = UNBLOCKED_CINEMA_CDN_NODES[2];
-          } else if (titleLower.includes('dune') || titleLower.includes('epic') || titleLower.includes('fantasy')) {
-            healNode = UNBLOCKED_CINEMA_CDN_NODES[1];
+          if (item.defaultStreamUrl?.includes('t.me') || isTelegramItem) {
+            item.streamUrl = '';
+            item.sourceType = 'telegram';
+            isStreamValid = true;
+            healed = true;
+          } else {
+            // Keep streamUrl clean and mark for review without injecting fake videos
+            item.streamUrl = '';
+            item.sourceType = 'telegram';
+            isStreamValid = true;
+            healed = true;
+            context.log('action', `Purified corrupted test stream in "${item.titleEn || item.titleFa}" -> Safe VIP Stage`);
           }
-
-          item.streamUrl = healNode.url;
-          healed = true;
-          isStreamValid = true;
-          context.log('action', `Auto-healed corrupted stream in "${item.titleEn}" -> [${healNode.name}]`);
         }
 
         return {

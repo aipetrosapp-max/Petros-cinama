@@ -1,6 +1,7 @@
 import { cinemaStreamAgent } from '../src/agents/cinemaStreamAgent';
 import { playbackScrubberAgent } from '../src/agents/playbackScrubberAgent';
 import { selfHealingAgent } from '../src/agents/selfHealingAgent';
+import { telegramCatalogAgent } from '../src/agents/telegramCatalogAgent';
 import { PROTOTYPE_MEDIA_CATALOG } from '../src/prototype/prototypeData';
 import { isPlayableDirectMediaUrl } from '../src/services/aiCinemaStreamEngine';
 import https from 'https';
@@ -151,6 +152,15 @@ async function runHealthCheck() {
   assert('CinemaStreamAgent plays direct valid stream', resDirect.data.streamUrl === directItem.streamUrl);
   const isHttpOk = await verifyHttpStream(resDirect.data.streamUrl);
   assert(`Verified direct stream returns HTTP 200/206 Partial Content`, isHttpOk);
+
+  // TEST 7: Telegram Catalog Purification Agent Startup Sync
+  console.log('\n--- TEST 7: Telegram Catalog Purification Agent ---');
+  const startupResult = await telegramCatalogAgent.purifyAndSync(PROTOTYPE_MEDIA_CATALOG);
+  assert('TelegramCatalogAgent ran startup purification', startupResult.catalog.length > 0);
+  assert('Catalog items contain authentic Telegram links', startupResult.catalog.every(i => Boolean(i.defaultStreamUrl || i.telegramUrl)));
+  assert('Zero fake oceans/sintel clips in purified catalog', startupResult.catalog.every(i => !i.streamUrl?.includes('oceans.mp4') && !i.streamUrl?.includes('sintel')));
+  telegramCatalogAgent.setCustomRule('owner_policy', 'unrestricted');
+  assert('Custom owner legal rules set dynamically', telegramCatalogAgent.getCustomRules()['owner_policy'] === 'unrestricted');
 
   console.log('\n================================================================');
   console.log(`🏁 TEST RESULTS: ${passed}/${total} assertions PASSED (${Math.round((passed / total) * 100)}%)`);
