@@ -47,8 +47,8 @@ def call_telegram_api(bot_token: str, method: str, params: Dict[str, Any]) -> Op
         return None
 
 def detect_channel_id(bot_token: str) -> Optional[int]:
-    """Auto-detect channel ID from recent bot updates where bot was added as admin"""
-    res = call_telegram_api(bot_token, "getUpdates", {"allowed_updates": ["channel_post", "my_chat_member"]})
+    """Auto-detect channel ID from recent bot updates where bot was added as admin or message was forwarded"""
+    res = call_telegram_api(bot_token, "getUpdates", {"allowed_updates": ["channel_post", "my_chat_member", "message"]})
     if not res or not res.get("ok"):
         return None
     for update in reversed(res.get("result", [])):
@@ -59,6 +59,10 @@ def detect_channel_id(bot_token: str) -> Optional[int]:
             chat = update["my_chat_member"].get("chat", {})
             if chat.get("type") == "channel":
                 return chat.get("id")
+        if "message" in update and "forward_from_chat" in update["message"]:
+            fwd = update["message"].get("forward_from_chat", {})
+            if fwd.get("type") == "channel":
+                return fwd.get("id")
     return None
 
 def format_movie_caption(movie: Dict[str, Any], web_player_url: str = "https://aipetrosapp-max.github.io/Petros-cinama/") -> str:
@@ -165,7 +169,17 @@ def main():
     bot_username = me["result"].get("username", "UnknownBot")
     print(f"✅ ربات متصل شد: @{bot_username}")
 
-    state = load_json(STATE_FILE, {"published_ids": []})
+    # Check for channel detection from updates if channel_id is not set or needs update
+    detected = detect_channel_id(bot_token)
+    if detected:
+        print(f"📡 کانال جدید شناسایی شد: {detected}")
+        channel_id = detected
+        config["channel_id"] = detected
+        save_json(CONFIG_FILE, config)
+
+    # Per-channel state tracking
+    state_file = f"state_bot_{str(channel_id).replace('-', '_')}.json" if channel_id else STATE_FILE
+    state = load_json(state_file, {"published_ids": []})
     published_ids = set(state.get("published_ids", []))
 
     manifest = load_json(REPO_FILE, {})
@@ -191,7 +205,7 @@ def main():
         if ok:
             published_ids.add(m_id)
             state["published_ids"] = list(published_ids)
-            save_json(STATE_FILE, state)
+            save_json(state_file, state)
             success_count += 1
             print(f"      ✅ ارسال شد!", flush=True)
         else:

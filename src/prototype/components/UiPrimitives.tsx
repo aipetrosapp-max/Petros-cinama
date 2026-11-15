@@ -209,6 +209,15 @@ export interface MediaCardProps {
   onHide: (item: PrototypeMediaItem) => void;
 }
 
+export function cleanCinemaTitle(raw: string): string {
+  if (!raw) return '';
+  return raw
+    .replace(/^Telegram\s+Cinema\s+Post\s*#?(\d+)/i, 'Featured Cinema Stream #$1')
+    .replace(/^پست\s+سینمایی\s+تلگرام\s*#?(\d+)/i, 'اکران ویژه پتروس #$1')
+    .replace(/\[Telegram\/.*?\]/gi, '')
+    .trim();
+}
+
 export function MediaCard({
   recommendation,
   isFavorite,
@@ -229,7 +238,8 @@ export function MediaCard({
   const [menuOpen, setMenuOpen] = useState(false);
   const [isHoldingPreview, setIsHoldingPreview] = useState(false);
 
-  const title = t(item.titleEn, item.titleFa);
+  const rawTitle = t(item.titleEn, item.titleFa);
+  const title = cleanCinemaTitle(rawTitle);
   const category = t(item.categoryEn, item.categoryFa);
   const creator = item.creatorEn || item.creatorFa ? t(item.creatorEn || item.creatorFa || '', item.creatorFa) : '';
   const reason = t(reasonEn, reasonFa);
@@ -248,7 +258,7 @@ export function MediaCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative flex flex-col overflow-hidden rounded-[22px] border border-white/10 bg-[#0D101A] transition-colors duration-300 hover:border-[#F5B942]/45 hover:shadow-[0_18px_42px_-16px_rgba(0,0,0,0.85)]"
+      className="group relative flex flex-col overflow-hidden rounded-[24px] border border-[rgba(212,175,55,0.22)] bg-[#0B0C10] shadow-[0_8px_32px_rgba(0,0,0,0.85)] transition-all duration-300 hover:border-[#D4AF37]/75 hover:shadow-[0_16px_48px_rgba(212,175,55,0.22)]"
       onMouseLeave={() => {
         setMenuOpen(false);
         setIsHoldingPreview(false);
@@ -256,7 +266,7 @@ export function MediaCard({
     >
       {/* Visual Frame — Press & Hold for kinetic atmosphere preview (Zero scale/zoom!) */}
       <div
-        className="relative aspect-[16/10] w-full overflow-hidden bg-[#151A28] select-none cursor-pointer"
+        className="relative aspect-[16/10] w-full overflow-hidden bg-[#050508] select-none cursor-pointer"
         onClick={() => onOpenDetail(item)}
         onPointerDown={() => setIsHoldingPreview(true)}
         onPointerUp={() => setIsHoldingPreview(false)}
@@ -277,18 +287,18 @@ export function MediaCard({
           <div
             className="flex h-full w-full items-center justify-center p-4 text-center"
             style={{
-              background: `radial-gradient(circle at 30% 25%, ${item.accentHex}33, #0D101A 75%)`
+              background: `radial-gradient(circle at 30% 25%, ${item.accentHex}33, #0B0C10 75%)`
             }}
           >
-            <span className="text-xs font-medium text-[#A3AEC2]">{title}</span>
+            <span className="text-xs font-cinzel font-semibold text-[#D4AF37]">{title}</span>
           </div>
         )}
 
         <div
           className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${
             isHoldingPreview
-              ? 'bg-gradient-to-t from-[#06070C]/95 via-[#06070C]/25 to-transparent opacity-100'
-              : 'bg-gradient-to-t from-[#06070C]/90 via-transparent to-[#06070C]/30'
+              ? 'bg-gradient-to-t from-[#050508]/95 via-[#050508]/25 to-transparent opacity-100'
+              : 'bg-gradient-to-t from-[#050508]/90 via-transparent to-[#050508]/40'
           }`}
         />
 
@@ -300,9 +310,9 @@ export function MediaCard({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}
               transition={{ duration: 0.18 }}
-              className="pointer-events-none absolute inset-x-3 bottom-3 rounded-xl bg-[#06070C]/85 px-3 py-2 backdrop-blur-md border border-[#F5B942]/35"
+              className="pointer-events-none absolute inset-x-3 bottom-3 rounded-xl bg-[#050508]/90 px-3 py-2 backdrop-blur-md border border-[rgba(212,175,55,0.4)]"
             >
-              <p className="text-[11px] font-medium text-[#F5B942]">
+              <p className="text-[11px] font-cinzel font-bold text-[#D4AF37]">
                 {t('Motion scene preview...', 'پیش‌نمایش صحنه انتخابی...')}
               </p>
               <p className="mt-0.5 line-clamp-1 text-xs text-[#F5F7FA]">{synopsis}</p>
@@ -317,33 +327,33 @@ export function MediaCard({
         >
           <span
             dir="ltr"
-            className="rounded-full bg-[#06070C]/75 px-2.5 py-1 text-[11px] font-mono-tabular text-[#F5B942] backdrop-blur-md"
+            className="rounded-full bg-[#050508]/85 border border-[rgba(212,175,55,0.3)] px-3 py-1 text-[11px] font-mono font-bold text-[#D4AF37] backdrop-blur-md shadow-sm"
           >
             {score}% {t('Match', 'تطابق')}
           </span>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => onDownload(item)}
               aria-label={t('Download for offline', 'دانلود برای تماشای آفلاین')}
               className={`min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-full backdrop-blur-md transition-colors cursor-pointer px-2 gap-1 ${
                 isDownloaded
-                  ? 'bg-[#34D399]/20 text-[#34D399] border border-[#34D399]/40'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
                   : isDownloading
-                  ? 'bg-[#F5B942]/20 text-[#F5B942] border border-[#F5B942]/40'
-                  : 'bg-[#06070C]/70 text-[#F5F7FA] hover:bg-[#06070C]'
+                  ? 'bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40'
+                  : 'bg-[#050508]/80 text-[#F5F7FA] border border-white/10 hover:border-[#D4AF37]/50'
               }`}
             >
               {isDownloading ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  <span dir="ltr" className="text-[10px] font-mono-tabular">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-[#D4AF37]" />
+                  <span dir="ltr" className="text-[10px] font-mono-tabular text-[#D4AF37]">
                     {downloadRecord.progressPct}%
                   </span>
                 </>
               ) : isDownloaded ? (
-                <Check className="h-3.5 w-3.5" />
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
               ) : (
                 <Download className="h-3.5 w-3.5" />
               )}
@@ -353,10 +363,10 @@ export function MediaCard({
               type="button"
               onClick={() => onToggleFavorite(item)}
               aria-label={t('Bookmark', 'ذخیره در علاقه‌مندی‌ها')}
-              className={`min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-full backdrop-blur-md transition-colors cursor-pointer ${
+              className={`min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-full backdrop-blur-md transition-all cursor-pointer ${
                 isFavorite
-                  ? 'bg-[#F5B942] text-[#06070C]'
-                  : 'bg-[#06070C]/70 text-[#F5F7FA] hover:bg-[#06070C]'
+                  ? 'bg-[#D4AF37] text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.5)]'
+                  : 'bg-[#050508]/80 text-[#F5F7FA] border border-white/10 hover:border-[#D4AF37]/50'
               }`}
             >
               <Bookmark className="h-3.5 w-3.5" fill={isFavorite ? 'currentColor' : 'none'} />
@@ -367,7 +377,7 @@ export function MediaCard({
                 type="button"
                 onClick={() => setMenuOpen((prev) => !prev)}
                 aria-label={t('More options', 'گزینه‌های بیشتر')}
-                className="min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-full bg-[#06070C]/70 text-[#F5F7FA] backdrop-blur-md hover:bg-[#06070C] transition-colors cursor-pointer"
+                className="min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-full bg-[#050508]/80 text-[#F5F7FA] border border-white/10 backdrop-blur-md hover:border-[#D4AF37]/50 transition-colors cursor-pointer"
               >
                 <MoreVertical className="h-3.5 w-3.5" />
               </button>
@@ -378,7 +388,7 @@ export function MediaCard({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute end-0 top-10 z-30 w-44 rounded-2xl border border-white/15 bg-[#0D101A]/95 p-1.5 shadow-2xl backdrop-blur-xl"
+                    className="absolute end-0 top-10 z-30 w-44 rounded-2xl border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/95 p-1.5 shadow-2xl backdrop-blur-xl"
                   >
                     <button
                       type="button"
@@ -388,7 +398,7 @@ export function MediaCard({
                       }}
                       className={`w-full min-h-[38px] flex items-center gap-2 rounded-xl px-3 text-xs text-start transition-colors cursor-pointer ${
                         feedback?.sentiment === 'like'
-                          ? 'bg-[#F5B942]/15 text-[#F5B942]'
+                          ? 'bg-[#D4AF37]/15 text-[#D4AF37]'
                           : 'text-[#F5F7FA] hover:bg-white/[0.06]'
                       }`}
                     >
@@ -416,7 +426,7 @@ export function MediaCard({
                         onDownload(item);
                         setMenuOpen(false);
                       }}
-                      className="w-full min-h-[38px] flex items-center gap-2 rounded-xl px-3 text-xs text-start text-[#34D399] hover:bg-[#34D399]/10 transition-colors cursor-pointer"
+                      className="w-full min-h-[38px] flex items-center gap-2 rounded-xl px-3 text-xs text-start text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
                     >
                       <Download className="h-3.5 w-3.5 shrink-0" />
                       <span>{t('Download Offline', 'دانلود و ذخیره فایل')}</span>
@@ -439,7 +449,7 @@ export function MediaCard({
           </div>
         </div>
 
-        {/* Play Trigger Button */}
+        {/* Floating Gold Play Trigger Button on Corner */}
         <button
           type="button"
           onClick={(e) => {
@@ -447,54 +457,58 @@ export function MediaCard({
             onPlay(item);
           }}
           aria-label={`${t('Play', 'پخش')} ${title}`}
-          className="absolute bottom-2.5 end-2.5 min-h-[40px] min-w-[40px] inline-flex items-center justify-center rounded-full bg-[#F5B942] text-[#06070C] shadow-lg transition-colors duration-200 hover:bg-[#fbd074] cursor-pointer"
+          className="absolute bottom-3 end-3 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] text-[#050508] shadow-[0_0_20px_rgba(212,175,55,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
         >
-          <Play className="h-4 w-4 fill-current" />
+          <Play className="h-4 w-4 fill-current stroke-[2]" />
         </button>
 
         {/* Resume Progress Track */}
         {progressPct > 0 && (
           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/15">
-            <div className="h-full bg-[#F5B942]" style={{ width: `${progressPct}%` }} />
+            <div className="h-full bg-gradient-to-r from-[#D4AF37] to-[#F5B942]" style={{ width: `${progressPct}%` }} />
           </div>
         )}
       </div>
 
       {/* Card Body */}
-      <div className="flex flex-1 flex-col justify-between p-4 gap-3">
+      <div className="flex flex-1 flex-col justify-between p-4 gap-3 bg-[#0B0C10]">
         <div className="space-y-1.5">
           <button
             type="button"
             onClick={() => onOpenDetail(item)}
-            className="text-start w-full text-sm sm:text-base font-semibold text-[#F5F7FA] hover:text-[#F5B942] transition-colors line-clamp-1 cursor-pointer"
+            className="text-start w-full text-sm sm:text-base font-cinzel font-bold tracking-wide text-[#F5F7FA] hover:text-[#D4AF37] transition-colors line-clamp-1 cursor-pointer"
           >
             {title}
           </button>
 
-          <p className="text-xs text-[#A3AEC2] line-clamp-1">
-            {category} · <span dir="ltr" className="font-mono-tabular">{item.quality}</span> ·{' '}
-            <span dir="ltr" className="font-mono-tabular">
+          <div className="flex items-center gap-2 text-xs text-[#A3AEC2]">
+            <span className="px-2 py-0.5 rounded-full bg-[rgba(212,175,55,0.1)] text-[#D4AF37] border border-[rgba(212,175,55,0.25)] font-mono text-[10px] font-bold">
+              {item.quality || '1080p'}
+            </span>
+            <span className="font-mono-tabular">
               {formatDuration(item.durationSec)}
             </span>
-            {creator ? ` · ${creator}` : ''}
-          </p>
+            <span>·</span>
+            <span className="truncate">{category}</span>
+            {creator ? <span className="hidden sm:inline">· {creator}</span> : null}
+          </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06]">
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-[rgba(212,175,55,0.12)]">
           <button
             type="button"
             onClick={() => setShowWhy((prev) => !prev)}
-            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#A3AEC2] hover:text-[#F5B942] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#A3AEC2] hover:text-[#D4AF37] transition-colors cursor-pointer"
           >
-            <HelpCircle className="h-3.5 w-3.5 shrink-0" />
+            <HelpCircle className="h-3.5 w-3.5 shrink-0 text-[#D4AF37]" />
             <span>{t('Why this?', 'چرا پیشنهاد شد؟')}</span>
           </button>
           <button
             type="button"
             onClick={() => onOpenDetail(item)}
-            className="text-[11px] font-medium text-[#F5B942] hover:underline cursor-pointer"
+            className="text-[11px] font-cinzel font-semibold text-[#D4AF37] hover:underline cursor-pointer tracking-wider"
           >
-            {t('Details & Download', 'جزئیات و دانلود')}
+            {t('Details & Dossier', 'شناسنامه و پخش')}
           </button>
         </div>
 
@@ -505,7 +519,7 @@ export function MediaCard({
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden rounded-xl bg-[#151A28] px-3 py-2 text-[11px] leading-relaxed text-[#D2DAE8]"
+              className="overflow-hidden rounded-xl bg-[#050508] border border-[rgba(212,175,55,0.2)] px-3 py-2 text-[11px] leading-relaxed text-[#D2DAE8]"
             >
               {reason}
             </motion.p>

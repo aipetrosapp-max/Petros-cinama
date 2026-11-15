@@ -48,7 +48,7 @@ import {
   type AiSubtitleSyncResult
 } from '../subtitleAiEngine';
 import { useT } from '../i18n';
-import { Button, formatDuration } from '../components/UiPrimitives';
+import { Button, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
 import { CryptoAdBanner } from '../../components/CryptoAdBanner';
 
 interface CinematicPlayerScreenProps {
@@ -626,7 +626,7 @@ export function CinematicPlayerScreen({
   }
 
   const BackIcon = dir === 'rtl' ? ArrowRight : ArrowLeft;
-  const title = t(item.titleEn, item.titleFa);
+  const title = cleanCinemaTitle(t(item.titleEn, item.titleFa));
   const category = t(item.categoryEn, item.categoryFa);
   const synopsis =
     details?.imdb && details.imdb.plotSummary !== item.synopsisEn
@@ -643,9 +643,9 @@ export function CinematicPlayerScreen({
   };
 
   return (
-    <div className="space-y-5 pb-12 overflow-x-hidden">
-      {/* Player Top Navigation & Trailer / Full Movie Mode Switch */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
+    <div className="space-y-6 pb-14 overflow-x-hidden">
+      {/* Player Top Navigation & Unified Frosted-Glass Control Header */}
+      <div className="rounded-2xl border border-[rgba(212,175,55,0.22)] bg-[#0B0C10]/85 backdrop-blur-2xl p-2.5 flex flex-wrap items-center justify-between gap-3 shadow-lg">
         <div className="flex flex-wrap items-center gap-2">
           <Button variant="secondary" size="sm" onClick={onBack}>
             <BackIcon className="h-4 w-4" />
@@ -653,14 +653,14 @@ export function CinematicPlayerScreen({
           </Button>
 
           {/* Official Trailer vs Full Film Mode Pill */}
-          <div className="inline-flex items-center rounded-full border border-white/15 bg-[#0D101A] p-1">
+          <div className="inline-flex items-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508] p-0.5">
             <button
               type="button"
               onClick={() => setPlaybackMode('movie')}
-              className={`min-h-[34px] inline-flex items-center gap-1.5 rounded-full px-3 text-xs font-medium transition-colors cursor-pointer ${
+              className={`min-h-[34px] inline-flex items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-all cursor-pointer ${
                 playbackMode === 'movie'
-                  ? 'bg-[#F5B942] text-[#06070C] font-semibold'
-                  : 'text-[#A3AEC2] hover:text-white'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F5B942] text-[#050508] font-bold shadow-[0_0_12px_rgba(212,175,55,0.4)]'
+                  : 'text-[#A3AEC2] hover:text-[#D4AF37]'
               }`}
             >
               <Film className="h-3.5 w-3.5" />
@@ -669,10 +669,10 @@ export function CinematicPlayerScreen({
             <button
               type="button"
               onClick={() => setPlaybackMode('trailer')}
-              className={`min-h-[34px] inline-flex items-center gap-1.5 rounded-full px-3 text-xs font-medium transition-colors cursor-pointer ${
+              className={`min-h-[34px] inline-flex items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-all cursor-pointer ${
                 playbackMode === 'trailer'
-                  ? 'bg-[#F5B942] text-[#06070C] font-semibold'
-                  : 'text-[#A3AEC2] hover:text-white'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F5B942] text-[#050508] font-bold shadow-[0_0_12px_rgba(212,175,55,0.4)]'
+                  : 'text-[#A3AEC2] hover:text-[#D4AF37]'
               }`}
             >
               <Clapperboard className="h-3.5 w-3.5" />
@@ -689,9 +689,9 @@ export function CinematicPlayerScreen({
             disabled={aiSyncing}
           >
             {aiSyncing ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-[#D4AF37]" />
             ) : (
-              <Wand2 className="h-3.5 w-3.5" />
+              <Wand2 className="h-3.5 w-3.5 text-[#D4AF37]" />
             )}
             <span>
               {aiSyncing
@@ -703,7 +703,7 @@ export function CinematicPlayerScreen({
           </Button>
 
           <Button variant="secondary" size="sm" onClick={onOpenLanguagePicker}>
-            <Globe2 className="h-3.5 w-3.5 text-[#F5B942]" />
+            <Globe2 className="h-3.5 w-3.5 text-[#D4AF37]" />
             <span>
               {isTranslating
                 ? t('Translating...', 'در حال ترجمه...')
@@ -717,7 +717,7 @@ export function CinematicPlayerScreen({
               size="sm"
               onClick={() => setPlayingFromOfflineVault((v) => !v)}
             >
-              <ShieldCheck className="h-3.5 w-3.5" />
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
               <span>
                 {playingFromOfflineVault
                   ? t('Playing Offline Vault', 'در حال پخش از حافظه آفلاین')
@@ -735,17 +735,17 @@ export function CinematicPlayerScreen({
           >
             {isDownloading ? (
               <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#F5B942]" />
-                <span>{downloadRecord.progressPct}%</span>
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-[#D4AF37]" />
+                <span className="font-mono">{downloadRecord.progressPct}%</span>
               </>
             ) : isDownloaded ? (
               <>
-                <Check className="h-3.5 w-3.5 text-[#34D399]" />
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
                 <span>{t('Offline Ready', 'آفلاین آماده')}</span>
               </>
             ) : (
               <>
-                <Download className="h-3.5 w-3.5 text-[#F5B942]" />
+                <Download className="h-3.5 w-3.5 text-[#D4AF37]" />
                 <span>{t('Save Offline', 'ذخیره آفلاین')}</span>
               </>
             )}
@@ -758,20 +758,20 @@ export function CinematicPlayerScreen({
             onClick={() => onDownload(item, true, activeQuality)}
             title={!activeStreamUrl ? t('No download link available', 'لینک دانلود برای این اثر درج نشده است') : undefined}
           >
-            <HardDriveDownload className="h-3.5 w-3.5" />
+            <HardDriveDownload className="h-3.5 w-3.5 text-[#D4AF37]" />
             <span className="hidden sm:inline">{t('Download to Device', 'دانلود در دستگاه')}</span>
           </Button>
         </div>
       </div>
 
-      {/* Main Cinema Stage — Outer element is raw un-transformed <div> so fixed fullscreen ALWAYS fills 100dvh cleanly */}
+      {/* Main Cinema Stage with Ambient Theater Glow */}
       <div
         ref={stageRef}
         data-fullscreen={isFullscreen ? 'true' : 'false'}
         className={
           isFullscreen
             ? 'fixed inset-0 z-[120] w-[100dvw] h-[100dvh] bg-black flex flex-col justify-center overflow-hidden'
-            : 'relative overflow-hidden rounded-[22px] sm:rounded-[28px] border border-white/15 bg-[#06070C] shadow-[0_28px_80px_-20px_rgba(0,0,0,0.95)]'
+            : 'relative overflow-hidden rounded-[26px] sm:rounded-[32px] border border-[rgba(212,175,55,0.3)] bg-[#050508] shadow-[0_0_80px_rgba(212,175,55,0.18),0_28px_80px_-20px_rgba(0,0,0,0.95)]'
         }
       >
         <div
@@ -980,8 +980,8 @@ export function CinematicPlayerScreen({
             </div>
           )}
 
-          {/* Bottom Controls Bar */}
-          <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-[#06070C] via-[#06070C]/88 to-transparent px-3 sm:px-6 pt-6 sm:pt-8 pb-3 sm:pb-4 space-y-2 sm:space-y-3">
+          {/* Spatial Glass Playback HUD (VisionOS Amphitheater Control Bar) */}
+          <div className="spatial-playback-bar absolute bottom-3 sm:bottom-4 inset-x-3 sm:inset-x-8 z-30 rounded-[28px] border border-[rgba(212,175,55,0.32)] bg-[#0B0C10]/92 backdrop-blur-2xl px-4 sm:px-6 py-3 shadow-[0_16px_50px_rgba(0,0,0,0.95),0_0_24px_rgba(212,175,55,0.16)] space-y-2.5">
             {/* Scrubber */}
             <div className="space-y-1" dir="ltr">
               <div className="relative flex items-center">
@@ -998,28 +998,28 @@ export function CinematicPlayerScreen({
                   className="aether-slider w-full"
                 />
               </div>
-              <div className="flex items-center justify-between text-[11px] font-mono-tabular text-[#A3AEC2]">
+              <div className="flex items-center justify-between text-[11px] font-mono-tabular text-[#D4AF37]">
                 <span>{formatDuration(currentTime)}</span>
-                <span>{formatDuration(duration)}</span>
+                <span className="text-[#A3AEC2]">{formatDuration(duration)}</span>
               </div>
             </div>
 
             {/* Action Buttons Row */}
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={togglePlay}
                   aria-label={isPlaying ? 'Pause' : 'Play'}
-                  className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] inline-flex items-center justify-center rounded-full bg-[#F5B942] text-[#06070C] cursor-pointer"
+                  className="min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] text-[#050508] shadow-[0_0_20px_rgba(212,175,55,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
                 >
-                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
+                  {isPlaying ? <Pause className="h-5 w-5 fill-current stroke-[2]" /> : <Play className="h-5 w-5 fill-current stroke-[2] translate-x-0.5" />}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSeek(Math.max(0, currentTime - 10))}
                   aria-label="Rewind 10s"
-                  className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-[#F5F7FA] cursor-pointer"
+                  className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#CBD5E1] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all cursor-pointer"
                 >
                   <RotateCcw className="h-4 w-4" />
                 </button>
@@ -1027,7 +1027,7 @@ export function CinematicPlayerScreen({
                   type="button"
                   onClick={() => handleSeek(Math.min(duration, currentTime + 10))}
                   aria-label="Forward 10s"
-                  className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-[#F5F7FA] cursor-pointer"
+                  className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#CBD5E1] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all cursor-pointer"
                 >
                   <RotateCw className="h-4 w-4" />
                 </button>
@@ -1036,9 +1036,9 @@ export function CinematicPlayerScreen({
                   type="button"
                   onClick={() => setMuted((m) => !m)}
                   aria-label={muted ? 'Unmute' : 'Mute'}
-                  className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-[#F5F7FA] cursor-pointer"
+                  className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#CBD5E1] hover:text-[#D4AF37] transition-all cursor-pointer"
                 >
-                  {muted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  {muted || volume === 0 ? <VolumeX className="h-4 w-4 text-[#94A3B8]" /> : <Volume2 className="h-4 w-4 text-[#D4AF37]" />}
                 </button>
                 <input
                   type="range"
@@ -1051,7 +1051,7 @@ export function CinematicPlayerScreen({
                     setMuted(false);
                   }}
                   aria-label="Volume"
-                  className="hidden sm:block w-20 accent-[#F5B942]"
+                  className="hidden sm:block w-20 accent-[#D4AF37]"
                 />
               </div>
 
@@ -1061,13 +1061,13 @@ export function CinematicPlayerScreen({
                   type="button"
                   onClick={() => setSubtitlePanelOpen((o) => !o)}
                   aria-label={t('AI Subtitle Sync Studio', 'تنظیمات همسان‌سازی زیرنویس')}
-                  className={`min-h-[38px] inline-flex items-center gap-1.5 rounded-full border px-2.5 sm:px-3 text-xs cursor-pointer transition-colors ${
+                  className={`min-h-[36px] inline-flex items-center gap-1.5 rounded-full border px-3 text-xs cursor-pointer transition-all ${
                     aiSyncedSub || subtitlePanelOpen
-                      ? 'border-[#34D399]/60 bg-[#34D399]/15 text-[#34D399]'
-                      : 'border-white/15 bg-white/[0.06] text-[#F5F7FA]'
+                      ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.3)]'
+                      : 'border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#D4AF37] hover:border-[#D4AF37]'
                   }`}
                 >
-                  <Wand2 className="h-3.5 w-3.5" />
+                  <Wand2 className="h-3.5 w-3.5 text-[#D4AF37]" />
                   <span className="hidden sm:inline">{t('AI Sub Sync', 'همسان‌سازی AI')}</span>
                 </button>
 
@@ -1079,9 +1079,9 @@ export function CinematicPlayerScreen({
                       s === 'auto' ? 'fa' : s === 'fa' ? 'en' : s === 'en' ? 'off' : 'auto'
                     )
                   }
-                  className="min-h-[38px] inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-2.5 sm:px-3 text-xs text-[#F5F7FA] cursor-pointer"
+                  className="min-h-[36px] inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 px-3 text-xs text-[#E2E8F0] hover:text-[#D4AF37] hover:border-[#D4AF37] cursor-pointer transition-all"
                 >
-                  <Captions className="h-3.5 w-3.5 text-[#F5B942]" />
+                  <Captions className="h-3.5 w-3.5 text-[#D4AF37]" />
                   <span>
                     {subMode === 'off'
                       ? t('CC Off', 'زیرنویس خاموش')
@@ -1097,7 +1097,7 @@ export function CinematicPlayerScreen({
                   onClick={() =>
                     setSpeed((sp) => (sp === 1 ? 1.25 : sp === 1.25 ? 1.5 : sp === 1.5 ? 2 : 1))
                   }
-                  className="min-h-[38px] rounded-full border border-white/15 bg-white/[0.06] px-2.5 sm:px-3 text-xs font-mono-tabular text-[#F5F7FA] cursor-pointer"
+                  className="min-h-[36px] rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 px-3 text-xs font-mono text-[#D4AF37] hover:border-[#D4AF37] cursor-pointer transition-all"
                 >
                   {speed}x
                 </button>
@@ -1107,20 +1107,20 @@ export function CinematicPlayerScreen({
                   value={activeQuality?.id || selectedQualityId}
                   onChange={(e) => setSelectedQualityId(e.target.value)}
                   aria-label="Backend Stream Quality"
-                  className="min-h-[38px] rounded-full border border-white/15 bg-[#0D101A] px-2.5 sm:px-3 text-base sm:text-xs text-[#F5F7FA]"
+                  className="min-h-[36px] rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508] px-3 text-xs font-mono font-bold text-[#D4AF37] focus:border-[#D4AF37] cursor-pointer"
                 >
                   {backendQualities.length > 0 ? (
                     backendQualities.map((q) => (
-                      <option key={q.id} value={q.id}>
+                      <option key={q.id} value={q.id} className="bg-[#0B0C10] text-[#E2E8F0]">
                         {q.resolution} · {t(q.label)}
                       </option>
                     ))
                   ) : (
                     <>
-                      <option value="auto">Auto (ABR)</option>
-                      <option value="4k">4K HDR</option>
-                      <option value="1080p">1080p</option>
-                      <option value="720p">720p Lite</option>
+                      <option value="auto" className="bg-[#0B0C10] text-[#E2E8F0]">Auto (ABR)</option>
+                      <option value="4k" className="bg-[#0B0C10] text-[#E2E8F0]">4K HDR</option>
+                      <option value="1080p" className="bg-[#0B0C10] text-[#E2E8F0]">1080p</option>
+                      <option value="720p" className="bg-[#0B0C10] text-[#E2E8F0]">720p Lite</option>
                     </>
                   )}
                 </select>
@@ -1129,7 +1129,7 @@ export function CinematicPlayerScreen({
                   type="button"
                   onClick={() => void toggleFullscreen()}
                   aria-label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-                  className="min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] inline-flex items-center justify-center rounded-full border border-white/15 bg-white/[0.06] text-[#F5F7FA] hover:border-[#F5B942] cursor-pointer"
+                  className="min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#D4AF37] hover:border-[#D4AF37] hover:scale-105 transition-all cursor-pointer"
                 >
                   {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                 </button>

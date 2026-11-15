@@ -556,23 +556,23 @@ export function IntelligentSearchScreen({
         </div>
       )}
 
-      {/* Redesigned AI Discovery Search Console */}
-      <div className="relative overflow-hidden rounded-[26px] sm:rounded-[30px] border border-white/12 bg-gradient-to-b from-[#111626] via-[#0B0E18] to-[#080A12] p-4 sm:p-6 shadow-[0_26px_70px_-24px_rgba(0,0,0,0.9)] space-y-4">
+      {/* Redesigned AI Discovery Search Console (VIP Cinema Mood Concierge & Marquee) */}
+      <div className="relative overflow-hidden rounded-[26px] sm:rounded-[32px] border border-[rgba(212,175,55,0.25)] bg-[#0B0C10] p-5 sm:p-7 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.95),0_0_24px_rgba(212,175,55,0.08)] space-y-5">
         {/* Ambient radial highlight */}
         <div
-          className="pointer-events-none absolute -top-24 start-1/2 -translate-x-1/2 h-48 w-96 rounded-full opacity-25 blur-3xl"
-          style={{ background: 'radial-gradient(circle, #F5B942 0%, transparent 70%)' }}
+          className="pointer-events-none absolute -top-24 start-1/2 -translate-x-1/2 h-52 w-96 rounded-full opacity-25 blur-3xl"
+          style={{ background: 'radial-gradient(circle, #D4AF37 0%, transparent 70%)' }}
         />
 
-        {/* Header Row */}
+        {/* Marquee Concierge Header Row */}
         <div className="relative flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 text-[11px] font-medium text-[#F5B942]">
-              <Wand2 className="h-3.5 w-3.5" />
-              <span>{t('Live AI Discovery Companion', 'دستیار هوشمند کاوش زنده')}</span>
+            <div className="inline-flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest text-[#D4AF37] uppercase">
+              <Wand2 className="h-3.5 w-3.5 animate-pulse" />
+              <span>{t('MOOD CONCIERGE & MARQUEE // AI PETROS', 'میزبان هوشمند و موود سینمایی')}</span>
             </div>
-            <h1 className="text-lg sm:text-2xl font-bold text-[#F5F7FA]">
-              {t('Describe a Mood, Scene, or Feeling', 'هر حال‌وهوا، صحنه یا حسی را بنویس')}
+            <h1 className="font-cinzel text-xl sm:text-3xl font-bold tracking-wide text-[#F5F7FA]">
+              {t('Describe a Mood, Scene, or Feeling', 'هر حال‌وهوا، صحنه یا حسی را بنویسید')}
             </h1>
           </div>
 
@@ -590,23 +590,23 @@ export function IntelligentSearchScreen({
                 }
               }}
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              {isAiCardOpen ? t('Hide AI Guide', 'بستن گفت‌وگو') : t('Ask AI Guide', 'پرسش هوشمند')}
+              <Sparkles className="h-3.5 w-3.5 text-[#D4AF37]" />
+              {isAiCardOpen ? t('Hide AI Guide', 'بستن گفت‌وگو') : t('Ask Concierge', 'راهنمای هوشمند')}
             </Button>
             <Button
               variant="secondary"
               size="sm"
               onClick={() => setShowTechSpecs((v) => !v)}
             >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <SlidersHorizontal className="h-3.5 w-3.5 text-[#D4AF37]" />
               <span className="hidden sm:inline">{t('Specs', 'دقیق‌تر')}</span>
             </Button>
           </div>
         </div>
 
-        {/* Main Search Input */}
+        {/* Main Search Input with Glowing Golden Aura */}
         <div className="relative flex items-center">
-          <Search className="pointer-events-none absolute start-4 h-4.5 w-4.5 text-[#F5B942]" />
+          <Search className="pointer-events-none absolute start-4 h-5 w-5 text-[#D4AF37]" />
           <input
             type="search"
             value={filters.query}
@@ -615,10 +615,10 @@ export function IntelligentSearchScreen({
               onChangeFilters({ ...filters, query: e.target.value });
             }}
             placeholder={t(
-              'Type anything (e.g. rainy midnight, tokyo neon, quiet calm, surreal)...',
-              'شروع به تایپ کن (مثلاً: باران، توکیو، آرام، نوار، سورئال)...'
+              'Type anything (e.g. rainy noir, neon tokyo, quiet sanctuary, cyberpunk)...',
+              'شروع به تایپ کن (مثلاً: نوار بارانی، توکیو نئونی، آرام، سورئال)...'
             )}
-            className="w-full min-h-[52px] rounded-full border border-white/15 bg-[#06070C]/90 ps-12 pe-14 text-base sm:text-sm text-[#F5F7FA] placeholder:text-[#7A869F] shadow-[inset_0_2px_10px_rgba(0,0,0,0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5B942]"
+            className="w-full min-h-[54px] rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508] ps-12 pe-14 text-base sm:text-sm text-[#F5F7FA] placeholder:text-[#7A869F] shadow-[inset_0_2px_10px_rgba(0,0,0,0.6)] focus:border-[#D4AF37] focus:shadow-[0_0_24px_rgba(212,175,55,0.35)] focus-visible:outline-none focus:ring-1 focus:ring-[#D4AF37] transition-all"
           />
           {filters.query && (
             <button
@@ -627,18 +627,18 @@ export function IntelligentSearchScreen({
                 onChangeFilters({ ...filters, query: '' });
               }}
               aria-label="Clear search"
-              className="absolute end-3 min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-full text-[#A3AEC2] hover:text-white cursor-pointer"
+              className="absolute end-3 min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-full text-[#A3AEC2] hover:text-[#D4AF37] cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
 
-        {/* Quick Inspiration Sparks */}
+        {/* Quick Inspiration Sparks as Luxury Marquee Chips */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:flex-wrap">
-          <span className="text-[11px] text-[#A3AEC2] inline-flex items-center gap-1 shrink-0">
-            <Compass className="h-3.5 w-3.5 text-[#F5B942]" />
-            {t('Try sparking:', 'جرقه سریع:')}
+          <span className="text-[11px] font-mono text-[#D4AF37] inline-flex items-center gap-1.5 shrink-0 uppercase tracking-wider">
+            <Compass className="h-3.5 w-3.5 text-[#D4AF37]" />
+            {t('Spark Mood:', 'موودهای پیشنهادی:')}
           </span>
           {QUICK_SPARKS.map((sp) => (
             <button
@@ -648,10 +648,10 @@ export function IntelligentSearchScreen({
                 setAiDismissed(false);
                 onChangeFilters({ ...filters, query: sp.q });
               }}
-              className={`min-h-[34px] shrink-0 rounded-full border px-3.5 text-xs transition-colors cursor-pointer ${
+              className={`min-h-[34px] shrink-0 rounded-full border px-4 text-xs font-medium transition-all cursor-pointer ${
                 filters.query.toLowerCase() === sp.q.toLowerCase()
-                  ? 'border-[#F5B942] bg-[#F5B942]/15 text-[#F5B942]'
-                  : 'border-white/12 bg-white/[0.04] text-[#D2DAE8] hover:border-[#F5B942]/55 hover:text-[#F5B942]'
+                  ? 'border-[#D4AF37] bg-[rgba(212,175,55,0.18)] text-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.3)]'
+                  : 'border-[rgba(212,175,55,0.22)] bg-[#050508]/80 text-[#CBD5E1] hover:border-[#D4AF37]/60 hover:text-[#D4AF37]'
               }`}
             >
               {t(sp.en, sp.fa)}

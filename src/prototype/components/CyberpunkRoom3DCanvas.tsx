@@ -780,10 +780,10 @@ export function CyberpunkRoom3DCanvas({
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
-    // Moody clinical subterranean atmosphere
+    // Moody VIP Theater obsidian & warm gold atmosphere
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b0f15);
-    scene.fog = new THREE.FogExp2(0x0b0f15, 0.014);
+    scene.background = new THREE.Color(0x050508);
+    scene.fog = new THREE.FogExp2(0x050508, 0.016);
 
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
     const envTarget = pmremGenerator.fromScene(new RoomEnvironment(), 0.035);
@@ -806,9 +806,9 @@ export function CyberpunkRoom3DCanvas({
 
       bloomPass = new UnrealBloomPass(
         new THREE.Vector2(width, height),
-        0.52,
-        0.44,
-        0.76
+        0.55,
+        0.45,
+        0.72
       );
       composer.addPass(bloomPass);
 
@@ -817,27 +817,27 @@ export function CyberpunkRoom3DCanvas({
     }
 
     // =========================================================================
-    // CLINICAL ANTISEPTIC WHITE-BLUE LIGHTING + WARM AMBER & EMERALD ACCENTS
+    // WARM THEATRICAL GOLD & AMBER LIGHTING + OBSIDIAN BACKING
     // =========================================================================
-    const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x0d121a, 1.15);
+    const hemiLight = new THREE.HemisphereLight(0xfff1dc, 0x050508, 1.35);
     scene.add(hemiLight);
 
-    // Cool antiseptic white-blue directional studio light casting crisp shadows on concrete
-    const antisepticLight = new THREE.DirectionalLight(0xe0f2fe, 2.1);
+    // Warm golden projector spot casting theatrical rays on the floor
+    const antisepticLight = new THREE.DirectionalLight(0xfff4db, 2.4);
     antisepticLight.position.set(-12, 22, 10);
     scene.add(antisepticLight);
 
-    // Secondary cool blue fill light
-    const coolBlueFill = new THREE.DirectionalLight(0x38bdf8, 1.25);
+    // Secondary warm antique gold fill light
+    const coolBlueFill = new THREE.DirectionalLight(0xd4af37, 1.6);
     coolBlueFill.position.set(14, 16, -12);
     scene.add(coolBlueFill);
 
-    // Voluminous emerald-gold point light inside the Holographic Globe
-    const globeCoreLight = new THREE.PointLight(0x52ffd8, 5.2, 24, 1.25);
+    // Voluminous warm amber-gold point light inside the Holographic Core
+    const globeCoreLight = new THREE.PointLight(0xd4af37, 6.0, 26, 1.2);
     globeCoreLight.position.set(0, 2.75, 0);
     scene.add(globeCoreLight);
 
-    const amberFloorLight = new THREE.PointLight(0xf5b942, 3.2, 18, 1.4);
+    const amberFloorLight = new THREE.PointLight(0xf59e0b, 4.5, 20, 1.3);
     amberFloorLight.position.set(0, 0.65, 0);
     scene.add(amberFloorLight);
 
@@ -847,31 +847,31 @@ export function CyberpunkRoom3DCanvas({
     const concreteTex = createBoardFormedConcreteTexture(maxAniso);
     const brutalistConcreteMat = new THREE.MeshStandardMaterial({
       map: concreteTex,
-      color: 0x6b7480,
+      color: 0x4a4740,
       roughness: 0.86,
-      metalness: 0.08
+      metalness: 0.12
     });
     const darkConcreteCofferMat = new THREE.MeshStandardMaterial({
       map: concreteTex,
-      color: 0x3b424c,
+      color: 0x24221e,
       roughness: 0.88,
-      metalness: 0.12
+      metalness: 0.14
     });
     const heavyIndustrialSteelMat = new THREE.MeshStandardMaterial({
-      color: 0x262f3d,
+      color: 0x22201d,
       metalness: 0.86,
       roughness: 0.32,
       envMapIntensity: 1.6
     });
     const darkObsidianPedestalMat = new THREE.MeshStandardMaterial({
-      color: 0x0d1219,
+      color: 0x0a0a0d,
       metalness: 0.72,
       roughness: 0.24,
       envMapIntensity: 1.8
     });
-    const cyanNeonMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
-    const amberNeonMat = new THREE.MeshBasicMaterial({ color: 0xf5b942 });
-    const antisepticWhiteLedMat = new THREE.MeshBasicMaterial({ color: 0xf0f9ff });
+    const cyanNeonMat = new THREE.MeshBasicMaterial({ color: 0xd4af37 });
+    const amberNeonMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+    const antisepticWhiteLedMat = new THREE.MeshBasicMaterial({ color: 0xfff4e0 });
 
     // =========================================================================
     // 1. BRUTALIST DELOS SUBTERRANEAN ARCHITECTURE:

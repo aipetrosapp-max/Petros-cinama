@@ -479,57 +479,57 @@ export function DiscoveryUniverseScreen({
           />
 
           {/* =================================================================
-              TOP VISIONOS SPATIAL GLASS BAR ("Kiroshi Optics Neural Bus")
+              TOP VISIONOS SPATIAL GLASS BAR (VIP Cinema Optics HUD)
               ================================================================= */}
           <div
             className="pointer-events-none absolute top-3.5 inset-x-3.5 z-10 flex items-center justify-between gap-2"
             dir="ltr"
           >
-            {/* Left Pill: Cinema Camera Icon + SMPTE Timecode + Kiroshi Optics Neural Bus + View Toggle */}
-            <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#070b14]/65 backdrop-blur-2xl px-3.5 py-1.5 text-xs text-[#F5F7FA] shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.2)]">
-              <Video className="h-4 w-4 text-[#00F0FF] shrink-0" />
-              <span className="font-mono-tabular tracking-wider text-[11px] sm:text-[12px] font-medium text-[#E2E8F0]">
+            {/* Left Pill: Cinema Camera Icon + SMPTE Timecode + VIP Cinema Optics + View Toggle */}
+            <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508]/85 backdrop-blur-2xl px-4 py-1.5 text-xs text-[#F5F7FA] shadow-[0_8px_32px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(212,175,55,0.2)]">
+              <Video className="h-4 w-4 text-[#D4AF37] shrink-0" />
+              <span className="font-mono-tabular tracking-wider text-[11px] sm:text-[12px] font-bold text-[#D4AF37]">
                 {formatCinemaTimecode(timecodeFrames)}
               </span>
-              <span className="hidden md:inline-block h-3.5 w-[1px] bg-white/15" />
-              <span className="hidden md:inline-block text-[11px] font-medium tracking-wide text-[#00F0FF]">
-                Kiroshi Optics Neural Bus
+              <span className="hidden md:inline-block h-3.5 w-[1px] bg-[rgba(212,175,55,0.2)]" />
+              <span className="hidden md:inline-block text-[11px] font-cinzel font-semibold tracking-wider text-[#E2E8F0]">
+                VIP Cinema Optics
               </span>
-              <span className="h-3.5 w-[1px] bg-white/15" />
+              <span className="h-3.5 w-[1px] bg-[rgba(212,175,55,0.2)]" />
               <button
                 type="button"
                 onClick={() =>
                   setOpenPopover((p) => (p === 'view' ? 'none' : 'view'))
                 }
                 aria-label="Camera Mode & Studio Info"
-                className="text-[#F5B942] hover:text-white transition-colors cursor-pointer"
+                className="text-[#D4AF37] hover:text-white transition-colors cursor-pointer"
               >
                 <Info className="h-4 w-4" />
               </button>
             </div>
 
             {/* Right Pill: Sound + Connections + Golden XP Trophy */}
-            <div className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-[#F5B942]/30 bg-white/[0.06] backdrop-blur-xl px-3.5 py-1.5 text-xs text-[#F5F7FA] shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+            <div className="pointer-events-auto inline-flex items-center gap-2.5 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508]/85 backdrop-blur-2xl px-4 py-1.5 text-xs text-[#F5F7FA] shadow-[0_8px_32px_rgba(0,0,0,0.7)]">
               <button
                 type="button"
                 onClick={() => setSoundMuted((m) => !m)}
                 aria-label="Toggle Sound"
-                className="text-[#00F0FF] hover:text-white transition-colors cursor-pointer"
+                className="text-[#D4AF37] hover:text-white transition-colors cursor-pointer"
               >
                 {soundMuted ? (
                   <VolumeX className="h-4 w-4 text-[#94A3B8]" />
                 ) : (
-                  <Volume2 className="h-4 w-4 text-[#00F0FF]" />
+                  <Volume2 className="h-4 w-4 text-[#D4AF37]" />
                 )}
               </button>
-              <span className="font-mono-tabular text-[12px] font-medium text-[#5CEEFF]">
+              <span className="font-mono-tabular text-[12px] font-medium text-[#E2E8F0]">
                 {roomEdges.length} {t('links', 'اتصال')}
               </span>
-              <span className="h-3.5 w-[1px] bg-white/15" />
-              <span className="font-mono-tabular text-[12px] font-semibold text-[#F5B942]">
+              <span className="h-3.5 w-[1px] bg-[rgba(212,175,55,0.2)]" />
+              <span className="font-mono-tabular text-[12px] font-bold text-[#D4AF37]">
                 XP {totalXp}
               </span>
-              <Trophy className="h-3.5 w-3.5 text-[#F5B942] shrink-0" />
+              <Trophy className="h-3.5 w-3.5 text-[#D4AF37] shrink-0" />
             </div>
           </div>
 
@@ -812,25 +812,25 @@ export function DiscoveryUniverseScreen({
             </AnimatePresence>
 
             {/* ===============================================================
-                MAIN FROSTED GLASS FLOATING CONTROL BAR
-                (Matches exact glassmorphism, glowing gold Play button & icons)
+                MAIN FROSTED GLASS FLOATING CONTROL BAR (Dark Tinted Glass Backing)
+                (Legible against 3D lights, glowing gold cinema projection trigger)
                 =============================================================== */}
             <div
-              className="pointer-events-auto w-full max-w-2xl flex items-center justify-between gap-1.5 sm:gap-2 rounded-[22px] border border-white/20 bg-white/[0.07] backdrop-blur-2xl px-2.5 sm:px-3 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.65)]"
+              className="pointer-events-auto w-full max-w-2xl flex items-center justify-between gap-1.5 sm:gap-2.5 rounded-[24px] border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/90 backdrop-blur-2xl px-3 sm:px-4 py-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.92),0_0_20px_rgba(212,175,55,0.12)]"
               dir="ltr"
             >
               {/* Left Cluster: Frosted Glass Chat, Links & Eye Details Buttons */}
-              <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={() =>
                     setOpenPopover((p) => (p === 'chat' ? 'none' : 'chat'))
                   }
                   aria-label={t('Chat', 'چت')}
-                  className={`h-9 w-8 sm:h-10 sm:w-10 inline-flex items-center justify-center rounded-xl border transition-colors cursor-pointer ${
+                  className={`h-9 w-9 sm:h-10 sm:w-10 inline-flex items-center justify-center rounded-xl border transition-all cursor-pointer ${
                     openPopover === 'chat'
-                      ? 'border-[#00F0FF]/70 bg-[#00F0FF]/20 text-[#5CEEFF]'
-                      : 'border-white/15 bg-white/[0.06] text-[#E2E8F0] hover:bg-white/[0.12]'
+                      ? 'border-[#D4AF37] bg-[#D4AF37]/25 text-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.4)]'
+                      : 'border-white/15 bg-white/[0.05] text-[#E2E8F0] hover:bg-white/[0.12]'
                   }`}
                 >
                   <MessageSquareCode className="h-4 w-4" />
@@ -842,10 +842,10 @@ export function DiscoveryUniverseScreen({
                     setOpenPopover((p) => (p === 'links' ? 'none' : 'links'))
                   }
                   aria-label={t('Links', 'اتصالات')}
-                  className={`h-9 w-8 sm:h-10 sm:w-10 inline-flex items-center justify-center rounded-xl border transition-colors cursor-pointer ${
+                  className={`h-9 w-9 sm:h-10 sm:w-10 inline-flex items-center justify-center rounded-xl border transition-all cursor-pointer ${
                     openPopover === 'links'
-                      ? 'border-[#FF4D9D]/70 bg-[#FF4D9D]/20 text-[#FF7BB8]'
-                      : 'border-white/15 bg-white/[0.06] text-[#E2E8F0] hover:bg-white/[0.12]'
+                      ? 'border-[#D4AF37] bg-[#D4AF37]/25 text-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.4)]'
+                      : 'border-white/15 bg-white/[0.05] text-[#E2E8F0] hover:bg-white/[0.12]'
                   }`}
                 >
                   <Link2 className="h-4 w-4" />
@@ -856,27 +856,27 @@ export function DiscoveryUniverseScreen({
                     type="button"
                     onClick={() => onOpenDetail(selectedNode.item)}
                     aria-label={t('Details', 'جزئیات')}
-                    className="h-9 w-8 sm:h-10 sm:w-10 inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-[#E2E8F0] hover:bg-white/[0.12] transition-colors cursor-pointer"
+                    className="h-9 w-9 sm:h-10 sm:w-10 inline-flex items-center justify-center rounded-xl border border-[rgba(212,175,55,0.25)] bg-white/[0.05] text-[#D4AF37] hover:bg-white/[0.12] transition-colors cursor-pointer"
                   >
                     <Eye className="h-4 w-4" />
                   </button>
                 )}
               </div>
 
-              {/* Center Cluster: Radiant Gold «پخش» Button + Film Title */}
+              {/* Center Cluster: Radiant Gold Physical Cinema Projection Trigger */}
               {selectedNode && (
-                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
                   <button
                     type="button"
                     onClick={() => onPlay(selectedNode.item)}
-                    className="h-9 sm:h-10 inline-flex items-center gap-1 sm:gap-1.5 rounded-xl bg-gradient-to-b from-[#FCE08B] via-[#F5B942] to-[#D4931D] px-3 sm:px-4 text-xs font-bold text-[#090B10] shadow-[0_0_24px_rgba(245,185,66,0.45)] hover:brightness-105 cursor-pointer shrink-0"
+                    className="h-9 sm:h-10 inline-flex items-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] px-3.5 sm:px-5 text-xs font-bold text-[#050508] shadow-[0_0_24px_rgba(212,175,55,0.55)] hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
                   >
-                    <span>{t('Play', 'پخش')}</span>
-                    <Play className="h-3.5 w-3.5 fill-current" />
+                    <Play className="h-4 w-4 fill-current" />
+                    <span className="font-cinzel tracking-wider">{t('Play', 'پخش')}</span>
                   </button>
 
                   <span
-                    className="truncate text-xs font-semibold text-[#F5F7FA] max-w-[54px] sm:max-w-[160px]"
+                    className="truncate text-xs font-semibold text-[#F5F7FA] max-w-[80px] sm:max-w-[180px]"
                     dir="auto"
                   >
                     {t(selectedNode.item.titleEn, selectedNode.item.titleFa)}
@@ -892,7 +892,7 @@ export function DiscoveryUniverseScreen({
                   onPointerDown={() => setHoldMove({ turn: 1 })}
                   onPointerUp={resetHoldMove}
                   onPointerLeave={resetHoldMove}
-                  className="h-9 w-8 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-xs sm:text-sm text-[#CBD5E1] active:bg-[#00F0FF]/25 active:text-white cursor-pointer"
+                  className="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.05] text-xs sm:text-sm text-[#CBD5E1] active:bg-[#D4AF37]/25 active:text-[#D4AF37] cursor-pointer"
                 >
                   ↶
                 </button>
@@ -902,7 +902,7 @@ export function DiscoveryUniverseScreen({
                   onPointerDown={() => setHoldMove({ forward: 1 })}
                   onPointerUp={resetHoldMove}
                   onPointerLeave={resetHoldMove}
-                  className="h-9 w-8 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border border-[#00F0FF]/55 bg-[#00F0FF]/15 text-[#5CEEFF] shadow-[0_0_16px_rgba(0,240,255,0.22)] active:bg-[#00F0FF]/30 cursor-pointer"
+                  className="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border border-[rgba(212,175,55,0.5)] bg-[rgba(212,175,55,0.15)] text-[#D4AF37] shadow-[0_0_16px_rgba(212,175,55,0.25)] active:bg-[rgba(212,175,55,0.3)] cursor-pointer"
                 >
                   <ArrowUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </button>
@@ -912,7 +912,7 @@ export function DiscoveryUniverseScreen({
                   onPointerDown={() => setHoldMove({ forward: -1 })}
                   onPointerUp={resetHoldMove}
                   onPointerLeave={resetHoldMove}
-                  className="h-9 w-8 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-[#CBD5E1] active:bg-[#00F0FF]/25 active:text-white cursor-pointer"
+                  className="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.05] text-[#CBD5E1] active:bg-[#D4AF37]/25 active:text-[#D4AF37] cursor-pointer"
                 >
                   <ArrowDown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </button>
@@ -922,7 +922,7 @@ export function DiscoveryUniverseScreen({
                   onPointerDown={() => setHoldMove({ turn: -1 })}
                   onPointerUp={resetHoldMove}
                   onPointerLeave={resetHoldMove}
-                  className="h-9 w-8 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-xs sm:text-sm text-[#CBD5E1] active:bg-[#00F0FF]/25 active:text-white cursor-pointer"
+                  className="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.05] text-xs sm:text-sm text-[#CBD5E1] active:bg-[#D4AF37]/25 active:text-[#D4AF37] cursor-pointer"
                 >
                   ↷
                 </button>

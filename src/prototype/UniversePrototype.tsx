@@ -808,10 +808,10 @@ function UniversePrototypeShell({
     icon: React.ReactNode;
   }> = useMemo(
     () => [
-      { id: 'universe', fa: 'جهان من', en: 'My Universe', icon: <Home className="h-4 w-4" /> },
-      { id: 'discover', fa: 'کاوش سه‌بعدی', en: 'Discover Map', icon: <Compass className="h-4 w-4" /> },
-      { id: 'search', fa: 'جست‌وجو', en: 'Search', icon: <Search className="h-4 w-4" /> },
-      { id: 'library', fa: 'کتابخانه', en: 'Library', icon: <Film className="h-4 w-4" /> },
+      { id: 'universe', fa: 'سینما', en: 'Universe', icon: <Home className="h-4 w-4" /> },
+      { id: 'discover', fa: 'کاوش', en: 'Discover', icon: <Compass className="h-4 w-4" /> },
+      { id: 'search', fa: 'جستجو', en: 'Search', icon: <Search className="h-4 w-4" /> },
+      { id: 'library', fa: 'آرشیو', en: 'Library', icon: <Film className="h-4 w-4" /> },
       { id: 'settings', fa: 'تنظیمات', en: 'Settings', icon: <Settings className="h-4 w-4" /> }
     ],
     []
@@ -927,29 +927,31 @@ function UniversePrototypeShell({
         } ${user.reducedMotion ? 'reduced-motion-mode' : ''}`}
       >
         {/* Top Clean 3-Zone Header */}
-        <header className="sticky top-0 z-40 border-b border-white/10 bg-[#06070C]/90 backdrop-blur-xl">
+        <header className="sticky top-0 z-40 w-full border-b border-[rgba(212,175,55,0.18)] bg-[#050508]/85 backdrop-blur-2xl transition-all">
           <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
-            {/* Zone 1: Brand */}
+            {/* Zone 1: VIP Cinema Branding (AI PETROS) */}
             <button
               id="tour-step-brand"
               type="button"
               onClick={() => navigateTo('universe')}
-              className="min-h-[44px] flex items-center gap-2.5 text-start cursor-pointer shrink-0"
+              className="min-h-[44px] flex items-center gap-2.5 text-start cursor-pointer shrink-0 group"
+              aria-label={t('Go to AI PETROS Cinema', 'رفتن به سینمای هوش مصنوعی پتروس')}
             >
-              <div className="w-8 h-8 rounded-lg bg-[#F5B942]/15 border border-[#F5B942]/30 flex items-center justify-center text-[#F5B942] font-black text-sm shadow-sm">
-                P
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-[rgba(212,175,55,0.4)] bg-gradient-to-br from-[#1a1710] via-[#0B0C10] to-[#050508] shadow-[0_0_16px_rgba(212,175,55,0.25)] group-hover:shadow-[0_0_24px_rgba(212,175,55,0.45)] transition-all">
+                <Film className="h-5 w-5 text-[#D4AF37] group-hover:scale-110 transition-transform" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#D4AF37] animate-ping opacity-75" />
               </div>
               <div className="flex flex-col">
-                <span className="font-editorial text-base sm:text-lg tracking-[0.14em] text-[#F5B942] font-bold">
-                  ai petros
+                <span className="font-cinzel text-lg sm:text-xl font-bold tracking-[0.22em] text-[#D4AF37] drop-shadow-[0_2px_12px_rgba(212,175,55,0.45)]">
+                  AI PETROS
                 </span>
-                <span className="text-[10px] text-[#A3AEC2] leading-none hidden xs:inline">
-                  Petros Cinema
+                <span className="text-[9px] tracking-[0.28em] uppercase text-[#A3AEC2]/70 font-sans -mt-0.5">
+                  VIP Cinema Space
                 </span>
               </div>
-              <span className="hidden lg:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/20">
-                <Radio className="w-2.5 h-2.5 animate-pulse" />
-                <span>Aipetros-stream</span>
+              <span className="hidden lg:inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/25 shadow-[0_0_10px_rgba(212,175,55,0.15)]">
+                <Radio className="w-2.5 h-2.5 animate-pulse text-[#D4AF37]" />
+                <span className="tracking-wider uppercase">VIP 4K HDR</span>
               </span>
             </button>
 
@@ -962,20 +964,20 @@ function UniversePrototypeShell({
                     key={nav.id}
                     type="button"
                     onClick={() => navigateTo(nav.id)}
-                    className={`relative min-h-[40px] inline-flex items-center gap-1.5 rounded-full px-3.5 text-xs font-medium whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+                    className={`relative min-h-[40px] inline-flex items-center gap-1.5 rounded-full px-4 text-xs font-medium whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                       active
-                        ? 'text-[#06070C] font-semibold'
-                        : 'text-[#A3AEC2] hover:text-[#F5F7FA] hover:bg-white/[0.06]'
+                        ? 'text-[#050508] font-bold shadow-[0_0_18px_rgba(212,175,55,0.4)]'
+                        : 'text-[#A3AEC2] hover:text-[#D4AF37] hover:bg-white/[0.04]'
                     }`}
                   >
                     {active && (
                       <motion.span
                         layoutId="desktopNavPill"
                         transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                        className="absolute inset-0 rounded-full bg-[#F5B942]"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37]"
                       />
                     )}
-                    <span className="relative z-10 inline-flex items-center gap-1.5">
+                    <span className="relative z-10 inline-flex items-center gap-1.5 font-sans">
                       {nav.icon}
                       <span>{t(nav.en, nav.fa)}</span>
                     </span>
@@ -984,8 +986,8 @@ function UniversePrototypeShell({
               })}
             </nav>
 
-            {/* Zone 3: Actions (Tutorial Walkthrough & Language) */}
-            <div className="flex items-center gap-2 shrink-0">
+            {/* Zone 3: Decluttered VIP Header Actions (Zero clutter) */}
+            <div className="flex items-center gap-2.5 shrink-0">
               {/* App Landing & Download Portal Button */}
               <button
                 type="button"
@@ -996,35 +998,10 @@ function UniversePrototypeShell({
                   navigateTo('landing');
                 }}
                 title={t('Download App & Platforms', 'دانلود اپلیکیشن و تمام پلتفرم‌ها')}
-                className="min-h-[38px] px-3 inline-flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-xs font-bold text-cyan-300 hover:bg-cyan-500/20 cursor-pointer shadow-md shadow-cyan-500/15 transition-all active:scale-95"
+                className="min-h-[36px] px-3.5 inline-flex items-center gap-2 rounded-full border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.08)] text-xs font-semibold text-[#D4AF37] hover:bg-[rgba(212,175,55,0.18)] hover:shadow-[0_0_16px_rgba(212,175,55,0.3)] cursor-pointer transition-all active:scale-95"
               >
-                <Download className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-[11px] hidden sm:inline">{t('Download App', 'دریافت اپ')}</span>
-              </button>
-
-              {/* Interactive On-Screen Spotlight Tour Button */}
-              <button
-                id="tour-step-tutorial"
-                type="button"
-                onClick={() => setIsTourOpen(true)}
-                title={t('Live Interactive Tour', 'راهنمای زنده و متحرک پلتفرم')}
-                className="min-h-[38px] px-3 inline-flex items-center gap-1.5 rounded-full border border-[#F5B942]/40 bg-[#F5B942]/10 text-xs font-bold text-[#F5B942] hover:bg-[#F5B942]/20 hover:brightness-110 cursor-pointer shadow-md shadow-[#F5B942]/10 transition-all active:scale-95"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#F5B942]" />
-                <span className="text-[11px]">{t('Tutorial', 'آموزش')}</span>
-              </button>
-
-              {/* Global World Language Picker */}
-              <button
-                id="tour-step-lang"
-                type="button"
-                onClick={() => setLangPickerOpen(true)}
-                aria-label={t('Select World Language', 'انتخاب زبان اپلیکیشن')}
-                className="min-h-[38px] inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-[#0D101A] px-2.5 sm:px-3 text-xs font-medium text-[#F5F7FA] hover:border-[#F5B942]/55 cursor-pointer whitespace-nowrap"
-              >
-                <Globe2 className="h-3.5 w-3.5 text-[#F5B942]" />
-                <span className="hidden sm:inline">{languageInfo.nativeName}</span>
-                <span className="sm:hidden uppercase">{lang}</span>
+                <Download className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span className="text-[11px] font-sans tracking-wide">{t('Get App', 'دریافت اپ')}</span>
               </button>
             </div>
           </div>
@@ -1230,10 +1207,10 @@ function UniversePrototypeShell({
           </StateBoundary>
         </main>
 
-        {/* Mobile Compact Bottom Dock with Safe Area Inset & Sliding Pill */}
+        {/* Mobile Floating VisionOS Spatial Dock with Frosted Glass Pill & Glowing Gold Indicator */}
         <nav
           id="tour-step-mobile-nav"
-          className="md:hidden fixed bottom-0 inset-x-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] border-t border-white/12 bg-[#06070C]/95 backdrop-blur-xl px-1.5 flex items-center justify-around"
+          className="md:hidden fixed bottom-3 inset-x-3 z-40 h-16 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/90 backdrop-blur-2xl px-2 flex items-center justify-around shadow-[0_16px_40px_-8px_rgba(0,0,0,0.95),0_0_24px_-2px_rgba(212,175,55,0.2)]"
           aria-label="Mobile Navigation"
         >
           {effectiveNavItems.map((nav) => {
@@ -1243,20 +1220,22 @@ function UniversePrototypeShell({
                 key={nav.id}
                 type="button"
                 onClick={() => navigateTo(nav.id)}
-                className={`relative min-h-[44px] min-w-[48px] flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 text-[10px] font-medium cursor-pointer transition-colors ${
-                  active ? 'text-[#F5B942]' : 'text-[#A3AEC2]'
+                className={`relative min-h-[48px] flex-1 flex flex-col items-center justify-center gap-1 rounded-full text-[11px] font-medium cursor-pointer transition-all ${
+                  active ? 'text-[#D4AF37] font-bold' : 'text-[#A3AEC2] hover:text-white'
                 }`}
               >
                 {active && (
                   <motion.span
                     layoutId="mobileDockPill"
                     transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                    className="absolute inset-x-1 top-1 bottom-1 rounded-xl bg-[#F5B942]/12 border border-[#F5B942]/30"
+                    className="absolute inset-1 rounded-full bg-gradient-to-b from-[rgba(212,175,55,0.22)] to-[rgba(212,175,55,0.06)] border border-[rgba(212,175,55,0.45)] shadow-[0_0_12px_rgba(212,175,55,0.25)]"
                   />
                 )}
                 <span className="relative z-10 flex flex-col items-center gap-0.5">
-                  {nav.icon}
-                  <span className="truncate max-w-[60px]">{t(nav.en, nav.fa)}</span>
+                  <span className={`${active ? 'scale-110 text-[#D4AF37]' : 'text-[#A3AEC2]'} transition-transform`}>
+                    {nav.icon}
+                  </span>
+                  <span className="text-[10px] tracking-tight whitespace-nowrap">{t(nav.en, nav.fa)}</span>
                 </span>
               </button>
             );

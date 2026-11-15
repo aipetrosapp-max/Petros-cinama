@@ -38,7 +38,7 @@ import {
   type BackendStreamQuality
 } from '../filmDetailsClient';
 import { useT } from '../i18n';
-import { AdaptiveModal, Button, formatDuration } from '../components/UiPrimitives';
+import { AdaptiveModal, Button, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
 
 export type ContentFeedbackIssueReason = 'broken_link' | 'quality_issue' | 'not_interested' | 'other';
 
@@ -165,7 +165,7 @@ export function ContentDetailModal({
 
   if (!item) return null;
 
-  const title = t(item.titleEn, item.titleFa);
+  const title = cleanCinemaTitle(t(item.titleEn, item.titleFa));
   const creator = item.creatorEn ? t(item.creatorEn, item.creatorFa) : '';
   const category = t(item.categoryEn, item.categoryFa);
   const synopsis = t(item.synopsisEn, item.synopsisFa);
@@ -225,17 +225,17 @@ export function ContentDetailModal({
           </Button>
         </motion.div>
 
-        {/* Visual Banner + Primary Actions (Two Randomly Animated Cards) */}
+        {/* Visual Banner with Gold Marquee Rim Light + Unified Action Header */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
           <motion.div
             key={`${item.id}-${openSeq}-poster`}
             {...getMotionProps(1)}
-            className="md:col-span-5 overflow-hidden rounded-2xl border border-white/10 bg-[#151A28] aspect-[16/10] md:aspect-[4/3] relative"
+            className="md:col-span-5 overflow-hidden rounded-2xl border-2 border-[rgba(212,175,55,0.4)] bg-[#050508] aspect-[16/10] md:aspect-[4/3] relative shadow-[0_0_24px_rgba(212,175,55,0.25)]"
           >
             <img src={item.posterUrl} alt={title} className="h-full w-full object-cover" />
             {imdb && (
-              <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-[#F5B942] px-3 py-1 text-xs font-bold text-[#06070C] shadow-lg">
-                <span>IMDb</span>
+              <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F5B942] px-3 py-1 text-xs font-bold text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.6)]">
+                <span className="font-mono">IMDb</span>
                 <Star className="h-3.5 w-3.5 fill-current" />
                 <span dir="ltr" className="font-mono-tabular">
                   {imdb.imdbRating}
@@ -245,9 +245,9 @@ export function ContentDetailModal({
             <button
               type="button"
               onClick={() => onWatchTrailer(item, activeQuality)}
-              className="absolute bottom-3 end-3 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-[#06070C]/85 px-3 py-1.5 text-xs font-semibold text-[#F5F7FA] backdrop-blur-md hover:border-[#F5B942] hover:text-[#F5B942] transition-colors cursor-pointer"
+              className="absolute bottom-3 end-3 inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,55,0.4)] bg-[#050508]/85 px-3.5 py-1.5 text-xs font-semibold text-[#D4AF37] backdrop-blur-md hover:bg-[#D4AF37]/20 transition-all cursor-pointer shadow-md"
             >
-              <Clapperboard className="h-3.5 w-3.5 text-[#F5B942]" />
+              <Clapperboard className="h-3.5 w-3.5 text-[#D4AF37]" />
               <span>{t('Watch Trailer', 'تماشای تریلر')}</span>
             </button>
           </motion.div>
@@ -255,92 +255,105 @@ export function ContentDetailModal({
           <motion.div
             key={`${item.id}-${openSeq}-actions`}
             {...getMotionProps(2)}
-            className="md:col-span-7 flex flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-[#06070C]/65 p-4"
+            className="md:col-span-7 flex flex-col justify-between gap-5 rounded-2xl border border-[rgba(212,175,55,0.2)] bg-[#0B0C10] p-5 shadow-xl"
           >
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {creator && (
-                <p className="text-xs font-medium text-[#F5B942]">
+                <p className="text-xs font-cinzel font-bold text-[#D4AF37]">
                   {t('Creator / Director:', 'کارگردان / خالق:')} {imdb ? t(imdb.director) : creator}
                 </p>
               )}
 
-              <p className="text-xs text-[#A3AEC2]">
-                {t(item.clusterLabelEn, item.clusterLabelFa)} ·{' '}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-[#A3AEC2]">
+                <span className="px-2 py-0.5 rounded-full bg-[rgba(212,175,55,0.1)] text-[#D4AF37] border border-[rgba(212,175,55,0.25)] font-mono text-[10px] font-bold">
+                  {activeQuality ? activeQuality.resolution : item.quality}
+                </span>
                 <span dir="ltr" className="font-mono-tabular">
                   {imdb?.year || item.releaseYear}
-                </span>{' '}
-                · {item.sourceName}
-              </p>
+                </span>
+                <span>·</span>
+                <span>{t(item.clusterLabelEn, item.clusterLabelFa)}</span>
+              </div>
 
-              <p className="text-sm text-[#D2DAE8] leading-relaxed">
+              <p className="text-sm text-[#CBD5E1] leading-relaxed">
                 {imdb && imdb.plotSummary !== item.synopsisEn ? t(imdb.plotSummary) : synopsis}
               </p>
 
-              <p className="inline-flex items-center gap-1.5 text-[11px] text-[#34D399]">
+              <p className="inline-flex items-center gap-1.5 text-[11px] text-emerald-400 font-mono">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 <span>
                   {activeQuality
-                    ? `${t('Selected Stream:', 'کیفیت انتخاب‌شده:')} ${t(activeQuality.label)} (${activeQuality.bitrateMbps} Mbps)`
+                    ? `${t('Pristine Master Quality:', 'کیفیت کریستالی مستر:')} ${t(activeQuality.label)} (${activeQuality.bitrateMbps} Mbps)`
                     : t('Verified Stream & Full Quality Ready', 'استریم تاییدشده و آماده پخش با کیفیت کامل')}
                 </span>
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <Button size="lg" onClick={() => onPlay(item, activeQuality)}>
-                <Play className="h-4 w-4 fill-current" />
-                {resumeSec > 0
-                  ? `${t('Resume', 'ادامه از')} ${formatDuration(resumeSec)}`
-                  : activeQuality
-                  ? `${t('Play', 'پخش')} (${activeQuality.resolution})`
-                  : t('Play Stream', 'تماشا با کیفیت کامل')}
-              </Button>
-
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => onWatchTrailer(item, activeQuality)}
+            {/* Unified Compact Control Header */}
+            <div className="space-y-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => onPlay(item, activeQuality)}
+                className="w-full h-11 inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] text-[#050508] font-cinzel font-bold text-xs tracking-wider shadow-[0_0_24px_rgba(212,175,55,0.5)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
               >
-                <Clapperboard className="h-4 w-4 text-[#F5B942]" />
-                <span>{t('Watch Trailer', 'مشاهده تریلر')}</span>
-              </Button>
+                <Play className="h-4 w-4 fill-current stroke-[2]" />
+                <span>
+                  {resumeSec > 0
+                    ? `${t('Resume', 'ادامه از')} ${formatDuration(resumeSec)}`
+                    : activeQuality
+                    ? `${t('Play Full Movie', 'پخش فیلم')} (${activeQuality.resolution})`
+                    : t('Play Full Movie', 'پخش فیلم کامل')}
+                </span>
+              </button>
 
-              <Button
-                variant="secondary"
-                disabled={isDownloading}
-                onClick={() => onDownload(item, false, activeQuality)}
-              >
-                {isDownloading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>{downloadRecord.progressPct}%</span>
-                  </>
-                ) : isDownloaded ? (
-                  <>
-                    <Check className="h-4 w-4 text-[#34D399]" />
-                    <span>{t('Saved Offline', 'ذخیره آفلاین شد')}</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4" />
-                    <span>{t('Save Offline', 'ذخیره آفلاین')}</span>
-                  </>
-                )}
-              </Button>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  disabled={isDownloading}
+                  onClick={() => onDownload(item, false, activeQuality)}
+                  className="h-9 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[rgba(212,175,55,0.22)] bg-[#050508]/70 hover:bg-[#151722] hover:border-[#D4AF37] text-xs text-slate-200 hover:text-[#D4AF37] transition-all cursor-pointer"
+                >
+                  {isDownloading ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-[#D4AF37]" />
+                      <span className="font-mono">{downloadRecord.progressPct}%</span>
+                    </>
+                  ) : isDownloaded ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      <span>{t('Saved', 'ذخیره‌شده')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-3.5 w-3.5 text-[#D4AF37]" />
+                      <span>{t('Save Offline', 'ذخیره آفلاین')}</span>
+                    </>
+                  )}
+                </button>
 
-              <Button
-                variant="secondary"
-                disabled={isDownloading}
-                onClick={() => onDownload(item, true, activeQuality)}
-              >
-                <HardDriveDownload className="h-4 w-4 text-[#F5B942]" />
-                <span>{t('Download to Device', 'دانلود فایل در دستگاه')}</span>
-              </Button>
+                <button
+                  type="button"
+                  disabled={isDownloading}
+                  onClick={() => onDownload(item, true, activeQuality)}
+                  className="h-9 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[rgba(212,175,55,0.22)] bg-[#050508]/70 hover:bg-[#151722] hover:border-[#D4AF37] text-xs text-slate-200 hover:text-[#D4AF37] transition-all cursor-pointer"
+                >
+                  <HardDriveDownload className="h-3.5 w-3.5 text-[#D4AF37]" />
+                  <span>{t('Save to Device', 'دانلود فایل')}</span>
+                </button>
 
-              <Button variant="ghost" onClick={() => onToggleFavorite(item)}>
-                <Bookmark className="h-4 w-4" fill={isFavorite ? 'currentColor' : 'none'} />
-                {isFavorite ? t('Saved', 'ذخیره‌شده') : t('Bookmark', 'علاقه‌مندی')}
-              </Button>
+                <button
+                  type="button"
+                  onClick={() => onToggleFavorite(item)}
+                  className={`h-9 inline-flex items-center justify-center gap-1.5 rounded-xl border transition-all cursor-pointer text-xs ${
+                    isFavorite
+                      ? 'border-[#D4AF37] bg-[rgba(212,175,55,0.2)] text-[#D4AF37]'
+                      : 'border-[rgba(212,175,55,0.22)] bg-[#050508]/70 text-slate-200 hover:border-[#D4AF37] hover:text-[#D4AF37]'
+                  }`}
+                >
+                  <Bookmark className="h-3.5 w-3.5" fill={isFavorite ? 'currentColor' : 'none'} />
+                  <span>{isFavorite ? t('Favorited', 'علاقه‌مندی') : t('Favorite', 'علاقه‌مندی')}</span>
+                </button>
+              </div>
             </div>
 
             {isDownloading && (
@@ -364,19 +377,19 @@ export function ContentDetailModal({
 
         {/* IMDb Live Database Record + Backend Stream Qualities List (Animated from Random Sides) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* IMDb Official Record Card */}
+          {/* Film Information Dossier Card (IMDb & Cast) */}
           <motion.div
             key={`${item.id}-${openSeq}-imdb`}
             {...getMotionProps(3)}
-            className="lg:col-span-6 rounded-2xl border border-white/12 bg-[#06070C]/80 p-4 space-y-3.5"
+            className="lg:col-span-6 rounded-2xl border border-[rgba(212,175,55,0.25)] bg-[#0B0C10] p-5 space-y-4 shadow-xl"
           >
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5">
-              <div className="flex items-center gap-2">
-                <span className="rounded-md bg-[#F5B942] px-2 py-0.5 text-[11px] font-extrabold tracking-wide text-[#06070C]">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(212,175,55,0.18)] pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#F5B942] px-2.5 py-0.5 text-[11px] font-black tracking-wide text-[#050508] shadow-[0_0_10px_rgba(212,175,55,0.4)]">
                   IMDb
                 </span>
-                <h3 className="text-sm font-semibold text-[#F5F7FA]">
-                  {t('Official IMDb Film Record', 'اطلاعات دقیق فیلم از IMDb')}
+                <h3 className="font-cinzel text-sm sm:text-base font-bold tracking-wider text-[#D4AF37]">
+                  {t('FILM INFORMATION DOSSIER', 'شناسنامه رسمی سینمایی اثر')}
                 </h3>
               </div>
               {imdb && (
@@ -384,7 +397,7 @@ export function ContentDetailModal({
                   href={imdb.imdbUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[11px] font-mono-tabular text-[#38BDF8] hover:underline"
+                  className="inline-flex items-center gap-1 text-[11px] font-mono text-[#D4AF37] hover:underline"
                 >
                   <span>{imdb.imdbId}</span>
                   <ExternalLink className="h-3 w-3" />
@@ -393,75 +406,73 @@ export function ContentDetailModal({
             </div>
 
             {loadingDetails && !imdb ? (
-              <div className="space-y-2.5 py-3 text-xs text-[#A3AEC2] flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-[#F5B942]" />
+              <div className="space-y-2.5 py-4 text-xs text-[#A3AEC2] flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-[#D4AF37]" />
                 <span>{t('Fetching live record from IMDb...', 'در حال دریافت اطلاعات دقیق از IMDb...')}</span>
               </div>
             ) : imdb ? (
-              <div className="space-y-3 text-xs">
+              <div className="space-y-4 text-xs">
+                {/* 3 Metric Pills */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
-                    <p className="text-[10px] text-[#8E9BB3]">{t('IMDb Rating', 'امتیاز IMDb')}</p>
-                    <p dir="ltr" className="text-sm font-bold text-[#F5B942] font-mono-tabular">
+                  <div className="rounded-xl border border-[rgba(212,175,55,0.2)] bg-[#050508] p-3 text-center">
+                    <p className="text-[10px] text-[#8E9BB3] font-mono uppercase">{t('IMDb Rating', 'امتیاز')}</p>
+                    <p dir="ltr" className="text-sm font-bold text-[#D4AF37] font-mono-tabular mt-0.5">
                       ★ {imdb.imdbRating} / 10
                     </p>
-                    <p dir="ltr" className="text-[10px] text-[#A3AEC2]">
+                    <p dir="ltr" className="text-[9px] text-[#A3AEC2]">
                       {imdb.votesCount.toLocaleString()} {t('votes', 'رای')}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
-                    <p className="text-[10px] text-[#8E9BB3]">{t('Format & Year', 'نوع و سال')}</p>
-                    <p className="text-xs font-semibold text-[#F5F7FA] truncate">
+                  <div className="rounded-xl border border-[rgba(212,175,55,0.2)] bg-[#050508] p-3 text-center">
+                    <p className="text-[10px] text-[#8E9BB3] font-mono uppercase">{t('Timeline', 'زمان و سال')}</p>
+                    <p className="text-xs font-semibold text-[#F5F7FA] truncate mt-0.5">
                       {t(imdb.typeLabel)}
                     </p>
                     <p dir="ltr" className="text-[10px] text-[#A3AEC2] font-mono-tabular">
                       {imdb.year} · {imdb.runtimeMinutes} {t('min', 'دقیقه')}
                     </p>
                   </div>
-                  <div className="col-span-2 sm:col-span-1 rounded-xl border border-white/10 bg-white/[0.03] p-2.5">
-                    <p className="text-[10px] text-[#8E9BB3]">{t('Maturity & Rank', 'رده‌بندی')}</p>
-                    <p className="text-xs font-semibold text-[#F5F7FA]">{t(imdb.contentRating)}</p>
-                    <p dir="ltr" className="text-[10px] text-[#34D399] font-mono-tabular">
-                      {imdb.imdbRank ? `#${imdb.imdbRank.toLocaleString()}` : t('Verified', 'تاییدشده')}
+                  <div className="col-span-2 sm:col-span-1 rounded-xl border border-[rgba(212,175,55,0.2)] bg-[#050508] p-3 text-center">
+                    <p className="text-[10px] text-[#8E9BB3] font-mono uppercase">{t('Certification', 'رده‌بندی')}</p>
+                    <p className="text-xs font-semibold text-emerald-400 mt-0.5">{t(imdb.contentRating)}</p>
+                    <p dir="ltr" className="text-[10px] text-[#A3AEC2] font-mono-tabular">
+                      {imdb.imdbRank ? `#${imdb.imdbRank.toLocaleString()}` : 'VIP MASTER'}
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <p className="text-[11px] text-[#8E9BB3] flex items-center gap-1.5">
-                    <Film className="h-3.5 w-3.5 text-[#F5B942]" />
-                    <span>{t('IMDb Title:', 'عنوان ثبت‌شده در IMDb:')}</span>
-                    <span className="text-[#F5F7FA] font-medium">{t(imdb.matchedTitle)}</span>
+                {/* Structured Cast with Avatars */}
+                <div className="space-y-2 pt-1 border-t border-[rgba(212,175,55,0.12)]">
+                  <p className="font-cinzel text-xs font-bold tracking-wider text-[#D4AF37] flex items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5" />
+                    <span>{t('CAST & SCREENING TALENT', 'ستارگان و بازیگران')}</span>
                   </p>
-                  <p className="text-[11px] text-[#8E9BB3] flex items-start gap-1.5">
-                    <Users className="h-3.5 w-3.5 text-[#38BDF8] mt-0.5 shrink-0" />
-                    <span>
-                      {t('Stars / Cast:', 'بازیگران / عوامل:')}{' '}
-                      <span className="text-[#D2DAE8]">{imdb.cast.map((c) => t(c)).join(' · ')}</span>
-                    </span>
-                  </p>
-                  <p className="text-[11px] text-[#8E9BB3]">
-                    {t('Country & Languages:', 'کشور و زبان:')}{' '}
-                    <span className="text-[#D2DAE8]">
-                      {t(imdb.country)} · {imdb.spokenLanguages.map((l) => t(l)).join(' / ')}
-                    </span>
-                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {imdb.cast.slice(0, 4).map((actor, aIdx) => (
+                      <div key={aIdx} className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.02] border border-[rgba(212,175,55,0.15)]">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#806010] flex items-center justify-center text-[10px] font-bold text-[#050508] shrink-0">
+                          {actor[0]}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-slate-200 truncate">{t(actor)}</p>
+                          <p className="text-[9px] text-[#8E9BB3] tracking-wide">Starring Role</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
+                {/* Genres */}
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {imdb.genres.map((g) => (
                     <span
                       key={g}
-                      className="rounded-full border border-white/12 bg-white/[0.05] px-2.5 py-0.5 text-[11px] text-[#D2DAE8]"
+                      className="rounded-full border border-[rgba(212,175,55,0.25)] bg-[rgba(212,175,55,0.08)] px-3 py-0.5 text-[10px] font-medium text-[#D4AF37]"
                     >
                       {t(g)}
                     </span>
                   ))}
                 </div>
-
-                <p className="text-[11px] text-[#8E9BB3] leading-relaxed border-t border-white/10 pt-2">
-                  {t(imdb.imdbReferenceNote)}
-                </p>
               </div>
             ) : null}
           </motion.div>

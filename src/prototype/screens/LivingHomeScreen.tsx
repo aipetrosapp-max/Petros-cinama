@@ -22,8 +22,17 @@ import type {
 } from '../types';
 import { computeLivingHomepage } from '../tasteEngine';
 import { useT } from '../i18n';
-import { Button, MediaCard, formatDuration } from '../components/UiPrimitives';
+import { Button, MediaCard, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
 import { CryptoAdBanner } from '../../components/CryptoAdBanner';
+
+function cleanCinemaSynopsis(raw: string): string {
+  if (!raw) return '';
+  return raw
+    .replace(/\[Telegram\/.*?\]/gi, '')
+    .replace(/https?:\/\/t\.me\/\S+/gi, '')
+    .replace(/@\w+/g, '')
+    .trim() || 'A curated cinematic experience streaming in ultra-high fidelity VIP 4K HDR.';
+}
 
 interface LivingHomeScreenProps {
   catalog: PrototypeMediaItem[];
@@ -194,79 +203,121 @@ export function LivingHomeScreen({
       )}
 
       {hero && (
-        <section id="tour-step-cinema-hero" className="relative overflow-hidden rounded-[24px] sm:rounded-[28px] border border-white/12 bg-[#0D101A]">
+        <section id="tour-step-cinema-hero" className="relative overflow-hidden rounded-[28px] sm:rounded-[32px] border border-[rgba(212,175,55,0.25)] bg-[#0B0C10] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.95),0_0_30px_rgba(212,175,55,0.12)]">
+          {/* Ambient Glow behind hero */}
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-[radial-gradient(circle,rgba(212,175,55,0.15)_0%,transparent_70%)] pointer-events-none" />
+
           <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
-            <div className="lg:col-span-7 relative min-h-[220px] sm:min-h-[340px] overflow-hidden">
+            {/* Hero Backdrop with Multi-stop Gradient */}
+            <div className="lg:col-span-7 relative min-h-[260px] sm:min-h-[380px] overflow-hidden">
               <img
                 src={hero.item.posterUrl}
-                alt={t(hero.item.titleEn, hero.item.titleFa)}
-                className="h-full w-full object-cover"
+                alt={cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
+                className="h-full w-full object-cover scale-105 hover:scale-100 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0D101A] via-[#0D101A]/30 to-transparent lg:bg-gradient-to-l lg:from-[#0D101A] lg:via-[#0D101A]/40 lg:to-transparent" />
+              {/* Multi-stop vertical & horizontal gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C10] via-[#0B0C10]/40 to-transparent lg:bg-gradient-to-l lg:from-[#0B0C10] lg:via-[#0B0C10]/50 lg:to-transparent" />
             </div>
 
-            <div className="lg:col-span-5 p-5 sm:p-8 flex flex-col justify-between gap-5">
-              <div className="space-y-3">
-                <p className="text-xs font-medium text-[#F5B942] flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>
-                    {personalizationEnabled
-                      ? `${t('Your Universe Highlight', 'اولویت اول جهان شما')} · ${hero.score}% ${t('Match', 'تطابق')}`
-                      : t('Editorial Selection', 'برگزیده جهان')}
+            {/* Hero Information & Action Hierarchy */}
+            <div className="lg:col-span-5 p-6 sm:p-9 flex flex-col justify-between gap-6 z-10">
+              <div className="space-y-3.5">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(212,175,55,0.15)] text-[#D4AF37] border border-[rgba(212,175,55,0.3)] text-[11px] font-mono font-bold tracking-wider">
+                    <Sparkles className="h-3 w-3 animate-pulse" />
+                    <span>
+                      {personalizationEnabled
+                        ? `${t('VIP UNIVERSE SPOTLIGHT', 'اکران اختصاصی VIP')} · ${hero.score}% MATCH`
+                        : t('EDITORIAL SPOTLIGHT', 'اکران برگزیده')}
+                    </span>
                   </span>
-                </p>
+                </div>
 
-                <h1 className="text-xl sm:text-3xl font-bold text-[#F5F7FA] leading-snug">
-                  {t(hero.item.titleEn, hero.item.titleFa)}
+                <h1 className="font-cinzel text-2xl sm:text-4xl font-bold tracking-wide text-[#F5F7FA] leading-tight drop-shadow-md">
+                  {cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
                 </h1>
 
-                <p className="text-xs text-[#A3AEC2]">
-                  {t(hero.item.categoryEn, hero.item.categoryFa)} ·{' '}
-                  <span dir="ltr" className="font-mono-tabular">
-                    {hero.item.quality}
-                  </span>{' '}
-                  ·{' '}
-                  <span dir="ltr" className="font-mono-tabular">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-[#A3AEC2]">
+                  <span className="px-2 py-0.5 rounded-full bg-[rgba(212,175,55,0.1)] text-[#D4AF37] border border-[rgba(212,175,55,0.25)] font-mono text-[10px] font-bold">
+                    {hero.item.quality || '4K HDR'}
+                  </span>
+                  <span className="font-mono-tabular">
                     {formatDuration(hero.item.durationSec)}
                   </span>
-                  {hero.item.creatorEn || hero.item.creatorFa
-                    ? ` · ${t(hero.item.creatorEn || hero.item.creatorFa || '', hero.item.creatorFa)}`
-                    : ''}
+                  <span>·</span>
+                  <span className="text-slate-300">{t(hero.item.categoryEn, hero.item.categoryFa)}</span>
+                  {hero.item.creatorEn || hero.item.creatorFa ? (
+                    <span className="hidden sm:inline">
+                      · {t(hero.item.creatorEn || hero.item.creatorFa || '', hero.item.creatorFa)}
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed line-clamp-3">
+                  {cleanCinemaSynopsis(t(hero.item.synopsisEn, hero.item.synopsisFa))}
                 </p>
 
-                <p className="text-xs sm:text-sm text-[#D2DAE8] leading-relaxed">
-                  {t(hero.item.synopsisEn, hero.item.synopsisFa)}
-                </p>
-
-                <p className="rounded-2xl bg-[#151A28] px-3.5 py-2.5 text-xs text-[#A3AEC2]">
+                <p className="rounded-2xl bg-[#050508]/80 border border-[rgba(212,175,55,0.18)] px-4 py-2.5 text-xs text-[#A3AEC2]">
                   {t(hero.reasonEn, hero.reasonFa)}
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2.5">
-                <Button size="lg" onClick={() => onPlay(hero.item)}>
-                  <Play className="h-4 w-4 fill-current" />
-                  {progressMap[hero.item.id] && !progressMap[hero.item.id].completed
-                    ? t('Resume Watching', 'ادامه تماشا')
-                    : t('Watch Now', 'شروع تماشا')}
-                </Button>
-                <Button variant="secondary" onClick={() => onWatchTrailer(hero.item)}>
-                  <Clapperboard className="h-4 w-4 text-[#F5B942]" />
-                  {t('Watch Trailer', 'مشاهده تریلر')}
-                </Button>
-                <Button variant="secondary" onClick={() => onDownload(hero.item)}>
-                  <Download className="h-4 w-4" />
-                  {downloadsMap[hero.item.id]?.status === 'completed'
-                    ? t('Downloaded', 'دانلودشده')
-                    : t('Download', 'دانلود آفلاین')}
-                </Button>
-                <Button variant="ghost" onClick={() => onOpenDetail(hero.item)}>
-                  {t('Details', 'جزئیات')}
-                </Button>
-                <Button variant="ghost" onClick={() => onNavigate('discover')}>
-                  <Compass className="h-4 w-4" />
-                  {t('Discover Map', 'کاوش سه‌بعدی')}
-                </Button>
+              {/* Action Hierarchy: Primary Wide Glowing Gold CTA + Secondary Frosted Row */}
+              <div className="space-y-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => onPlay(hero.item)}
+                  className="w-full h-12 inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] text-[#050508] font-cinzel font-bold text-sm tracking-wider shadow-[0_0_30px_rgba(212,175,55,0.55)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Play className="h-5 w-5 fill-current stroke-[2]" />
+                  <span>
+                    {progressMap[hero.item.id] && !progressMap[hero.item.id].completed
+                      ? t('Resume Watching', 'ادامه تماشا')
+                      : t('Watch Now', 'شروع تماشا')}
+                  </span>
+                </button>
+
+                <div className="grid grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onWatchTrailer(hero.item)}
+                    className="h-10 inline-flex flex-col items-center justify-center rounded-xl border border-[rgba(212,175,55,0.22)] bg-[#050508]/70 hover:bg-[#151722] hover:border-[#D4AF37] text-slate-300 hover:text-[#D4AF37] transition-all cursor-pointer"
+                    title={t('Watch Trailer', 'تریلر')}
+                  >
+                    <Clapperboard className="h-4 w-4 text-[#D4AF37]" />
+                    <span className="text-[9px] tracking-tight mt-0.5">{t('Trailer', 'تریلر')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onDownload(hero.item)}
+                    className="h-10 inline-flex flex-col items-center justify-center rounded-xl border border-[rgba(212,175,55,0.22)] bg-[#050508]/70 hover:bg-[#151722] hover:border-[#D4AF37] text-slate-300 hover:text-[#D4AF37] transition-all cursor-pointer"
+                    title={t('Download', 'دانلود')}
+                  >
+                    <Download className="h-4 w-4 text-[#D4AF37]" />
+                    <span className="text-[9px] tracking-tight mt-0.5">{t('Save', 'ذخیره')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onOpenDetail(hero.item)}
+                    className="h-10 inline-flex flex-col items-center justify-center rounded-xl border border-[rgba(212,175,55,0.22)] bg-[#050508]/70 hover:bg-[#151722] hover:border-[#D4AF37] text-slate-300 hover:text-[#D4AF37] transition-all cursor-pointer"
+                    title={t('Details', 'شناسنامه')}
+                  >
+                    <Sparkles className="h-4 w-4 text-[#D4AF37]" />
+                    <span className="text-[9px] tracking-tight mt-0.5">{t('Dossier', 'شناسنامه')}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => onNavigate('discover')}
+                    className="h-10 inline-flex flex-col items-center justify-center rounded-xl border border-[rgba(212,175,55,0.22)] bg-[#050508]/70 hover:bg-[#151722] hover:border-[#D4AF37] text-slate-300 hover:text-[#D4AF37] transition-all cursor-pointer"
+                    title={t('Discover 3D Map', 'کاوش ۳بعدی')}
+                  >
+                    <Compass className="h-4 w-4 text-[#D4AF37]" />
+                    <span className="text-[9px] tracking-tight mt-0.5">{t('3D Map', 'فضای ۳بعدی')}</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

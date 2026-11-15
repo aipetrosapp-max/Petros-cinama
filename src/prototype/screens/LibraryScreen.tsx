@@ -29,7 +29,7 @@ import type {
 import { cosineSimilarity6D } from '../tasteEngine';
 import { formatBytes } from '../downloadEngine';
 import { useT } from '../i18n';
-import { Button, MediaCard, formatDuration } from '../components/UiPrimitives';
+import { Button, MediaCard, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
 
 interface LibraryScreenProps {
   catalog: PrototypeMediaItem[];
@@ -275,7 +275,7 @@ export function LibraryScreen({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {downloadEntries.map(({ record, item }) => {
                   const completed = record.status === 'completed';
-                  const itemTitle = t(item.titleEn, item.titleFa);
+                  const itemTitle = cleanCinemaTitle(t(item.titleEn, item.titleFa));
                   return (
                     <div
                       key={record.contentId}
@@ -404,7 +404,7 @@ export function LibraryScreen({
                         ) : (
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {items.map((item) => {
-                              const itemTitle = t(item.titleEn, item.titleFa);
+                              const itemTitle = cleanCinemaTitle(t(item.titleEn, item.titleFa));
                               return (
                                 <div
                                   key={item.id}
@@ -456,7 +456,7 @@ export function LibraryScreen({
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {activeItems.map(({ item }) => {
-                  const itemTitle = t(item.titleEn, item.titleFa);
+                  const itemTitle = cleanCinemaTitle(t(item.titleEn, item.titleFa));
                   const itemCat = t(item.categoryEn, item.categoryFa);
                   return (
                     <div

@@ -1,23 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Changa:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;600;700;800&family=Courier+Prime:wght@400;700&family=Lalezar&family=Montserrat:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Changa:wght@400;500;600;700;800&family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;600;700;800;900&family=Courier+Prime:wght@400;700&family=Lalezar&family=Montserrat:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @layer base {
   :root {
-    /* Dedicated Cinema Typography Stack (Hollywood + Iranian Cinema Poster & Screenplay Fonts) */
-    --font-editorial: 'Cinzel', 'Lalezar', 'Amiri', serif;
-    --font-cinema-poster: 'Bebas Neue', 'Lalezar', 'Cinzel', sans-serif;
-    --font-sans: 'Montserrat', 'Changa', 'Lalezar', sans-serif;
-    --font-vazir: 'Changa', 'Lalezar', 'Montserrat', sans-serif;
+    /* Dedicated Luxury VIP Cinema Typography Stack (Cinzel Serif + Plus Jakarta Sans + Vazirmatn) */
+    --font-editorial: 'Cinzel', 'Cinzel Decorative', 'Lalezar', serif;
+    --font-cinema-poster: 'Cinzel', 'Bebas Neue', 'Lalezar', sans-serif;
+    --font-sans: 'Plus Jakarta Sans', 'Vazirmatn', 'Montserrat', sans-serif;
+    --font-vazir: 'Vazirmatn', 'Changa', 'Plus Jakarta Sans', sans-serif;
     --font-mono: 'Courier Prime', monospace;
-    --obsidian: #06070C;
-    --obsidian-elevated: #0D101A;
-    --amber-gold: #F5B942;
-    --amber-soft: #F3E5AB;
+    
+    /* Unreal Engine 5 VIP Cinema × Westworld Palette */
+    --obsidian: #050508;
+    --theater-velvet: #0B0C10;
+    --antique-gold: #D4AF37;
+    --antique-gold-bright: #F5B942;
+    --amber-glow: #F59E0B;
+    --gold-border: rgba(212, 175, 55, 0.22);
+    --gold-glow: rgba(212, 175, 55, 0.35);
   }
 
   html,
   body {
-    background-color: #06070C;
+    background-color: #050508 !important;
     color: #F5F7FA;
     font-family: var(--font-sans) !important;
     letter-spacing: 0.01em;
@@ -30,14 +35,30 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Apply Cinema Poster & Title Card Typography to all Headings & Titles */
+  /* Global Scrollbar Elimination for Clean Native App Feel */
+  html,
+  body,
+  *,
+  *::before,
+  *::after {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+
+  /* Apply Luxury Cinematic Serif strictly to Brand Headers, Major Headings, and Titles */
   h1,
   h2,
   h3,
   .font-editorial {
     font-family: var(--font-editorial) !important;
-    letter-spacing: 0.03em;
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+    letter-spacing: 0.04em;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
   }
 
   h4,
@@ -93,76 +114,114 @@
   }
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Ambient VIP Cinema Theater Glow */
+.ambient-theater-glow {
+  box-shadow: 
+    0 0 60px -10px rgba(245, 158, 11, 0.22),
+    0 0 120px -20px rgba(212, 175, 55, 0.16),
+    0 24px 60px -12px rgba(0, 0, 0, 0.95);
 }
 
-/* Smooth glass pill without any scale/zoom distortion */
-.liquid-glass-pill {
-  border-radius: 9999px;
+/* Gold Specular Spatial Glass */
+.spatial-glass-gold {
   background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.11) 0%,
-    rgba(13, 19, 34, 0.78) 55%,
+    145deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(11, 12, 16, 0.78) 50%,
+    rgba(212, 175, 55, 0.05) 100%
+  );
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow:
+    0 16px 40px -10px rgba(0, 0, 0, 0.85),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+/* Gold Ticket Stub Notches (VIP Cinema Pass) */
+.vip-ticket-card {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.14) 0%,
+    rgba(15, 16, 22, 0.9) 45%,
     rgba(245, 185, 66, 0.08) 100%
   );
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow:
-    0 10px 26px -10px rgba(0, 0, 0, 0.82),
-    inset 0 1px 1px rgba(255, 255, 255, 0.24);
-  transition:
-    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 220ms ease,
-    box-shadow 220ms ease,
-    background 220ms ease;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.8), 0 0 20px -4px rgba(212, 175, 55, 0.15);
 }
 
-.liquid-glass-pill:hover {
-  transform: translateY(-1px);
-  border-color: rgba(245, 185, 66, 0.55);
-  box-shadow:
-    0 14px 30px -10px rgba(0, 0, 0, 0.9),
-    0 0 18px -4px rgba(245, 185, 66, 0.28),
-    inset 0 1px 1px rgba(255, 255, 255, 0.38);
-}
-
-.liquid-glass-pill:active {
-  transform: translateY(1px);
-}
-
-@keyframes skeletonShimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.poster-skeleton-shimmer {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(160deg, #0d1322 0%, #090e1a 100%);
-}
-
-.poster-skeleton-shimmer::after {
+.vip-ticket-card::before,
+.vip-ticket-card::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background-color: #050508;
+  transform: translateY(-50%);
+  z-index: 20;
+}
+
+.vip-ticket-card::before {
+  left: -8px;
+  border-right: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.vip-ticket-card::after {
+  right: -8px;
+  border-left: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+/* Animated Golden Soundstage Equalizer Bars */
+@keyframes goldEqualizerBar {
+  0%, 100% { height: 18%; }
+  50% { height: 95%; }
+}
+
+.gold-eq-bar {
+  background: linear-gradient(to top, #D4AF37, #F5B942, #FFF2A7);
+  border-radius: 9999px;
+  animation: goldEqualizerBar 1.2s ease-in-out infinite;
+}
+
+.gold-eq-bar:nth-child(2) { animation-delay: 0.15s; }
+.gold-eq-bar:nth-child(3) { animation-delay: 0.3s; }
+.gold-eq-bar:nth-child(4) { animation-delay: 0.45s; }
+.gold-eq-bar:nth-child(5) { animation-delay: 0.2s; }
+.gold-eq-bar:nth-child(6) { animation-delay: 0.5s; }
+.gold-eq-bar:nth-child(7) { animation-delay: 0.35s; }
+.gold-eq-bar:nth-child(8) { animation-delay: 0.1s; }
+.gold-eq-bar:nth-child(9) { animation-delay: 0.4s; }
+.gold-eq-bar:nth-child(10) { animation-delay: 0.25s; }
+
+/* VisionOS Floating Bottom Dock Pill */
+.vision-dock-pill {
+  background: rgba(11, 12, 16, 0.82);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: 
+    0 16px 48px -8px rgba(0, 0, 0, 0.9),
+    0 0 24px -2px rgba(212, 175, 55, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.18);
+}
+
+/* VisionOS Curved Spatial Playback Bar */
+.spatial-playback-bar {
   background: linear-gradient(
-    105deg,
-    transparent 20%,
-    rgba(245, 185, 66, 0.08) 48%,
-    rgba(255, 255, 255, 0.06) 52%,
-    transparent 80%
+    180deg,
+    rgba(20, 22, 30, 0.85) 0%,
+    rgba(10, 11, 16, 0.95) 100%
   );
-  animation: skeletonShimmer 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  box-shadow:
+    0 24px 60px -12px rgba(0, 0, 0, 0.95),
+    0 0 35px -5px rgba(212, 175, 55, 0.22),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
 }
 
 /* Custom sleek range input (no scale zoom on hover/active) */
@@ -174,57 +233,52 @@ input[type='range'].aether-slider {
 }
 
 input[type='range'].aether-slider::-webkit-slider-runnable-track {
-  height: 6px;
+  height: 5px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 input[type='range'].aether-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  margin-top: -8px;
-  height: 22px;
-  width: 22px;
+  margin-top: -7.5px;
+  height: 20px;
+  width: 20px;
   border-radius: 9999px;
-  background: radial-gradient(circle at 35% 35%, #fef3c7, #F5B942 70%, #927012 100%);
-  border: 2px solid #06070C;
-  box-shadow: 0 0 18px rgba(245, 185, 66, 0.55);
-  transition: box-shadow 180ms ease;
+  background: radial-gradient(circle at 35% 35%, #fff2a7, #D4AF37 70%, #7d6010 100%);
+  border: 2px solid #050508;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.65);
+  transition: box-shadow 180ms ease, transform 180ms ease;
 }
 
 input[type='range'].aether-slider::-webkit-slider-thumb:hover,
 input[type='range'].aether-slider::-webkit-slider-thumb:active {
-  box-shadow: 0 0 24px rgba(245, 185, 66, 0.85);
+  box-shadow: 0 0 24px rgba(245, 185, 66, 0.95);
+  transform: scale(1.1);
 }
 
 input[type='range'].aether-slider::-moz-range-track {
-  height: 6px;
+  height: 5px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 input[type='range'].aether-slider::-moz-range-thumb {
-  height: 22px;
-  width: 22px;
+  height: 20px;
+  width: 20px;
   border-radius: 9999px;
-  background: radial-gradient(circle at 35% 35%, #fef3c7, #F5B942 70%, #927012 100%);
-  border: 2px solid #06070C;
-  box-shadow: 0 0 18px rgba(245, 185, 66, 0.55);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .poster-skeleton-shimmer::after {
-    animation: none;
-  }
+  background: radial-gradient(circle at 35% 35%, #fff2a7, #D4AF37 70%, #7d6010 100%);
+  border: 2px solid #050508;
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.65);
 }
 
 /* Android TV & Smart TV D-Pad High-Visibility Focus Ring */
 .tv-focus-active,
 .tv-mode-active :focus-visible,
 .tv-mode-active [data-tv-focus="true"]:focus {
-  outline: 3px solid #F5B942 !important;
+  outline: 3px solid #D4AF37 !important;
   outline-offset: 4px !important;
-  box-shadow: 0 0 25px rgba(245, 185, 66, 0.75), inset 0 0 15px rgba(245, 185, 66, 0.25) !important;
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.8), inset 0 0 15px rgba(212, 175, 55, 0.3) !important;
   transform: scale(1.04) !important;
   transition: transform 180ms ease, box-shadow 180ms ease !important;
   z-index: 50 !important;
