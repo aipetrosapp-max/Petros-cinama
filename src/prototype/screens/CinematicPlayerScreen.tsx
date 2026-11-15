@@ -19,6 +19,7 @@ import {
   Play,
   RotateCcw,
   RotateCw,
+  Send,
   ShieldCheck,
   Sparkles,
   Star,
@@ -833,28 +834,69 @@ export function CinematicPlayerScreen({
               />
 
               <div className="relative z-10 max-w-lg w-full flex flex-col items-center gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-[#F5B942] shadow-[0_0_20px_rgba(245,185,66,0.2)]">
-                  <ShieldCheck className="h-4 w-4" />
-                  <span>{t('Stream Link Not Attached', 'لینک دانلود یا استریم هنوز درج نشده')}</span>
-                </div>
+                {item.streamUrl?.includes('t.me/') || item.id?.startsWith('tg-') ? (
+                  <>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3.5 py-1 text-xs font-bold text-cyan-400 shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+                      <Send className="h-4 w-4" />
+                      <span>{t('Telegram Channel Video Source', 'محتوای کانال تلگرام پتروس سینما')}</span>
+                    </div>
 
-                <h3 className="text-base sm:text-xl font-black text-white">
-                  {item.titleFa || item.titleEn}
-                  {item.releaseYear ? ` (${item.releaseYear})` : ''}
-                </h3>
+                    <h3 className="text-base sm:text-xl font-black text-white">
+                      {item.titleFa || item.titleEn}
+                      {item.releaseYear ? ` (${item.releaseYear})` : ''}
+                    </h3>
 
-                <p className="text-xs sm:text-sm text-[#A3AEC2] leading-relaxed">
-                  {t(
-                    'No direct stream or download link has been attached to this title yet. Only titles with verified links can be played or downloaded.',
-                    'برای این فیلم یا سریال هنوز لینک مستقیم دانلود یا استریم درج نشده است. فقط عناوینی که دارای لینک مستقیم باشند قابل اجرا و دانلود هستند.'
-                  )}
-                </p>
+                    <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
+                      {item.synopsisFa || item.synopsisEn || t('Available in Telegram channel with multiple qualities.', 'این اثر در کانال تلگرام پتروس سینما با کیفیت‌های مختلف و بدون سانسور آماده پخش و دانلود مستقیم است.')}
+                    </p>
 
-                <div className="flex items-center gap-2 pt-2">
-                  <span className="text-xs font-mono text-[#A3AEC2]">
-                    {t('Waiting for source upload in vault', 'در انتظار ثبت لینک یا بارگذاری منبع')}
-                  </span>
-                </div>
+                    <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+                      <a
+                        href={item.streamUrl || 'https://t.me/Aipetros'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-500 text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-cyan-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span>{t('Stream & Download in Telegram', 'پخش و دانلود مستقیم در تلگرام')}</span>
+                      </a>
+
+                      <a
+                        href="https://t.me/Aipetros"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-xs transition-all flex items-center gap-2"
+                      >
+                        <span>کانال @Aipetros</span>
+                      </a>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-[#F5B942] shadow-[0_0_20px_rgba(245,185,66,0.2)]">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>{t('Stream Link Not Attached', 'لینک دانلود یا استریم هنوز درج نشده')}</span>
+                    </div>
+
+                    <h3 className="text-base sm:text-xl font-black text-white">
+                      {item.titleFa || item.titleEn}
+                      {item.releaseYear ? ` (${item.releaseYear})` : ''}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-[#A3AEC2] leading-relaxed">
+                      {t(
+                        'No direct stream or download link has been attached to this title yet. Only titles with verified links can be played or downloaded.',
+                        'برای این فیلم یا سریال هنوز لینک مستقیم دانلود یا استریم درج نشده است. فقط عناوینی که دارای لینک مستقیم باشند قابل اجرا و دانلود هستند.'
+                      )}
+                    </p>
+
+                    <div className="flex items-center gap-2 pt-2">
+                      <span className="text-xs font-mono text-[#A3AEC2]">
+                        {t('Waiting for source upload in vault', 'در انتظار ثبت لینک یا بارگذاری منبع')}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
