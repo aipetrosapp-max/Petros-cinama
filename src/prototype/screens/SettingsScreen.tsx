@@ -17,7 +17,7 @@ import type {
   WatchProgressEntry,
   FeedbackRecord
 } from '../types';
-import { useT } from '../i18n';
+import { useT, resolveLanguageLabel } from '../i18n';
 import { AiTasteDnaPanel } from '../components/AiTasteDnaPanel';
 
 interface SettingsScreenProps {
@@ -70,46 +70,64 @@ export function SettingsScreen({
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-20">
-      {/* 1. Sleek Compact One-Line Language Toggle (No RTL / LTR jargon) */}
-      <section className="p-4 sm:p-5 rounded-2xl bg-[#0B0C10]/95 border border-[rgba(212,175,55,0.28)] shadow-lg flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[rgba(212,175,55,0.12)] border border-[rgba(212,175,55,0.3)] flex items-center justify-center text-[#D4AF37]">
-            <Globe2 className="w-4 h-4" />
+      {/* 1. Global World Language Selector (70+ Languages Supported) */}
+      <section className="p-4 sm:p-5 rounded-2xl bg-[#0B0C10]/95 border border-[rgba(212,175,55,0.28)] shadow-lg space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[rgba(212,175,55,0.12)] border border-[rgba(212,175,55,0.3)] flex items-center justify-center text-[#D4AF37]">
+              <Globe2 className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="font-cinzel text-sm sm:text-base font-bold text-[#F5F7FA]">
+                {t('INTERFACE LANGUAGE', 'زبان برنامه')}
+              </h2>
+              <p className="text-[11px] text-[#A3AEC2]">
+                {t('Current language: ', 'زبان فعلی: ')}
+                <span className="font-semibold text-[#D4AF37]">{resolveLanguageLabel(lang).nativeName} ({resolveLanguageLabel(lang).englishName})</span>
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-cinzel text-sm sm:text-base font-bold text-[#F5F7FA]">
-              {t('INTERFACE LANGUAGE', 'زبان برنامه')}
-            </h2>
-            <p className="text-[11px] text-[#A3AEC2]">
-              {t('Select your preferred cinema language', 'زبان مورد نظر خود را انتخاب کنید')}
-            </p>
-          </div>
+
+          {/* Trigger All 70+ Languages Picker */}
+          <button
+            type="button"
+            onClick={onOpenLanguagePicker}
+            className="px-4 py-2 rounded-xl border border-[rgba(212,175,55,0.4)] bg-[rgba(212,175,55,0.15)] hover:bg-[rgba(212,175,55,0.25)] text-[#F5F7FA] text-xs font-bold transition-all shadow-[0_0_15px_rgba(212,175,55,0.15)] flex items-center gap-2 cursor-pointer"
+          >
+            <Globe2 className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>{t('All 70+ World Languages...', 'همه ۷۰+ زبان‌های دنیا...')}</span>
+          </button>
         </div>
 
-        {/* Clean Segmented Pill Toggle */}
-        <div className="inline-flex items-center p-1 rounded-full bg-black/60 border border-[rgba(212,175,55,0.3)]">
-          <button
-            type="button"
-            onClick={() => onChangeLang('fa')}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              lang === 'fa'
-                ? 'bg-gradient-to-r from-[#D4AF37] to-[#F5B942] text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.5)]'
-                : 'text-[#A3AEC2] hover:text-white'
-            }`}
-          >
-            فارسی
-          </button>
-          <button
-            type="button"
-            onClick={() => onChangeLang('en')}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-              lang === 'en'
-                ? 'bg-gradient-to-r from-[#D4AF37] to-[#F5B942] text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.5)]'
-                : 'text-[#A3AEC2] hover:text-white'
-            }`}
-          >
-            English
-          </button>
+        {/* Quick Language Pills */}
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[rgba(212,175,55,0.12)]">
+          {[
+            { code: 'en', label: 'English' },
+            { code: 'fa', label: 'فارسی' },
+            { code: 'ar', label: 'العربية' },
+            { code: 'es', label: 'Español' },
+            { code: 'fr', label: 'Français' },
+            { code: 'de', label: 'Deutsch' },
+            { code: 'tr', label: 'Türkçe' },
+            { code: 'ru', label: 'Русский' },
+            { code: 'zh', label: '中文' }
+          ].map((item) => {
+            const active = lang.toLowerCase() === item.code.toLowerCase();
+            return (
+              <button
+                key={item.code}
+                type="button"
+                onClick={() => onChangeLang(item.code)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                  active
+                    ? 'bg-gradient-to-r from-[#D4AF37] to-[#F5B942] text-[#050508] font-bold shadow-[0_0_12px_rgba(212,175,55,0.4)]'
+                    : 'bg-white/[0.04] border border-white/10 text-[#A3AEC2] hover:text-white hover:border-[rgba(212,175,55,0.3)]'
+                }`}
+              >
+                {item.label}
+              </button>
+            );
+          })}
         </div>
       </section>
 

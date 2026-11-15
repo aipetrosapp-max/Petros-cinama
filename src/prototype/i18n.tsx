@@ -17,8 +17,8 @@ export function getLanguageDirection(code: string): 'rtl' | 'ltr' {
 }
 
 export const WORLD_LANGUAGES: WorldLanguageInfo[] = [
-  { code: 'fa', nativeName: 'فارسی', englishName: 'Persian', dir: 'rtl' },
   { code: 'en', nativeName: 'English', englishName: 'English', dir: 'ltr' },
+  { code: 'fa', nativeName: 'فارسی', englishName: 'Persian', dir: 'rtl' },
   { code: 'ar', nativeName: 'العربية', englishName: 'Arabic', dir: 'rtl' },
   { code: 'es', nativeName: 'Español', englishName: 'Spanish', dir: 'ltr' },
   { code: 'fr', nativeName: 'Français', englishName: 'French', dir: 'ltr' },
@@ -711,11 +711,11 @@ interface I18nContextValue {
 }
 
 const I18nContext = createContext<I18nContextValue>({
-  lang: 'fa',
-  dir: 'rtl',
+  lang: 'en',
+  dir: 'ltr',
   languageInfo: WORLD_LANGUAGES[0],
   setLang: () => {},
-  t: (enText, faText) => faText || enText,
+  t: (enText, faText) => enText || faText || '',
   translateTexts: async () => {},
   isTranslating: false
 });

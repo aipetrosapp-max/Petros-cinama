@@ -172,7 +172,7 @@ export const INITIAL_USER_STATE: UserAccountState = {
   personalizationEnabled: true,
   blockedTopics: [],
   preferredQuality: 'auto',
-  defaultSubtitleLang: 'fa',
+  defaultSubtitleLang: 'en',
   defaultSpeed: 1,
   reducedMotion: false,
   highContrast: false,

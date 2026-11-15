@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check, Globe2 } from 'lucide-react';
 import type { LanguageCode } from '../types';
 import { useT } from '../i18n';
 
@@ -202,6 +202,19 @@ export function CinematicPassCard({
           </div>
         </button>
       </div>
+
+      {onOpenLanguagePicker && (
+        <div className="pt-1">
+          <button
+            type="button"
+            onClick={onOpenLanguagePicker}
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.1)] hover:bg-[rgba(212,175,55,0.2)] text-xs text-[#F5F7FA] font-medium transition-all shadow-[0_0_15px_rgba(212,175,55,0.15)] cursor-pointer"
+          >
+            <Globe2 className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>{t('All 70+ World Languages...', 'همه ۷۰+ زبان‌های دنیا...')}</span>
+          </button>
+        </div>
+      )}
 
       <p className="text-[11px] font-mono tracking-widest uppercase text-[#8E9BB3]">
         {t('Cinematic Pass & Entry', 'گذرنامه و بلیط اختصاصی ورود')}

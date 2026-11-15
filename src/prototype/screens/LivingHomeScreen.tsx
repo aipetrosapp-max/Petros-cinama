@@ -27,8 +27,6 @@ import type {
 import { computeLivingHomepage } from '../tasteEngine';
 import { useT } from '../i18n';
 import { Button, MediaCard, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
-import { CryptoAdBanner } from '../../components/CryptoAdBanner';
-import { SavingsCalculatorCard } from '../components/SavingsCalculatorCard';
 import { GoldenMarqueePoster } from '../components/GoldenMarqueePoster';
 
 function cleanCinemaSynopsis(raw: string): string {
@@ -550,9 +548,6 @@ export function LivingHomeScreen({
         layout.newDiscoveries
       )}
 
-      {/* Savings Calculator Loop Card */}
-      <SavingsCalculatorCard />
-
       {/* Collections Row */}
       {collections.length > 0 && (
         <section className="rounded-3xl border border-[rgba(212,175,55,0.22)] bg-[#0B0C10] p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
@@ -574,11 +569,6 @@ export function LivingHomeScreen({
           </Button>
         </section>
       )}
-
-      {/* Optional Crypto Ad Banner */}
-      <div className="pt-2">
-        <CryptoAdBanner />
-      </div>
     </div>
   );
 }
