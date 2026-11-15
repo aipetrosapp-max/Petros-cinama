@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Compass,
+  Download,
   Film,
   Globe2,
   Home,
@@ -63,6 +64,7 @@ import { ContentDetailModal } from './screens/ContentDetailModal';
 import { CinematicPlayerScreen } from './screens/CinematicPlayerScreen';
 import { LibraryScreen } from './screens/LibraryScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { AipetrosLandingScreen } from './screens/AipetrosLandingScreen';
 import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
 import { autoUpdateService } from '../services/autoUpdateService';
 import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
@@ -138,7 +140,15 @@ function UniversePrototypeShell({
   const { t, languageInfo } = useT();
 
   const [onboardingDone, setOnboardingDone] = useState<boolean>(() => true);
-  const [route, setRoute] = useState<PrototypeRoute>(() => 'universe');
+  const [route, setRoute] = useState<PrototypeRoute>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('cinema') || hash.includes('universe') || hash.includes('watch') || hash.includes('search')) {
+        return 'universe';
+      }
+    }
+    return 'landing';
+  });
   const [uiState, setUiState] = useState<UiSimulationState>('normal');
   const [libraryTabRequest, setLibraryTabRequest] = useState<LibraryTab | undefined>(undefined);
   const [langPickerOpen, setLangPickerOpen] = useState(false);
@@ -249,7 +259,9 @@ function UniversePrototypeShell({
         autoUpdateService.forceApplyUpdate();
       }, 1500);
     });
-    return unsub;
+    return () => {
+      unsub();
+    };
   }, [lang, showToast]);
 
   // Dynamic Stream Sync & Initial Cloud Catalog Hydration
@@ -842,6 +854,22 @@ function UniversePrototypeShell({
     );
   }
 
+  if (route === 'landing') {
+    return (
+      <MotionConfig reducedMotion={user.reducedMotion ? 'always' : 'user'}>
+        <AipetrosLandingScreen
+          onEnterCinema={() => {
+            if (typeof window !== 'undefined') {
+              window.location.hash = 'cinema';
+            }
+            navigateTo('universe');
+          }}
+        />
+        <ToastBanner toast={toast} onDismiss={() => setToast(null)} />
+      </MotionConfig>
+    );
+  }
+
   return (
     <MotionConfig reducedMotion={user.reducedMotion ? 'always' : 'user'}>
       {/* Full-Screen Cinema Startup Loader */}
@@ -958,6 +986,22 @@ function UniversePrototypeShell({
 
             {/* Zone 3: Actions (Tutorial Walkthrough & Language) */}
             <div className="flex items-center gap-2 shrink-0">
+              {/* App Landing & Download Portal Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.hash = 'landing';
+                  }
+                  navigateTo('landing');
+                }}
+                title={t('Download App & Platforms', 'دانلود اپلیکیشن و تمام پلتفرم‌ها')}
+                className="min-h-[38px] px-3 inline-flex items-center gap-1.5 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-xs font-bold text-cyan-300 hover:bg-cyan-500/20 cursor-pointer shadow-md shadow-cyan-500/15 transition-all active:scale-95"
+              >
+                <Download className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="text-[11px] hidden sm:inline">{t('Download App', 'دریافت اپ')}</span>
+              </button>
+
               {/* Interactive On-Screen Spotlight Tour Button */}
               <button
                 id="tour-step-tutorial"

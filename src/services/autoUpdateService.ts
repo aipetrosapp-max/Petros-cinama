@@ -118,15 +118,16 @@ class AutoUpdateService {
 
   public forceApplyUpdate() {
     if (typeof window === 'undefined') return;
+    const globalWin = window as Window;
     // Clear legacy cache keys
-    if ('caches' in window) {
-      caches.keys().then((names) => {
-        return Promise.all(names.map((name) => caches.delete(name)));
+    if ('caches' in globalWin && globalWin.caches) {
+      globalWin.caches.keys().then((names) => {
+        return Promise.all(names.map((name) => globalWin.caches.delete(name)));
       }).finally(() => {
-        window.location.reload();
+        globalWin.location.reload();
       });
     } else {
-      window.location.reload();
+      globalWin.location.reload();
     }
   }
 }

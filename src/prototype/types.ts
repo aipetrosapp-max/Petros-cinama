@@ -1,6 +1,7 @@
 export type LanguageCode = string;
 
 export type PrototypeRoute =
+  | 'landing'
   | 'splash'
   | 'welcome'
   | 'age-gate'
