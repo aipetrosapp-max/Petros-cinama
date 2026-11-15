@@ -14,6 +14,7 @@ export * from './cacheStorageAgent';
 export * from './monetizationAdAgent';
 export * from './securityGuardAgent';
 export * from './catalogHealthAgent';
+export * from './imdbTrendingHeroAgent';
 export * from './masterSupremeOrchestratorAgent';
 
 import { masterSupremeOrchestratorAgent } from './masterSupremeOrchestratorAgent';

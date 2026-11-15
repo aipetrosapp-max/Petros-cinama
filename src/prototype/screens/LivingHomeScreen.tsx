@@ -11,7 +11,9 @@ import {
   WifiOff,
   Flame,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import type {
   ExplainedRecommendation,
@@ -27,6 +29,7 @@ import type {
 import { computeLivingHomepage } from '../tasteEngine';
 import { useT } from '../i18n';
 import { Button, MediaCard, formatDuration, cleanCinemaTitle, generateCinemaPosterSvg } from '../components/UiPrimitives';
+import { imdbTrendingHeroAgent, type CuratedHeroMovie } from '../../agents';
 
 function cleanCinemaSynopsis(raw: string): string {
   if (!raw) return '';
@@ -141,20 +144,76 @@ export function LivingHomeScreen({
     lang
   ]);
 
-  const hero = layout.heroPick || (catalog[0] ? {
-    item: catalog[0],
-    score: 98,
-    reasonFa: 'اکران افتتاحیه سالن اصلی IMAX 4K',
-    reasonEn: 'IMAX 4K VIP Hall Premiere'
-  } : null);
+  // Autonomous ADK Agent: Curate Top 10 IMDb Trending Movies from active catalog
+  const heroMovies: CuratedHeroMovie[] = React.useMemo(() => {
+    try {
+      const list = imdbTrendingHeroAgent.curateImmediate(catalog, hiddenIds);
+      if (list && list.length > 0) return list;
+    } catch (e) {
+      console.warn('imdbTrendingHeroAgent curation failed, using catalog slice:', e);
+    }
+    return catalog.slice(0, 10).map((item, idx) => ({
+      item,
+      rank: idx + 1,
+      imdbRating: '8.7',
+      badgeLabelEn: `IMDb Top 10 #${idx + 1}`,
+      badgeLabelFa: `🏆 رتبه ${idx + 1} برترین‌های IMDb`,
+      taglineEn: 'Box Office Leader • 4K IMAX VIP',
+      taglineFa: 'صدرنشین گیشه جهانی • اکران اختصاصی بلوری'
+    }));
+  }, [catalog, hiddenIds]);
 
-  // Top 10 Ranked Movies for Live Trending carousel
+  const [heroIndex, setHeroIndex] = React.useState(0);
+  const [curtainPhase, setCurtainPhase] = React.useState<'open' | 'closing' | 'opening'>('open');
+  const [isPaused, setIsPaused] = React.useState(false);
+  const isTransitioningRef = React.useRef(false);
+
+  const currentHero: CuratedHeroMovie | null = heroMovies[heroIndex] || (heroMovies[0] ?? null);
+
+  // Theatrical Red Velvet Curtain Transition Orchestrator
+  const changeHeroSlide = React.useCallback(
+    (targetIdx: number) => {
+      if (heroMovies.length <= 1 || isTransitioningRef.current) return;
+      const nextIdx = ((targetIdx % heroMovies.length) + heroMovies.length) % heroMovies.length;
+      if (nextIdx === heroIndex && curtainPhase === 'open') return;
+
+      isTransitioningRef.current = true;
+      setCurtainPhase('closing');
+
+      // 1. Curtains sweep to center (280ms)
+      setTimeout(() => {
+        setHeroIndex(nextIdx);
+        setCurtainPhase('opening');
+
+        // 2. Curtains part back open to reveal the next movie (320ms)
+        setTimeout(() => {
+          setCurtainPhase('open');
+          isTransitioningRef.current = false;
+        }, 320);
+      }, 280);
+    },
+    [heroIndex, heroMovies.length, curtainPhase]
+  );
+
+  // Auto-advance hero slides every 6.5s when not hovered
+  React.useEffect(() => {
+    if (isPaused || heroMovies.length <= 1) return;
+    const interval = setInterval(() => {
+      changeHeroSlide(heroIndex + 1);
+    }, 6500);
+    return () => clearInterval(interval);
+  }, [isPaused, heroIndex, heroMovies.length, changeHeroSlide]);
+
+  // Top 10 Ranked Movies for Live Trending carousel below
   const top10Trending = React.useMemo(() => {
+    if (heroMovies.length > 0) {
+      return heroMovies.map((m) => m.item);
+    }
     const list = [...catalog]
       .filter((c) => !hiddenIds.has(c.id))
       .sort((a, b) => (b.releaseYear || 2024) - (a.releaseYear || 2024));
     return list.slice(0, 10);
-  }, [catalog, hiddenIds]);
+  }, [heroMovies, catalog, hiddenIds]);
 
   // If catalog is completely empty, show luxury cinema projector loader
   if (!catalog || catalog.length === 0) {
@@ -226,60 +285,204 @@ export function LivingHomeScreen({
 
   return (
     <div className="space-y-8 sm:space-y-12 pb-12">
-      {/* 1. FULL-BLEED IMMERSIVE HERO STAGE (Reference Image 1) */}
-      {hero && (
+      {/* 1. TOP 10 IMDB TRENDING HERO STAGE WITH THEATRICAL RED CINEMA VELVET CURTAINS */}
+      {currentHero && (
         <section
           id="tour-step-cinema-hero"
-          className="relative -mx-3 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 h-[66vh] sm:h-[72vh] min-h-[520px] max-h-[720px] overflow-hidden group select-none"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          className="relative -mx-3 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 h-[68vh] sm:h-[74vh] min-h-[540px] max-h-[750px] overflow-hidden group select-none"
         >
-          {/* Edge-to-Edge Movie Backdrop / Cinematic Space Visual */}
+          {/* Edge-to-Edge Movie Backdrop with Ambient Glow */}
           <div className="absolute inset-0 bg-black">
             <img
-              src={hero.item.posterUrl || generateCinemaPosterSvg(cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa)), hero.item.accentHex)}
-              alt={cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
+              key={currentHero.item.id}
+              src={
+                currentHero.item.posterUrl ||
+                generateCinemaPosterSvg(
+                  cleanCinemaTitle(t(currentHero.item.titleEn, currentHero.item.titleFa)),
+                  currentHero.item.accentHex
+                )
+              }
+              alt={cleanCinemaTitle(t(currentHero.item.titleEn, currentHero.item.titleFa))}
               onError={(e) => {
                 const target = e.currentTarget;
-                target.src = generateCinemaPosterSvg(cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa)), hero.item.accentHex);
+                target.src = generateCinemaPosterSvg(
+                  cleanCinemaTitle(t(currentHero.item.titleEn, currentHero.item.titleFa)),
+                  currentHero.item.accentHex
+                );
               }}
-              className="h-full w-full object-cover object-center scale-105 group-hover:scale-100 transition-transform duration-1000 opacity-90"
+              className="h-full w-full object-cover object-center scale-105 group-hover:scale-100 transition-all duration-700 opacity-90"
             />
+
             {/* Top Atmospheric Shadow for Status / Header */}
-            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#050508]/85 via-[#050508]/30 to-transparent pointer-events-none z-10" />
+            <div className="absolute top-0 inset-x-0 h-36 bg-gradient-to-b from-[#050508]/90 via-[#050508]/40 to-transparent pointer-events-none z-10" />
 
             {/* Seamless Deep Obsidian Multi-stop Bottom Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/80 via-45% to-transparent pointer-events-none z-10" />
 
             {/* Ambient Warm Golden Color Glow Radiating Behind UI */}
             <div
-              className="absolute inset-0 pointer-events-none z-10 opacity-60"
+              className="absolute inset-0 pointer-events-none z-10 opacity-70"
               style={{
                 background:
-                  'radial-gradient(circle at 50% 82%, rgba(245, 185, 66, 0.28) 0%, rgba(212, 175, 55, 0.12) 35%, transparent 70%)'
+                  'radial-gradient(circle at 50% 82%, rgba(245, 185, 66, 0.32) 0%, rgba(212, 175, 55, 0.14) 38%, transparent 72%)'
               }}
             />
           </div>
 
+          {/* ========================================================================= */}
+          {/* THEATRICAL RED CINEMA VELVET CURTAINS (پرده مجلل قرمز سینما با آستر طلاکوب) */}
+          {/* ========================================================================= */}
+          <div
+            className="absolute inset-0 z-30 pointer-events-none overflow-hidden"
+            aria-hidden="true"
+          >
+            {/* Left Velvet Curtain Panel */}
+            <div
+              className={`absolute top-0 bottom-0 left-0 w-1/2 will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                curtainPhase === 'closing'
+                  ? 'translate-x-0'
+                  : '-translate-x-[105%]'
+              }`}
+              style={{
+                background:
+                  'linear-gradient(90deg, #160103 0%, #360207 10%, #6d0a15 22%, #380206 35%, #880e1b 48%, #420308 60%, #7d0b17 73%, #320205 86%, #620610 100%)',
+                boxShadow:
+                  'inset -30px 0 50px -10px rgba(0,0,0,0.95), 15px 0 35px rgba(0,0,0,0.9)',
+                borderBottom: '6px solid #D4AF37'
+              }}
+            >
+              {/* Vertical Drapery Folds & Fabric Texture */}
+              <div
+                className="absolute inset-0 opacity-45 mix-blend-overlay"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(90deg, transparent, transparent 16px, rgba(0,0,0,0.7) 16px, rgba(0,0,0,0.7) 32px, rgba(255,215,0,0.18) 32px, rgba(255,215,0,0.18) 48px)'
+                }}
+              />
+              {/* Golden Bullion Bottom Fringe / Tassels */}
+              <div className="absolute bottom-0 inset-x-0 h-5 bg-gradient-to-t from-[#F3D06B] via-[#D4AF37] to-[#8C6B1C] border-t border-amber-300/80 shadow-[0_4px_18px_rgba(212,175,55,0.9)]" />
+              {/* Center Golden Rope Tie-Back Ornament */}
+              <div className="absolute top-1/2 right-3 -translate-y-1/2 w-4 h-20 rounded-full border border-amber-300/90 bg-amber-400/25 backdrop-blur-sm shadow-[0_0_20px_rgba(212,175,55,0.85)] flex items-center justify-center">
+                <span className="w-1.5 h-12 rounded-full bg-amber-300 shadow-[0_0_8px_#fff]" />
+              </div>
+            </div>
+
+            {/* Right Velvet Curtain Panel */}
+            <div
+              className={`absolute top-0 bottom-0 right-0 w-1/2 will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                curtainPhase === 'closing'
+                  ? 'translate-x-0'
+                  : 'translate-x-[105%]'
+              }`}
+              style={{
+                background:
+                  'linear-gradient(270deg, #160103 0%, #360207 10%, #6d0a15 22%, #380206 35%, #880e1b 48%, #420308 60%, #7d0b17 73%, #320205 86%, #620610 100%)',
+                boxShadow:
+                  'inset 30px 0 50px -10px rgba(0,0,0,0.95), -15px 0 35px rgba(0,0,0,0.9)',
+                borderBottom: '6px solid #D4AF37'
+              }}
+            >
+              {/* Vertical Drapery Folds & Fabric Texture */}
+              <div
+                className="absolute inset-0 opacity-45 mix-blend-overlay"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(90deg, transparent, transparent 16px, rgba(0,0,0,0.7) 16px, rgba(0,0,0,0.7) 32px, rgba(255,215,0,0.18) 32px, rgba(255,215,0,0.18) 48px)'
+                }}
+              />
+              {/* Golden Bullion Bottom Fringe / Tassels */}
+              <div className="absolute bottom-0 inset-x-0 h-5 bg-gradient-to-t from-[#F3D06B] via-[#D4AF37] to-[#8C6B1C] border-t border-amber-300/80 shadow-[0_4px_18px_rgba(212,175,55,0.9)]" />
+              {/* Center Golden Rope Tie-Back Ornament */}
+              <div className="absolute top-1/2 left-3 -translate-y-1/2 w-4 h-20 rounded-full border border-amber-300/90 bg-amber-400/25 backdrop-blur-sm shadow-[0_0_20px_rgba(212,175,55,0.85)] flex items-center justify-center">
+                <span className="w-1.5 h-12 rounded-full bg-amber-300 shadow-[0_0_8px_#fff]" />
+              </div>
+            </div>
+
+            {/* Top Theatrical Cinema Valance / Pelmet (کتیبه طلایی بالای پرده سینما) */}
+            <div className="absolute top-0 inset-x-0 h-10 z-40 bg-gradient-to-b from-[#220104] via-[#42040b] to-[#220104] border-b-2 border-amber-400/80 shadow-[0_6px_25px_rgba(0,0,0,0.95)] flex items-center justify-center px-4">
+              <div className="flex items-center gap-2.5 px-4 py-0.5 rounded-full bg-black/70 border border-amber-400/60 shadow-[0_0_20px_rgba(212,175,55,0.35)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                <span className="font-cinzel text-[10px] sm:text-xs font-bold tracking-widest text-[#F3D06B]">
+                  {t('PETROS THEATRICAL IMAX VIP • TOP 10 TRENDING', '۱۰ فیلم برتر و ترند روز IMDb • اکران سراسری')}
+                </span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* Top 10 Progress Indicators (10 Golden Micro-Bars) */}
+          <div className="absolute top-14 inset-x-4 sm:inset-x-8 z-25 flex items-center justify-center gap-1.5 sm:gap-2.5 max-w-lg mx-auto">
+            {heroMovies.map((m, idx) => (
+              <button
+                key={m.item.id}
+                type="button"
+                onClick={() => changeHeroSlide(idx)}
+                className="group/pill relative flex-1 h-1.5 sm:h-2 rounded-full overflow-hidden bg-white/20 hover:bg-white/40 transition-all cursor-pointer"
+                title={`${m.rank}. ${cleanCinemaTitle(t(m.item.titleEn, m.item.titleFa))}`}
+              >
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    idx === heroIndex
+                      ? 'w-full bg-gradient-to-r from-amber-300 via-[#F3D06B] to-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,1)]'
+                      : idx < heroIndex
+                      ? 'w-full bg-amber-400/60'
+                      : 'w-0'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Navigation Chevron Buttons (Next / Prev Slide) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              changeHeroSlide(heroIndex - 1);
+            }}
+            aria-label="Previous Featured Movie"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-25 w-11 h-11 sm:w-13 sm:h-13 rounded-full border border-white/20 bg-black/50 backdrop-blur-xl text-[#F3D06B] flex items-center justify-center hover:bg-black/80 hover:border-amber-400/80 active:scale-95 transition-all shadow-[0_6px_25px_rgba(0,0,0,0.7)] cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              changeHeroSlide(heroIndex + 1);
+            }}
+            aria-label="Next Featured Movie"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-25 w-11 h-11 sm:w-13 sm:h-13 rounded-full border border-white/20 bg-black/50 backdrop-blur-xl text-[#F3D06B] flex items-center justify-center hover:bg-black/80 hover:border-amber-400/80 active:scale-95 transition-all shadow-[0_6px_25px_rgba(0,0,0,0.7)] cursor-pointer"
+          >
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+
           {/* Centered / Aligned Lower Stage Overlay Content */}
           <div className="absolute bottom-6 sm:bottom-10 inset-x-4 sm:inset-x-8 z-20 flex flex-col items-center text-center space-y-3 sm:space-y-4 max-w-4xl mx-auto">
-            {/* Subtle Frosted Glass Pill */}
+            {/* Subtle Frosted Glass Pill with Persian Tagline */}
             <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg">
               <span className="text-[11px] sm:text-xs font-semibold text-white/90 tracking-wide">
-                {t('Recommended based on your taste', 'توصیه شده بر اساس سلیقه شما')}
+                {t(currentHero.taglineEn, currentHero.taglineFa)}
               </span>
             </div>
 
             {/* Giant Bold Gold-Tinted Cinematic Title */}
             <h1 className="font-cinzel text-3xl sm:text-5xl md:text-6xl font-black tracking-wide leading-tight text-transparent bg-clip-text bg-gradient-to-b from-[#FFF4BA] via-[#F3D06B] to-[#D4AF37] drop-shadow-[0_4px_30px_rgba(212,175,55,0.5)]">
-              {cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
+              {cleanCinemaTitle(t(currentHero.item.titleEn, currentHero.item.titleFa))}
             </h1>
 
             {/* Crisp Gold-Bordered Metadata Capsule */}
             <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 py-1.5 rounded-full border border-[rgba(212,175,55,0.45)] bg-black/65 backdrop-blur-xl text-xs sm:text-sm font-bold text-[#F3D06B] shadow-[0_0_20px_rgba(212,175,55,0.22)]">
-              <span>{t('🏆 Box Office Leader #1', '🏆 صدرنشین گیشه #1')}</span>
+              <span>{t(currentHero.badgeLabelEn, currentHero.badgeLabelFa)}</span>
               <span className="text-[rgba(212,175,55,0.5)]">•</span>
-              <span className="font-mono">★ 8.7 IMDb</span>
+              <span className="font-mono">★ {currentHero.imdbRating} IMDb</span>
               <span className="text-[rgba(212,175,55,0.5)]">•</span>
-              <span className="font-mono tracking-wider">4K IMAX</span>
+              <span className="font-mono tracking-wider">{currentHero.item.quality || '4K IMAX'}</span>
+              <span className="text-[rgba(212,175,55,0.5)]">•</span>
+              <span className="text-[10px] font-mono text-amber-200/90">{heroIndex + 1}/10</span>
             </div>
 
             {/* Primary CTA Row: Golden Ticket Button + Frosted Glass Preview Button */}
@@ -287,7 +490,7 @@ export function LivingHomeScreen({
               {/* Ticket-shaped Glowing Gold Button */}
               <button
                 type="button"
-                onClick={() => onPlay(hero.item)}
+                onClick={() => onPlay(currentHero.item)}
                 className="relative flex-1 min-h-[48px] sm:min-h-[52px] inline-flex items-center justify-center gap-2.5 px-6 rounded-2xl bg-gradient-to-r from-[#F3D06B] via-[#E5C158] to-[#D4AF37] text-black font-extrabold text-xs sm:text-sm tracking-wide shadow-[0_0_35px_rgba(212,175,55,0.55)] hover:scale-[1.03] active:scale-95 transition-all cursor-pointer overflow-hidden group/btn"
               >
                 {/* Left/Right ticket notches */}
@@ -301,7 +504,7 @@ export function LivingHomeScreen({
               {/* Frosted Glass Secondary Button */}
               <button
                 type="button"
-                onClick={() => onWatchTrailer(hero.item)}
+                onClick={() => onWatchTrailer(currentHero.item)}
                 className="min-h-[48px] sm:min-h-[52px] px-6 rounded-2xl border border-white/25 bg-[#141620]/80 backdrop-blur-2xl text-white font-bold text-xs sm:text-sm hover:bg-white/10 hover:border-white/40 active:scale-95 transition-all cursor-pointer shadow-lg"
               >
                 {t('Preview', 'پیش‌نمایش')}
@@ -330,7 +533,13 @@ export function LivingHomeScreen({
               return (
                 <div
                   key={item.id}
-                  onClick={() => onPlay(item)}
+                  onClick={() => {
+                    changeHeroSlide(index);
+                    const heroEl = document.getElementById('tour-step-cinema-hero');
+                    if (heroEl) {
+                      heroEl.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                   className="group relative w-38 sm:w-46 shrink-0 cursor-pointer select-none transition-transform duration-300 hover:scale-[1.03]"
                 >
                   <div className="relative">
