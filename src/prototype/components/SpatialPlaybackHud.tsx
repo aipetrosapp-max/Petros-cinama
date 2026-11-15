@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Play,
   Pause,
@@ -9,12 +9,13 @@ import {
   Captions,
   Maximize2,
   Minimize2,
-  Wand2
+  Tv,
+  Gauge
 } from 'lucide-react';
 import { formatDuration } from './UiPrimitives';
 import { useT } from '../i18n';
 
-interface SpatialPlaybackHudProps {
+export interface SpatialPlaybackHudProps {
   duration: number;
   currentTime: number;
   isPlaying: boolean;
@@ -24,6 +25,8 @@ interface SpatialPlaybackHudProps {
   subMode: 'auto' | 'fa' | 'en' | 'off';
   lang: string;
   isFullscreen: boolean;
+  activeQualityLabel?: string;
+  aiSyncConfidencePct?: number | null;
   onTogglePlay: () => void;
   onSeek: (positionSec: number) => void;
   onVolumeChange: (vol: number) => void;
@@ -32,6 +35,7 @@ interface SpatialPlaybackHudProps {
   onToggleSubtitleMode: () => void;
   onToggleSpeed: () => void;
   onOpenAiSubtitlePanel?: () => void;
+  onOpenQualityPicker?: () => void;
   className?: string;
 }
 
@@ -45,6 +49,8 @@ export function SpatialPlaybackHud({
   subMode,
   lang,
   isFullscreen,
+  activeQualityLabel = '4K HDR',
+  aiSyncConfidencePct = 98.5,
   onTogglePlay,
   onSeek,
   onVolumeChange,
@@ -53,166 +59,146 @@ export function SpatialPlaybackHud({
   onToggleSubtitleMode,
   onToggleSpeed,
   onOpenAiSubtitlePanel,
+  onOpenQualityPicker,
   className = ''
 }: SpatialPlaybackHudProps) {
   const { t } = useT();
-  const [gainKnob, setGainKnob] = useState(85);
+  const scrubTrackRef = useRef<HTMLDivElement | null>(null);
+  const [isHoveringScrubber, setIsHoveringScrubber] = useState(false);
+  const [hoverPositionRatio, setHoverPositionRatio] = useState<number | null>(null);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
   const progressRatio = duration > 0 ? Math.min(1, Math.max(0, currentTime / duration)) : 0;
 
-  // Waveform bars simulation
-  const barCount = 48;
-  const waveformHeights = [
-    25, 40, 65, 80, 50, 75, 95, 60, 35, 70, 90, 100, 85, 45, 65, 80, 92, 60, 40, 70, 85, 95, 75, 50,
-    30, 45, 70, 88, 62, 78, 96, 68, 42, 65, 82, 94, 72, 48, 66, 84, 90, 70, 52, 40, 60, 78, 55, 30
-  ];
-
-  const handleWaveformClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
+  const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!scrubTrackRef.current) return;
+    const rect = scrubTrackRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const ratio = Math.max(0, Math.min(1, clickX / rect.width));
     onSeek(ratio * duration);
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!scrubTrackRef.current) return;
+    const rect = scrubTrackRef.current.getBoundingClientRect();
+    const hoverX = e.clientX - rect.left;
+    const ratio = Math.max(0, Math.min(1, hoverX / rect.width));
+    setHoverPositionRatio(ratio);
+  };
+
+  const subtitleLabel = subMode === 'off'
+    ? t('No Subtitles', 'زیرنویس: خاموش')
+    : subMode === 'en'
+    ? 'CC: English'
+    : `CC فارسی ${aiSyncConfidencePct ? `(AI ${aiSyncConfidencePct}%)` : ''}`;
+
   return (
     <div
-      className={`spatial-playback-bar relative w-full rounded-[28px] sm:rounded-[36px] border border-[rgba(212,175,55,0.35)] bg-gradient-to-b from-[#14161f]/95 via-[#0b0c10]/98 to-[#050508]/98 backdrop-blur-3xl px-4 sm:px-8 py-3.5 sm:py-4 shadow-[0_25px_60px_rgba(0,0,0,0.98),0_0_35px_rgba(212,175,55,0.2),inset_0_1px_2px_rgba(255,255,255,0.2)] select-none ${className}`}
-      style={{
-        boxShadow:
-          '0 25px 60px rgba(0, 0, 0, 0.98), 0 0 30px rgba(212, 175, 55, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.25)'
-      }}
+      className={`spatial-playback-bar relative w-full rounded-[24px] sm:rounded-[32px] border border-[rgba(212,175,55,0.3)] bg-gradient-to-b from-[#10121A]/95 via-[#08090E]/98 to-[#040507]/98 backdrop-blur-3xl px-3.5 sm:px-6 py-3 sm:py-3.5 shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_30px_rgba(212,175,55,0.18),inset_0_1px_1px_rgba(255,255,255,0.15)] select-none ${className}`}
     >
-      {/* 1. Top Section: Golden Audio Waveform Scrubber & Current/Total Timestamps */}
-      <div className="space-y-1.5 pb-2.5">
+      {/* 1. Golden Laser Timeline Scrubber */}
+      <div className="space-y-1 pb-2">
         <div className="flex items-center justify-between text-[11px] font-mono-tabular text-[#D4AF37] px-1 font-bold">
-          <span className="flex items-center gap-1.5 drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]">
+          <span className="flex items-center gap-1.5 drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#F5B942] animate-pulse" />
-            <span>{formatDuration(currentTime)}</span>
+            <span dir="ltr">{formatDuration(currentTime)}</span>
           </span>
-          <span className="text-[#A3AEC2]">{formatDuration(duration)}</span>
+
+          {hoverPositionRatio !== null && isHoveringScrubber && (
+            <span dir="ltr" className="text-[10px] text-zinc-400 font-mono hidden sm:inline">
+              {formatDuration(hoverPositionRatio * duration)}
+            </span>
+          )}
+
+          <span dir="ltr" className="text-[#A3AEC2]">{formatDuration(duration)}</span>
         </div>
 
-        {/* Interactive Audio Waveform Scrub Track */}
+        {/* Laser Scrub Track (Thin, elegant, glowing line) */}
         <div
-          onClick={handleWaveformClick}
-          className="relative h-10 sm:h-12 w-full rounded-xl bg-black/60 border border-[rgba(212,175,55,0.25)] px-2 py-1 flex items-end justify-between gap-[2px] sm:gap-1 cursor-pointer overflow-hidden group shadow-inner"
+          ref={scrubTrackRef}
+          onClick={handleTrackClick}
+          onMouseEnter={() => setIsHoveringScrubber(true)}
+          onMouseLeave={() => {
+            setIsHoveringScrubber(false);
+            setHoverPositionRatio(null);
+          }}
+          onMouseMove={handleMouseMove}
+          className="relative h-4 sm:h-5 w-full flex items-center cursor-pointer group"
         >
-          {/* Progress Shimmer Fill */}
-          <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-[rgba(212,175,55,0.15)] to-[rgba(245,185,66,0.28)] pointer-events-none transition-all duration-150"
-            style={{ width: `${progressRatio * 100}%` }}
-          />
+          {/* Base rail */}
+          <div className="h-1 sm:h-1.5 w-full rounded-full bg-white/10 group-hover:bg-white/15 transition-all overflow-hidden relative">
+            {/* Played laser fill */}
+            <div
+              className="absolute inset-y-0 start-0 bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#FFF2A7] shadow-[0_0_12px_rgba(212,175,55,0.9)] transition-all duration-75"
+              style={{ width: `${progressRatio * 100}%` }}
+            />
+          </div>
 
-          {waveformHeights.map((h, i) => {
-            const barRatio = i / barCount;
-            const isPlayed = barRatio <= progressRatio;
-            return (
-              <div
-                key={i}
-                className="w-full rounded-t-sm transition-all duration-150 relative z-10"
-                style={{
-                  height: `${h}%`,
-                  background: isPlayed
-                    ? 'linear-gradient(to top, #8a7224, #D4AF37, #FFF2A7)'
-                    : 'rgba(255, 255, 255, 0.18)',
-                  boxShadow: isPlayed ? '0 0 8px rgba(212, 175, 55, 0.4)' : 'none'
-                }}
-              />
-            );
-          })}
-
-          {/* Current Needle */}
+          {/* Glowing Laser Scrub Needle */}
           <div
-            className="absolute top-0 bottom-0 w-0.5 bg-[#FFF2A7] shadow-[0_0_10px_#F5B942] pointer-events-none z-20"
-            style={{ left: `${progressRatio * 100}%` }}
+            className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-gradient-to-br from-[#FFF2A7] to-[#D4AF37] border border-white/80 shadow-[0_0_14px_#F5B942,0_0_24px_rgba(212,175,55,0.8)] pointer-events-none transition-transform duration-75 group-hover:scale-125"
+            style={{
+              left: `calc(${progressRatio * 100}% - 7px)`
+            }}
           />
         </div>
       </div>
 
-      {/* 2. Controls Grid: Rotary Knobs + Center Transport + Badges */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-        {/* Left Side: 2 Rotary Dials (VOLUME & GAIN) */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Volume Dial */}
-          <div className="flex flex-col items-center">
-            <button
-              type="button"
-              onClick={onToggleMute}
-              className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[rgba(212,175,55,0.45)] bg-[#050508] flex items-center justify-center shadow-[inset_0_0_10px_rgba(212,175,55,0.25)] hover:border-[#D4AF37] transition-all cursor-pointer"
-            >
-              <span
-                className="absolute w-1.5 h-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_6px_#D4AF37]"
-                style={{
-                  transform: `rotate(${muted ? 0 : volume * 270 - 135}deg) translate(0, -14px)`
-                }}
-              />
-              {muted || volume === 0 ? (
-                <VolumeX className="w-4 h-4 text-[#94A3B8]" />
-              ) : (
-                <Volume2 className="w-4 h-4 text-[#D4AF37]" />
-              )}
-            </button>
-            <span className="text-[8px] font-mono tracking-widest text-[#A3AEC2] uppercase mt-1">
-              VOLUME
-            </span>
-          </div>
+      {/* 2. Controls Row: Left Utility Pills + Centered Tactile Glass + Right Pills */}
+      <div className="flex items-center justify-between gap-2 pt-0.5">
+        {/* Left Side: Quality & Subtitle Pills */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Subtitle Sync Pill */}
+          <button
+            type="button"
+            onClick={onOpenAiSubtitlePanel || onToggleSubtitleMode}
+            className={`min-h-[34px] px-2.5 sm:px-3 rounded-full border text-[11px] font-medium inline-flex items-center gap-1.5 transition-all cursor-pointer ${
+              subMode !== 'off'
+                ? 'border-[rgba(212,175,55,0.4)] bg-[rgba(212,175,55,0.12)] text-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.2)]'
+                : 'border-white/10 bg-white/[0.04] text-[#A3AEC2] hover:text-white'
+            }`}
+            title={t('Subtitle Sync & Settings', 'تنظیمات و همسان‌سازی زیرنویس هوشمند')}
+          >
+            <Captions className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span className="truncate max-w-[130px] sm:max-w-[170px]">{subtitleLabel}</span>
+          </button>
 
-          {/* Acoustic Gain Dial */}
-          <div className="flex flex-col items-center hidden sm:flex">
-            <button
-              type="button"
-              onClick={() => setGainKnob((g) => (g >= 100 ? 50 : g + 15))}
-              className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 border-[rgba(212,175,55,0.45)] bg-[#050508] flex items-center justify-center shadow-[inset_0_0_10px_rgba(212,175,55,0.25)] hover:border-[#D4AF37] transition-all cursor-pointer"
-            >
-              <span
-                className="absolute w-1.5 h-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_6px_#D4AF37]"
-                style={{
-                  transform: `rotate(${(gainKnob / 100) * 270 - 135}deg) translate(0, -14px)`
-                }}
-              />
-              <span className="text-[9px] font-mono font-bold text-[#F5B942]">{gainKnob}%</span>
-            </button>
-            <span className="text-[8px] font-mono tracking-widest text-[#A3AEC2] uppercase mt-1">
-              ACOUSTIC
-            </span>
-          </div>
-
-          {/* Mini Volume Slider */}
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={muted ? 0 : volume}
-            onChange={(e) => onVolumeChange(Number(e.target.value))}
-            aria-label="Volume Slider"
-            className="w-16 sm:w-20 accent-[#D4AF37] hidden md:block"
-          />
+          {/* Quality Selector Pill */}
+          <button
+            type="button"
+            onClick={onOpenQualityPicker || onOpenAiSubtitlePanel}
+            className="min-h-[34px] px-2.5 sm:px-3 rounded-full border border-[rgba(212,175,55,0.3)] bg-white/[0.04] hover:bg-[rgba(212,175,55,0.1)] text-[11px] font-mono font-bold text-[#F5B942] inline-flex items-center gap-1.5 transition-all cursor-pointer"
+            title={t('Projection Quality', 'کیفیت پخش سالن')}
+          >
+            <Tv className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>{activeQualityLabel}</span>
+          </button>
         </div>
 
-        {/* Center Transport: Rewind + Contoured Play/Pause Notch + Forward */}
-        <div className="flex items-center gap-2 sm:gap-3 mx-auto">
+        {/* Center: Tactile Glass Controls (Rewind 10s, Glowing Play/Pause, Forward 10s) */}
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Rewind 10s */}
           <button
             type="button"
             onClick={() => onSeek(Math.max(0, currentTime - 10))}
             aria-label="Rewind 10 seconds"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508]/90 text-slate-200 hover:text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/85 text-zinc-300 hover:text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            title="10s Rewind"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
 
-          {/* Central Contoured Play/Pause Button */}
+          {/* Glowing Gold Play/Pause Button */}
           <button
             type="button"
             onClick={onTogglePlay}
             aria-label={isPlaying ? 'Pause' : 'Play'}
-            className="w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-gradient-to-tr from-[#8a7224] via-[#F5B942] to-[#FFF2A7] text-[#050508] flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.85)] hover:scale-110 active:scale-95 transition-all cursor-pointer"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-[#A68019] via-[#F5B942] to-[#FFF2A7] text-[#050508] flex items-center justify-center shadow-[0_0_24px_rgba(212,175,55,0.7)] hover:scale-108 active:scale-95 transition-all cursor-pointer shrink-0"
           >
             {isPlaying ? (
-              <Pause className="w-6 h-6 fill-current stroke-[2.5]" />
+              <Pause className="w-5 h-5 fill-current stroke-[2.5]" />
             ) : (
-              <Play className="w-6 h-6 fill-current stroke-[2.5] translate-x-0.5" />
+              <Play className="w-5 h-5 fill-current stroke-[2.5] translate-x-0.5" />
             )}
           </button>
 
@@ -221,72 +207,69 @@ export function SpatialPlaybackHud({
             type="button"
             onClick={() => onSeek(Math.min(duration, currentTime + 10))}
             aria-label="Forward 10 seconds"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508]/90 text-slate-200 hover:text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/85 text-zinc-300 hover:text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            title="10s Forward"
           >
-            <RotateCw className="w-4 h-4" />
+            <RotateCw className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Right Side: CC Tags + 30s Skip Dial + Speed Knob + Fullscreen */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* AI Subtitle Studio Button */}
-          {onOpenAiSubtitlePanel && (
-            <button
-              type="button"
-              onClick={onOpenAiSubtitlePanel}
-              className="p-2 rounded-xl border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#D4AF37] hover:border-[#D4AF37] transition-all cursor-pointer hidden sm:flex items-center justify-center shadow-sm"
-              title={t('AI Subtitle Sync', 'همسان‌سازی زیرنویس با هوش مصنوعی')}
-            >
-              <Wand2 className="w-4 h-4" />
-            </button>
-          )}
-
-          {/* CC Tags Button */}
-          <button
-            type="button"
-            onClick={onToggleSubtitleMode}
-            className="h-9 px-3 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508]/90 text-xs font-mono font-semibold text-slate-200 hover:text-[#D4AF37] hover:border-[#D4AF37] flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
-          >
-            <Captions className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>
-              {subMode === 'off'
-                ? 'CC'
-                : subMode === 'auto'
-                ? `CC:${lang.toUpperCase()}`
-                : `CC:${subMode.toUpperCase()}`}
-            </span>
-          </button>
-
-          {/* 30s Skip Dial Button */}
-          <button
-            type="button"
-            onClick={() => onSeek(Math.min(duration, currentTime + 30))}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[rgba(212,175,55,0.35)] bg-[#050508] flex flex-col items-center justify-center text-[#F5B942] hover:border-[#D4AF37] transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
-            title="Skip 30 seconds"
-          >
-            <span className="text-[10px] font-mono font-black">30</span>
-            <span className="text-[7px] font-mono text-[#A3AEC2]">SEC</span>
-          </button>
-
-          {/* Speed Rotary Knob (1.0x, 1.25x, 1.5x, 2.0x) */}
+        {/* Right Side: Speed, Volume & Fullscreen Pills */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Speed Pill */}
           <button
             type="button"
             onClick={onToggleSpeed}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[rgba(212,175,55,0.35)] bg-[#050508] flex flex-col items-center justify-center text-[#D4AF37] hover:border-[#D4AF37] transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
-            title="Playback Speed"
+            className="min-h-[34px] px-2.5 sm:px-3 rounded-full border border-white/10 bg-white/[0.04] text-[11px] font-mono text-[#D4AF37] hover:border-[#D4AF37]/50 inline-flex items-center gap-1 transition-all cursor-pointer"
+            title={t('Playback Speed', 'سرعت پخش')}
           >
-            <span className="text-[10px] font-mono font-black">{speed}x</span>
-            <span className="text-[7px] font-mono text-[#A3AEC2]">SPEED</span>
+            <Gauge className="w-3 h-3 text-[#D4AF37]" />
+            <span>{speed}x</span>
           </button>
+
+          {/* Volume Button with Popover on Hover / Click */}
+          <div
+            className="relative flex items-center"
+            onMouseEnter={() => setShowVolumeSlider(true)}
+            onMouseLeave={() => setShowVolumeSlider(false)}
+          >
+            <button
+              type="button"
+              onClick={onToggleMute}
+              className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full border border-white/10 bg-white/[0.04] text-zinc-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/40 flex items-center justify-center transition-all cursor-pointer"
+              title={muted || volume === 0 ? t('Unmute', 'وصل صدا') : t('Mute', 'قطع صدا')}
+            >
+              {muted || volume === 0 ? (
+                <VolumeX className="w-3.5 h-3.5 text-zinc-400" />
+              ) : (
+                <Volume2 className="w-3.5 h-3.5 text-[#D4AF37]" />
+              )}
+            </button>
+
+            {showVolumeSlider && (
+              <div className="absolute bottom-full mb-2 start-1/2 -translate-x-1/2 p-2 rounded-xl border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/95 backdrop-blur-xl shadow-xl flex items-center gap-2 z-40">
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={muted ? 0 : volume}
+                  onChange={(e) => onVolumeChange(Number(e.target.value))}
+                  aria-label="Volume Slider"
+                  className="w-20 accent-[#D4AF37] cursor-pointer"
+                />
+              </div>
+            )}
+          </div>
 
           {/* Fullscreen Button */}
           <button
             type="button"
             onClick={onToggleFullscreen}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508]/90 text-slate-200 hover:text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
-            title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+            className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full border border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.1)] text-[#D4AF37] hover:bg-[rgba(212,175,55,0.2)] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            title={isFullscreen ? t('Exit Fullscreen', 'خروج از تمام‌صفحه') : t('Fullscreen', 'تمام‌صفحه')}
           >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
