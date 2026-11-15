@@ -36,6 +36,54 @@ export function formatDuration(sec: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+export function generateCinemaPosterSvg(title: string, accentHex = '#D4AF37'): string {
+  const safeTitle = (title || 'AI PETROS CINEMA')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" width="600" height="900">
+    <defs>
+      <radialGradient id="bg" cx="50%" cy="30%" r="80%">
+        <stop offset="0%" stop-color="#1e180d"/>
+        <stop offset="50%" stop-color="#0e0f14"/>
+        <stop offset="100%" stop-color="#050508"/>
+      </radialGradient>
+      <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FFF0A0"/>
+        <stop offset="45%" stop-color="#D4AF37"/>
+        <stop offset="100%" stop-color="#996E0F"/>
+      </linearGradient>
+      <linearGradient id="borderG" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.8"/>
+        <stop offset="50%" stop-color="#D4AF37" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#D4AF37" stop-opacity="0.6"/>
+      </linearGradient>
+    </defs>
+    <rect width="600" height="900" fill="url(#bg)"/>
+    <rect x="24" y="24" width="552" height="852" rx="20" fill="none" stroke="url(#borderG)" stroke-width="2.5"/>
+    <circle cx="300" cy="360" r="160" fill="none" stroke="#D4AF37" stroke-opacity="0.15" stroke-width="1.5" stroke-dasharray="8,8"/>
+    <!-- Stylized Film Projector Icon -->
+    <g transform="translate(255, 315)" stroke="#D4AF37" stroke-width="3" fill="none">
+      <circle cx="45" cy="45" r="38" stroke-opacity="0.8"/>
+      <circle cx="45" cy="45" r="14" fill="#D4AF37" fill-opacity="0.3"/>
+      <line x1="45" y1="7" x2="45" y2="83" stroke-opacity="0.4"/>
+      <line x1="7" y1="45" x2="83" y2="45" stroke-opacity="0.4"/>
+      <line x1="18" y1="18" x2="72" y2="72" stroke-opacity="0.4"/>
+      <line x1="18" y1="72" x2="72" y2="18" stroke-opacity="0.4"/>
+    </g>
+    <!-- Brand Header -->
+    <text x="300" y="95" text-anchor="middle" fill="#D4AF37" font-family="Cinzel, serif" font-size="18" letter-spacing="7" font-weight="bold">AI PETROS CINEMA</text>
+    <text x="300" y="125" text-anchor="middle" fill="#A3AEC2" font-family="sans-serif" font-size="12" letter-spacing="3" opacity="0.8">VIP 4K ULTRA STREAM</text>
+    <!-- Movie Title -->
+    <text x="300" y="580" text-anchor="middle" fill="url(#gold)" font-family="Vazirmatn, sans-serif" font-size="34" font-weight="bold">${safeTitle}</text>
+    <text x="300" y="625" text-anchor="middle" fill="#E2E8F0" font-family="sans-serif" font-size="14" letter-spacing="3" opacity="0.85">CINEMATIC PREMIERE</text>
+    <!-- Badge -->
+    <rect x="220" y="740" width="160" height="38" rx="19" fill="#D4AF37" fill-opacity="0.16" stroke="#D4AF37" stroke-width="1.5"/>
+    <text x="300" y="765" text-anchor="middle" fill="#D4AF37" font-family="sans-serif" font-size="14" font-weight="bold">★ 8.5 IMDb • 4K</text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
@@ -272,27 +320,16 @@ export function MediaCard({
         onPointerUp={() => setIsHoldingPreview(false)}
         onPointerCancel={() => setIsHoldingPreview(false)}
       >
-        {!imgError ? (
-          <img
-            src={item.posterUrl}
-            alt={title}
-            loading="lazy"
-            referrerPolicy="no-referrer"
-            onError={() => setImgError(true)}
-            className={`h-full w-full object-cover transition-all duration-500 ${
-              isHoldingPreview ? 'brightness-110 saturate-110' : 'brightness-95 group-hover:brightness-105'
-            }`}
-          />
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center p-4 text-center"
-            style={{
-              background: `radial-gradient(circle at 30% 25%, ${item.accentHex}33, #0B0C10 75%)`
-            }}
-          >
-            <span className="text-xs font-cinzel font-semibold text-[#D4AF37]">{title}</span>
-          </div>
-        )}
+        <img
+          src={!imgError && item.posterUrl ? item.posterUrl : generateCinemaPosterSvg(title, item.accentHex)}
+          alt={title}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setImgError(true)}
+          className={`h-full w-full object-cover transition-all duration-500 ${
+            isHoldingPreview ? 'brightness-110 saturate-110' : 'brightness-95 group-hover:brightness-105'
+          }`}
+        />
 
         <div
           className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${

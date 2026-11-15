@@ -85,18 +85,6 @@ export const CURATED_CRYPTO_SPONSORS: CryptoAdUnit[] = [
     targetUrl: 'https://aipetros.stream/privacy-vault',
     badgeText: 'Decentralized Security',
     bannerImageUrl: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=900&auto=format&fit=crop'
-  },
-  {
-    id: 'aads-sponsor-03',
-    network: 'a-ads',
-    unitType: 'banner-728x90',
-    title: 'Decentralized Cloud & High-Bitrate Media Nodes',
-    sponsorName: 'Akash Network & Filecoin DePIN',
-    description: 'Serverless peer-to-peer compute for high-bitrate 4K streaming and decentralized censorship resistance.',
-    ctaText: 'Learn More',
-    targetUrl: 'https://a-ads.com?partner=aipetros',
-    badgeText: 'DePIN Cloud Sponsor',
-    bannerImageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=900&auto=format&fit=crop'
   }
 ];
 

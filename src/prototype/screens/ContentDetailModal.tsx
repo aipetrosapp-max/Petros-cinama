@@ -211,8 +211,8 @@ export function ContentDetailModal({
             <Sparkles className="h-4 w-4 text-[#F5B942] shrink-0" />
             <span>
               {t(
-                'IMDb details & backend stream qualities auto-translate into your selected language.',
-                'تمامی اطلاعات IMDb و لیست کیفیت‌های بک‌اند به زبان انتخابی شما ترجمه می‌شوند.'
+                'Cinema details & subtitle tracks auto-translate into your selected language.',
+                'شناسنامه فیلم و زیرنویس‌ها به زبان انتخابی شما هماهنگ می‌شوند.'
               )}
             </span>
           </div>
@@ -424,7 +424,7 @@ export function ContentDetailModal({
           />
         </motion.div>
 
-        {/* IMDb Live Database Record + Backend Stream Qualities List (Animated from Random Sides) */}
+        {/* IMDb Live Database Record + VIP Cinema Projection Quality Details */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Film Information Dossier Card (IMDb & Cast) */}
           <motion.div
@@ -526,28 +526,28 @@ export function ContentDetailModal({
             ) : null}
           </motion.div>
 
-          {/* Backend Available Stream Qualities List Card */}
+          {/* Cinema Projection Qualities List Card */}
           <motion.div
             key={`${item.id}-${openSeq}-qualities`}
             {...getMotionProps(4)}
-            className="lg:col-span-6 rounded-2xl border border-white/12 bg-[#06070C]/80 p-4 space-y-3"
+            className="lg:col-span-6 rounded-2xl border border-[rgba(212,175,55,0.25)] bg-[#06070C]/80 p-4 space-y-3"
           >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5">
               <div className="flex items-center gap-2">
-                <Cpu className="h-4 w-4 text-[#38BDF8]" />
+                <Sparkles className="h-4 w-4 text-[#D4AF37]" />
                 <h3 className="text-sm font-semibold text-[#F5F7FA]">
-                  {t('Backend Stream Qualities', 'لیست کیفیت‌های موجود از بک‌اند')}
+                  {t('Projection Quality', 'کیفیت پخش سالن')}
                 </h3>
               </div>
-              <span className="text-[11px] font-mono-tabular text-[#34D399]">
-                {backendQualities.length} {t('Profiles Ready', 'کیفیت آماده')}
+              <span className="text-[11px] font-mono-tabular text-[#D4AF37]">
+                {backendQualities.length} {t('Qualities Available', 'کیفیت در دسترس')}
               </span>
             </div>
 
             {loadingDetails && backendQualities.length === 0 ? (
               <div className="py-4 flex items-center gap-2 text-xs text-[#A3AEC2]">
-                <Loader2 className="h-4 w-4 animate-spin text-[#38BDF8]" />
-                <span>{t('Loading stream profiles from backend...', 'در حال دریافت لیست کیفیت‌ها از سرور...')}</span>
+                <Loader2 className="h-4 w-4 animate-spin text-[#D4AF37]" />
+                <span>{t('Calibrating projection streams...', 'در حال آماده‌سازی کیفیت‌های سالن...')}</span>
               </div>
             ) : (
               <div className="space-y-2">

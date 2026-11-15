@@ -173,7 +173,7 @@ export function SettingsScreen({
               className="w-full h-10 rounded-xl border border-[rgba(212,175,55,0.3)] bg-black px-3 text-xs font-mono font-bold text-[#D4AF37] focus:border-[#D4AF37] cursor-pointer"
             >
               <option value="auto" className="bg-[#0B0C10] text-white">Auto (ABR · Adaptive Bitrate)</option>
-              <option value="4K" className="bg-[#0B0C10] text-white">4K HDR VIP Master (60 FPS)</option>
+              <option value="4K" className="bg-[#0B0C10] text-white">4K HDR VIP (60 FPS)</option>
               <option value="1080p" className="bg-[#0B0C10] text-white">1080p Full HD</option>
               <option value="720p" className="bg-[#0B0C10] text-white">720p Mobile Lite</option>
             </select>

@@ -49,8 +49,8 @@ import {
   CyberpunkRoom3DCanvas,
   type PlayerMoveInput
 } from '../components/CyberpunkRoom3DCanvas';
+import { MediaCard, cleanCinemaTitle, generateCinemaPosterSvg } from '../components/UiPrimitives';
 import { useT } from '../i18n';
-import { MediaCard, cleanCinemaTitle } from '../components/UiPrimitives';
 
 interface DiscoveryUniverseScreenProps {
   catalog: PrototypeMediaItem[];
@@ -867,8 +867,12 @@ export function DiscoveryUniverseScreen({
                       onClick={() => onOpenDetail(activeItem)}
                     >
                       <img
-                        src={activeItem.posterUrl}
+                        src={activeItem.posterUrl || generateCinemaPosterSvg(cleanCinemaTitle(t(activeItem.titleEn, activeItem.titleFa)), activeItem.accentHex)}
                         alt={activeItem.titleEn}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.src = generateCinemaPosterSvg(cleanCinemaTitle(t(activeItem.titleEn, activeItem.titleFa)), activeItem.accentHex);
+                        }}
                         className="w-14 h-20 sm:w-16 sm:h-22 rounded-2xl object-cover border border-[#D4AF37]/60 shadow-[0_4px_16px_rgba(0,0,0,0.8)] shrink-0 hover:scale-105 transition-transform"
                       />
                       <div className="min-w-0 space-y-1 text-start">

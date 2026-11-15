@@ -26,8 +26,7 @@ import type {
 } from '../types';
 import { computeLivingHomepage } from '../tasteEngine';
 import { useT } from '../i18n';
-import { Button, MediaCard, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
-import { GoldenMarqueePoster } from '../components/GoldenMarqueePoster';
+import { Button, MediaCard, formatDuration, cleanCinemaTitle, generateCinemaPosterSvg } from '../components/UiPrimitives';
 
 function cleanCinemaSynopsis(raw: string): string {
   if (!raw) return '';
@@ -236,8 +235,12 @@ export function LivingHomeScreen({
           {/* Edge-to-Edge Movie Backdrop / Cinematic Space Visual */}
           <div className="absolute inset-0 bg-black">
             <img
-              src={hero.item.posterUrl}
+              src={hero.item.posterUrl || generateCinemaPosterSvg(cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa)), hero.item.accentHex)}
               alt={cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.src = generateCinemaPosterSvg(cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa)), hero.item.accentHex);
+              }}
               className="h-full w-full object-cover object-center scale-105 group-hover:scale-100 transition-transform duration-1000 opacity-90"
             />
             {/* Top Atmospheric Shadow for Status / Header */}
@@ -334,8 +337,12 @@ export function LivingHomeScreen({
                     {/* Movie Poster Card */}
                     <div className="relative aspect-[2/3] rounded-2xl overflow-hidden border border-[rgba(212,175,55,0.4)] bg-black shadow-[0_12px_30px_rgba(0,0,0,0.85)] group-hover:border-[#F3D06B] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all">
                       <img
-                        src={item.posterUrl}
+                        src={item.posterUrl || generateCinemaPosterSvg(cleanCinemaTitle(t(item.titleEn, item.titleFa)), item.accentHex)}
                         alt={cleanCinemaTitle(t(item.titleEn, item.titleFa))}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.src = generateCinemaPosterSvg(cleanCinemaTitle(t(item.titleEn, item.titleFa)), item.accentHex);
+                        }}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80" />
@@ -371,9 +378,9 @@ export function LivingHomeScreen({
                       </div>
                     </div>
 
-                    {/* Giant 3D Metallic Gold Rank Number (1-10) Overlapping Bottom Corner */}
+                    {/* Giant 3D Metallic Gold Rank Number (1-10) Overlapping Left Side (Reference Image 1) */}
                     <span
-                      className="font-cinzel text-7xl sm:text-8xl font-black tracking-tighter leading-none select-none pointer-events-none absolute -bottom-5 -right-4 z-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.95)]"
+                      className="font-cinzel text-7xl sm:text-8xl font-black tracking-tighter leading-none select-none pointer-events-none absolute -bottom-5 -left-4 z-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.95)]"
                       style={{
                         background:
                           'linear-gradient(180deg, #FFF9D2 0%, #F3D06B 35%, #D4AF37 70%, #684f10 100%)',
@@ -392,18 +399,7 @@ export function LivingHomeScreen({
         </div>
       </section>
 
-      {/* 3. 🏛️ FEATURED MARQUEE CINEMA POSTER (With Glowing Incandescent Bulbs) */}
-      {hero && (
-        <section className="py-2 flex justify-center">
-          <GoldenMarqueePoster
-            item={hero.item}
-            titleOverride={cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
-            onClick={() => onOpenDetail(hero.item)}
-          />
-        </section>
-      )}
-
-      {/* 4. CONTINUE WATCHING SHELF (If User has Progress) */}
+      {/* 3. CONTINUE WATCHING SHELF (If User has Progress) */}
       {layout.continueWatching.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3">

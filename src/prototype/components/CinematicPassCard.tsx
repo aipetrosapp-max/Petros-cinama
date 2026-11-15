@@ -132,7 +132,7 @@ export function CinematicPassCard({
               </span>
             </div>
             <p className="text-xs text-slate-200 font-semibold tracking-wide">English Interface</p>
-            <p className="text-[10px] text-[#A3AEC2] tracking-wider font-mono">Pristine 4K Master & CC</p>
+            <p className="text-[10px] text-[#A3AEC2] tracking-wider font-mono">Pristine 4K HDR & CC</p>
           </div>
 
           {/* Barcode Stub */}

@@ -29,7 +29,7 @@ import type {
 import { cosineSimilarity6D } from '../tasteEngine';
 import { formatBytes } from '../downloadEngine';
 import { useT } from '../i18n';
-import { Button, MediaCard, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
+import { Button, MediaCard, formatDuration, cleanCinemaTitle, generateCinemaPosterSvg } from '../components/UiPrimitives';
 
 interface LibraryScreenProps {
   catalog: PrototypeMediaItem[];
@@ -293,12 +293,16 @@ export function LibraryScreen({
                       <div className="flex items-center gap-3.5 min-w-0">
                         <div className="relative shrink-0">
                           <img
-                            src={item.posterUrl}
+                            src={item.posterUrl || generateCinemaPosterSvg(itemTitle, item.accentHex)}
                             alt={itemTitle}
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              target.src = generateCinemaPosterSvg(itemTitle, item.accentHex);
+                            }}
                             className="h-24 w-18 rounded-xl object-cover border border-[rgba(212,175,55,0.25)] shadow-lg"
                           />
                           <div className="absolute top-1 start-1 rounded bg-[#D4AF37] px-1 py-0.5 text-[8px] font-bold text-black font-mono">
-                            4K MASTER
+                            4K HDR
                           </div>
                         </div>
                         <div className="min-w-0 space-y-1">

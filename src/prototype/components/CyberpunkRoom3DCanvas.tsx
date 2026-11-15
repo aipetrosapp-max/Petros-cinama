@@ -612,7 +612,7 @@ function createDelosDiagnosticHudTexture(
     ctx.strokeStyle = 'rgba(245, 185, 66, 0.7)';
     ctx.stroke();
     ctx.fillStyle = '#F5B942';
-    ctx.fillText('4K MASTER', 506, 286);
+    ctx.fillText('4K HDR', 506, 286);
 
     // Bottom Left: Film Title in Cinema Typography
     ctx.fillStyle = '#F8FAFC';
