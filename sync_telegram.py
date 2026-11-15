@@ -310,8 +310,20 @@ async def main():
     api_hash = os.environ.get("TG_API_HASH")
     session_str = os.environ.get("TG_STRING_SESSION")
 
+    # Resilient fallback to local credential store if environment variables are not set
     if not api_id_env or not api_hash or not session_str:
-        print("❌ Missing required environment variables (TG_API_ID, TG_API_HASH, TG_STRING_SESSION)")
+        if os.path.exists("telegram_session.txt"):
+            try:
+                with open("telegram_session.txt", "r", encoding="utf-8") as sf:
+                    session_str = sf.read().strip()
+                api_id_env = "76997"
+                api_hash = "5fab41b477b0caf5a30648b86570b5b5"
+                print("ℹ️ Loaded Telegram credentials from local session store.")
+            except Exception as e:
+                print(f"⚠️ Failed to read telegram_session.txt: {e}")
+
+    if not api_id_env or not api_hash or not session_str:
+        print("❌ Missing required credentials (TG_API_ID, TG_API_HASH, TG_STRING_SESSION)")
         sys.exit(1)
 
     try:

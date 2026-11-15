@@ -1,11 +1,448 @@
 {
   "version": "2.4.0",
-  "updatedAt": "2026-11-14T21:53:07Z",
+  "updatedAt": "2026-11-15T19:54:47.827767+00:00",
   "brand": "ai petros",
   "platform": "Aipetros-stream",
   "channelName": "Petros Cinema Official Cloud Feed",
   "syncSource": "https://raw.githubusercontent.com/aipetrosapp-max/Petros-cinama/main/data/streams.json",
   "streams": [
+    {
+      "id": "tg-aipetros-2008",
+      "title": "فیلم  «   فیلم ترس از اشک‌های واقعی   »",
+      "titleFa": "فیلم  «   فیلم ترس از اشک‌های واقعی   »",
+      "year": 2026,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم  «   فیلم ترس از اشک‌های واقعی   » با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download فیلم  «   فیلم ترس از اشک‌های واقعی   » from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2008",
+      "sourceType": "telegram",
+      "telegramPostId": 2008,
+      "telegramUrl": "https://t.me/Aipetros/2008",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/2008",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-2007",
+      "title": "فیلم  «   فیلم ترس از اشک‌های واقعی   »",
+      "titleFa": "فیلم  «   فیلم ترس از اشک‌های واقعی   »",
+      "year": 2026,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم  «   فیلم ترس از اشک‌های واقعی   » با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download فیلم  «   فیلم ترس از اشک‌های واقعی   » from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2007",
+      "sourceType": "telegram",
+      "telegramPostId": 2007,
+      "telegramUrl": "https://t.me/Aipetros/2007",
+      "qualities": [
+        {
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2007",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-2006",
+      "title": "فیلم  «   فیلم ترس از اشک‌های واقعی   »",
+      "titleFa": "فیلم  «   فیلم ترس از اشک‌های واقعی   »",
+      "year": 2026,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم  «   فیلم ترس از اشک‌های واقعی   » با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download فیلم  «   فیلم ترس از اشک‌های واقعی   » from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2006",
+      "sourceType": "telegram",
+      "telegramPostId": 2006,
+      "telegramUrl": "https://t.me/Aipetros/2006",
+      "qualities": [
+        {
+          "quality": "480p",
+          "url": "https://t.me/Aipetros/2006",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-2005",
+      "title": "فیلم  «   فیلم ترس از اشک‌های واقعی   »",
+      "titleFa": "فیلم  «   فیلم ترس از اشک‌های واقعی   »",
+      "year": 2026,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم  «   فیلم ترس از اشک‌های واقعی   » با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download فیلم  «   فیلم ترس از اشک‌های واقعی   » from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2005",
+      "sourceType": "telegram",
+      "telegramPostId": 2005,
+      "telegramUrl": "https://t.me/Aipetros/2005",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/2005",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-2004",
+      "title": "Jumanji: The Next Level",
+      "titleFa": "فیلم : جومانجی: مرحله بعدی",
+      "year": 2019,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم : جومانجی: مرحله بعدی با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download Jumanji: The Next Level from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2004",
+      "sourceType": "telegram",
+      "telegramPostId": 2004,
+      "telegramUrl": "https://t.me/Aipetros/2004",
+      "qualities": [
+        {
+          "quality": "480p",
+          "url": "https://t.me/Aipetros/2004",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-2003",
+      "title": "Jumanji: The Next Level",
+      "titleFa": "فیلم : جومانجی: مرحله بعدی",
+      "year": 2019,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم : جومانجی: مرحله بعدی با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download Jumanji: The Next Level from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2003",
+      "sourceType": "telegram",
+      "telegramPostId": 2003,
+      "telegramUrl": "https://t.me/Aipetros/2003",
+      "qualities": [
+        {
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2003",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-2002",
+      "title": "Jumanji: The Next Level",
+      "titleFa": "فیلم : جومانجی: مرحله بعدی",
+      "year": 2019,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم : جومانجی: مرحله بعدی با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download Jumanji: The Next Level from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2002",
+      "sourceType": "telegram",
+      "telegramPostId": 2002,
+      "telegramUrl": "https://t.me/Aipetros/2002",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/2002",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-2001",
+      "title": "Jumanji: The Next Level",
+      "titleFa": "فیلم : جومانجی: مرحله بعدی",
+      "year": 2019,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم : جومانجی: مرحله بعدی با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download Jumanji: The Next Level from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2001",
+      "sourceType": "telegram",
+      "telegramPostId": 2001,
+      "telegramUrl": "https://t.me/Aipetros/2001",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/2001",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-2000",
+      "title": "2012",
+      "titleFa": "اسم فیلم: \" سحر سرخ \" 2012",
+      "year": 2009,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی اسم فیلم: \" سحر سرخ \" 2012 با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download 2012 from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/2000",
+      "sourceType": "telegram",
+      "telegramPostId": 2000,
+      "telegramUrl": "https://t.me/Aipetros/2000",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/2000",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1999",
+      "title": "2012",
+      "titleFa": "اسم فیلم: \" سحر سرخ \" 2012",
+      "year": 2009,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی اسم فیلم: \" سحر سرخ \" 2012 با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download 2012 from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1999",
+      "sourceType": "telegram",
+      "telegramPostId": 1999,
+      "telegramUrl": "https://t.me/Aipetros/1999",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/1999",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1998",
+      "title": "2012",
+      "titleFa": "اسم فیلم: \" سحر سرخ \" 2012",
+      "year": 2009,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی اسم فیلم: \" سحر سرخ \" 2012 با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download 2012 from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1998",
+      "sourceType": "telegram",
+      "telegramPostId": 1998,
+      "telegramUrl": "https://t.me/Aipetros/1998",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/1998",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1997",
+      "title": "2012",
+      "titleFa": "اسم فیلم: \" سحر سرخ \" 2012",
+      "year": 2009,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی اسم فیلم: \" سحر سرخ \" 2012 با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download 2012 from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1997",
+      "sourceType": "telegram",
+      "telegramPostId": 1997,
+      "telegramUrl": "https://t.me/Aipetros/1997",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/1997",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1996",
+      "title": "School 2017",
+      "titleFa": "فیلم « بیگانه 2017 »",
+      "year": 2017,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم « بیگانه 2017 » با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download School 2017 from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1996",
+      "sourceType": "telegram",
+      "telegramPostId": 1996,
+      "telegramUrl": "https://t.me/Aipetros/1996",
+      "qualities": [
+        {
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/1996",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1995",
+      "title": "فیلم « بیگانه 2017 »",
+      "titleFa": "فیلم « بیگانه 2017 »",
+      "year": 2017,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم « بیگانه 2017 » با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download فیلم « بیگانه 2017 » from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1995",
+      "sourceType": "telegram",
+      "telegramPostId": 1995,
+      "telegramUrl": "https://t.me/Aipetros/1995",
+      "qualities": [
+        {
+          "quality": "480p",
+          "url": "https://t.me/Aipetros/1995",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1994",
+      "title": "School 2017",
+      "titleFa": "امتیاز : 7.0",
+      "year": 2017,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی امتیاز : 7.0 با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download School 2017 from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1994",
+      "sourceType": "telegram",
+      "telegramPostId": 1994,
+      "telegramUrl": "https://t.me/Aipetros/1994",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/1994",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1993",
+      "title": "Police Story: Lockdown",
+      "titleFa": "فیلم « قاتل فراری 2013 »",
+      "year": 2013,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی فیلم « قاتل فراری 2013 » با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download Police Story: Lockdown from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1993",
+      "sourceType": "telegram",
+      "telegramPostId": 1993,
+      "telegramUrl": "https://t.me/Aipetros/1993",
+      "qualities": [
+        {
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/1993",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1992",
+      "title": "Police Story: Lockdown",
+      "titleFa": "امتیاز : 6.2",
+      "year": 2013,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی امتیاز : 6.2 با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download Police Story: Lockdown from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1992",
+      "sourceType": "telegram",
+      "telegramPostId": 1992,
+      "telegramUrl": "https://t.me/Aipetros/1992",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/1992",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1991",
+      "title": "هارتلند (2026)",
+      "titleFa": "هارتلند (2026)",
+      "year": 2026,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی هارتلند (2026) با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download هارتلند (2026) from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1991",
+      "sourceType": "telegram",
+      "telegramPostId": 1991,
+      "telegramUrl": "https://t.me/Aipetros/1991",
+      "qualities": [
+        {
+          "quality": "1080p",
+          "url": "https://t.me/Aipetros/1991",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
+    {
+      "id": "tg-aipetros-1990",
+      "title": "هارتلند (2026)",
+      "titleFa": "هارتلند (2026)",
+      "year": 2026,
+      "category": "movie",
+      "rating": "7.5",
+      "synopsisFa": "پخش و دانلود اختصاصی هارتلند (2026) با کیفیت‌های مختلف در کانال پتروس سینما.",
+      "synopsis": "Stream and download هارتلند (2026) from Aipetros Cinema.",
+      "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
+      "defaultStreamUrl": "https://t.me/Aipetros/1990",
+      "sourceType": "telegram",
+      "telegramPostId": 1990,
+      "telegramUrl": "https://t.me/Aipetros/1990",
+      "qualities": [
+        {
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/1990",
+          "format": "mp4",
+          "bitrate": 8500
+        }
+      ]
+    },
     {
       "id": "tg-aipetros-990",
       "title": "Fuze",
@@ -169419,7 +169856,7 @@
       "isLive": false
     }
   ],
-  "totalStreams": 540,
-  "lastSync": "2026-11-15T04:55:00.000Z",
+  "totalStreams": 559,
+  "lastSync": "2026-11-15T19:54:47.827767+00:00",
   "telegramChannel": "Aipetros"
 }
