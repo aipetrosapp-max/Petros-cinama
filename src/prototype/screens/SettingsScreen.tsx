@@ -7,7 +7,11 @@ import {
   Tv,
   Check,
   Film,
-  HardDrive
+  HardDrive,
+  Download,
+  Smartphone,
+  Monitor,
+  ExternalLink
 } from 'lucide-react';
 import type {
   LanguageCode,
@@ -222,7 +226,112 @@ export function SettingsScreen({
         </div>
       </section>
 
-      {/* 4. Neuromorphic Calibration Capsule (Reset AI Taste Memory) */}
+      {/* 4. Official Product Downloads & Client Updates */}
+      <section className="p-6 rounded-3xl bg-[#0B0C10]/95 border border-[rgba(212,175,55,0.28)] shadow-xl space-y-4">
+        <div className="flex items-center gap-2.5 border-b border-[rgba(212,175,55,0.15)] pb-3">
+          <Download className="w-5 h-5 text-[#D4AF37]" />
+          <div>
+            <h3 className="font-cinzel text-sm sm:text-base font-bold text-[#D4AF37]">
+              {t('OFFICIAL PRODUCT CLIENTS & DOWNLOADS', 'دانلود کلاینت‌های رسمی محصول')}
+            </h3>
+            <p className="text-[10px] text-[#A3AEC2]">
+              {t(
+                'High-speed direct links for Android, Smart TV, Windows Desktop & GitHub Releases',
+                'دریافت مستقیم و به‌روزرسانی اپلیکیشن برای اندروید، تلویزیون هوشمند و ویندوز'
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Android Mobile */}
+          <a
+            href="https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/petros-cinema.apk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3.5 rounded-2xl bg-black/60 border border-amber-500/25 hover:border-amber-400 hover:bg-amber-500/10 transition-all flex items-center justify-between group cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-300">
+                <Smartphone className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 text-start">
+                <h4 className="text-xs font-bold text-white group-hover:text-amber-200 truncate">
+                  {t('Android Mobile', 'اندروید موبایل')}
+                </h4>
+                <p className="text-[10px] text-zinc-400 font-mono">APK • v2.4.1</p>
+              </div>
+            </div>
+            <span className="text-xs text-amber-400">↓</span>
+          </a>
+
+          {/* Android TV */}
+          <a
+            href="https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/petros-tv-release.apk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3.5 rounded-2xl bg-black/60 border border-amber-500/25 hover:border-amber-400 hover:bg-amber-500/10 transition-all flex items-center justify-between group cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-300">
+                <Tv className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 text-start">
+                <h4 className="text-xs font-bold text-white group-hover:text-amber-200 truncate">
+                  {t('Android TV', 'تلویزیون هوشمند')}
+                </h4>
+                <p className="text-[10px] text-zinc-400 font-mono">Dolby 4K • v2.4.1</p>
+              </div>
+            </div>
+            <span className="text-xs text-amber-400">↓</span>
+          </a>
+
+          {/* Windows 11 */}
+          <a
+            href="https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/PetrosCinema-Setup.exe"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3.5 rounded-2xl bg-black/60 border border-amber-500/25 hover:border-amber-400 hover:bg-amber-500/10 transition-all flex items-center justify-between group cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-amber-300">
+                <Monitor className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 text-start">
+                <h4 className="text-xs font-bold text-white group-hover:text-amber-200 truncate">
+                  {t('Windows 11', 'ویندوز دسکتاپ')}
+                </h4>
+                <p className="text-[10px] text-zinc-400 font-mono">EXE • v2.4.1</p>
+              </div>
+            </div>
+            <span className="text-xs text-amber-400">↓</span>
+          </a>
+        </div>
+
+        {/* External Mirrors Bar */}
+        <div className="pt-2 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <a
+            href="https://github.com/aipetrosapp-max/Petros-cinama/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-amber-300/90 hover:text-white transition font-medium"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>{t('View All Releases on GitHub', 'مشاهده تمام نسخه‌ها در گیت‌هاب')}</span>
+          </a>
+          <a
+            href="https://t.me/Aipetros"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-amber-200 transition"
+          >
+            <span>✈️</span>
+            <span>{t('Telegram Channel: @Aipetros', 'کانال تلگرام: Aipetros@')}</span>
+          </a>
+        </div>
+      </section>
+
+      {/* 5. Neuromorphic Calibration Capsule (Reset AI Taste Memory) */}
       <section className="p-5 sm:p-6 rounded-3xl bg-[#0B0C10]/90 border border-amber-500/25 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
