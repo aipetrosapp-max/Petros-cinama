@@ -1,0 +1,91 @@
+name: Autonomous 24/7 Growth & Viral Content Factory
+
+on:
+  schedule:
+    # Run every 4 hours automatically in the cloud (00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC)
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+    inputs:
+      force_render_shorts:
+        description: 'Force re-render viral shorts video package'
+        required: false
+        default: 'true'
+        type: boolean
+      ping_search_engines:
+        description: 'Ping IndexNow & Bing/Google sitemaps'
+        required: false
+        default: 'true'
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  growth-autopilot:
+    name: Cloud Autopilot Growth & Content Engine
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install System Dependencies (FFmpeg for Cloud Video Rendering)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-vazirmatn fonts-dejavu-core
+
+      - name: Install Python Requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r growth-engine/requirements.txt
+
+      - name: Step 1 - Generate Static SEO Landing Pages & Meta
+        run: |
+          python growth-engine/seo/generate_seo_pages.py
+
+      - name: Step 2 - Update Sitemap & Ping Search Engines (IndexNow / Yandex / Bing)
+        if: ${{ github.event_name == 'schedule' || inputs.ping_search_engines != false }}
+        run: |
+          python growth-engine/seo/index_now.py
+
+      - name: Step 3 - Cloud Autonomous Viral Shorts & Voiceover Engine
+        run: |
+          python growth-engine/content-factory/build_viral_short.py
+
+      - name: Step 4 - Telegram & Social Growth Bot Dispatcher
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python growth-engine/distribution/multi_poster.py || echo "Webhooks optional or completed"
+
+      - name: Step 5 - Upload Generated Viral Video & Social Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: viral-content-package
+          path: |
+            growth-engine/content-factory/output/
+            growth-engine/social-bootstrap/
+          retention-days: 7
+
+      - name: Step 6 - Commit & Push Updated SEO & Sitemap Assets Back to Repo
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "AI Petros Growth Autopilot"
+          git add public/seo/ public/sitemap.xml public/robots.txt public/aipetroskey2026growth.txt
+          if git diff --staged --quiet; then
+            echo "No SEO changes to commit."
+          else
+            git commit -m "chore(growth-engine): automated cloud sitemap, pSEO pages, and index refresh [skip ci]"
+            git push origin main
+          fi

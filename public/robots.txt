@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /seo/
+Sitemap: https://aipetrosapp-max.github.io/Petros-cinama/sitemap.xml
+
+# IndexNow Key Verification
+User-agent: IndexNow
+Allow: /aipetroskey2026growth.txt

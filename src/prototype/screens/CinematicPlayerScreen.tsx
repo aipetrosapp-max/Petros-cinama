@@ -25,7 +25,8 @@ import {
   Star,
   Volume2,
   VolumeX,
-  Wand2
+  Wand2,
+  Users
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type {
@@ -50,6 +51,8 @@ import {
 import { useT } from '../i18n';
 import { Button, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
 import { CryptoAdBanner } from '../../components/CryptoAdBanner';
+import { WatchPartyShareModal } from '../components/WatchPartyShareModal';
+import { SpatialPlaybackHud } from '../components/SpatialPlaybackHud';
 
 interface CinematicPlayerScreenProps {
   item: PrototypeMediaItem | null;
@@ -134,6 +137,7 @@ export function CinematicPlayerScreen({
   const [syncOffsetMs, setSyncOffsetMs] = useState<number>(0);
   const [subtitlePanelOpen, setSubtitlePanelOpen] = useState<boolean>(false);
   const [vttTrackUrl, setVttTrackUrl] = useState<string | null>(null);
+  const [isWatchPartyOpen, setIsWatchPartyOpen] = useState(false);
 
   const cardEntrances = useMemo(() => pickRandomCardinalEntrances(4), [item?.id]);
 
@@ -702,6 +706,16 @@ export function CinematicPlayerScreen({
             </span>
           </Button>
 
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsWatchPartyOpen(true)}
+            className="border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.08)] text-[#D4AF37] hover:bg-[rgba(212,175,55,0.18)]"
+          >
+            <Users className="h-3.5 w-3.5 text-[#D4AF37]" />
+            <span>{t('Watch-Party', 'تماشای همزمان')}</span>
+          </Button>
+
           <Button variant="secondary" size="sm" onClick={onOpenLanguagePicker}>
             <Globe2 className="h-3.5 w-3.5 text-[#D4AF37]" />
             <span>
@@ -764,16 +778,26 @@ export function CinematicPlayerScreen({
         </div>
       </div>
 
-      {/* Main Cinema Stage with Ambient Theater Glow */}
+      {/* Main Cinema Stage with Ambient Theater Glow & IMAX Cove Lighting */}
       <div
         ref={stageRef}
         data-fullscreen={isFullscreen ? 'true' : 'false'}
         className={
           isFullscreen
             ? 'fixed inset-0 z-[120] w-[100dvw] h-[100dvh] bg-black flex flex-col justify-center overflow-hidden'
-            : 'relative overflow-hidden rounded-[26px] sm:rounded-[32px] border border-[rgba(212,175,55,0.3)] bg-[#050508] shadow-[0_0_80px_rgba(212,175,55,0.18),0_28px_80px_-20px_rgba(0,0,0,0.95)]'
+            : 'relative overflow-hidden rounded-[26px] sm:rounded-[32px] border border-[rgba(212,175,55,0.35)] bg-[#050508] shadow-[0_0_90px_rgba(212,175,55,0.22),0_28px_80px_-20px_rgba(0,0,0,0.95)]'
         }
       >
+        {/* Ambient VIP Cinema Amphitheater Neon Cove Lighting Strips (from reference design) */}
+        {!isFullscreen && (
+          <>
+            <div className="absolute -top-12 -left-12 w-56 h-56 bg-[radial-gradient(circle,rgba(245,185,66,0.18)_0%,transparent_70%)] pointer-events-none z-10" />
+            <div className="absolute -top-12 -right-12 w-56 h-56 bg-[radial-gradient(circle,rgba(212,175,55,0.18)_0%,transparent_70%)] pointer-events-none z-10" />
+            <div className="absolute top-0 inset-x-8 h-[2px] bg-gradient-to-r from-transparent via-[rgba(245,185,66,0.65)] to-transparent pointer-events-none z-15 shadow-[0_0_14px_#F5B942]" />
+            <div className="absolute bottom-0 inset-x-12 h-[2px] bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.4)] to-transparent pointer-events-none z-15 shadow-[0_0_10px_#D4AF37]" />
+          </>
+        )}
+
         <div
           className={
             isFullscreen
@@ -980,161 +1004,34 @@ export function CinematicPlayerScreen({
             </div>
           )}
 
-          {/* Spatial Glass Playback HUD (VisionOS Amphitheater Control Bar) */}
-          <div className="spatial-playback-bar absolute bottom-3 sm:bottom-4 inset-x-3 sm:inset-x-8 z-30 rounded-[28px] border border-[rgba(212,175,55,0.32)] bg-[#0B0C10]/92 backdrop-blur-2xl px-4 sm:px-6 py-3 shadow-[0_16px_50px_rgba(0,0,0,0.95),0_0_24px_rgba(212,175,55,0.16)] space-y-2.5">
-            {/* Scrubber */}
-            <div className="space-y-1" dir="ltr">
-              <div className="relative flex items-center">
-                <input
-                  type="range"
-                  min={0}
-                  max={duration}
-                  value={currentTime}
-                  onChange={(e) => {
-                    const next = Number(e.target.value);
-                    handleSeek(next);
-                  }}
-                  aria-label="Seek timeline"
-                  className="aether-slider w-full"
-                />
-              </div>
-              <div className="flex items-center justify-between text-[11px] font-mono-tabular text-[#D4AF37]">
-                <span>{formatDuration(currentTime)}</span>
-                <span className="text-[#A3AEC2]">{formatDuration(duration)}</span>
-              </div>
-            </div>
-
-            {/* Action Buttons Row */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <button
-                  type="button"
-                  onClick={togglePlay}
-                  aria-label={isPlaying ? 'Pause' : 'Play'}
-                  className="min-h-[44px] min-w-[44px] sm:min-h-[48px] sm:min-w-[48px] inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] text-[#050508] shadow-[0_0_20px_rgba(212,175,55,0.6)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
-                >
-                  {isPlaying ? <Pause className="h-5 w-5 fill-current stroke-[2]" /> : <Play className="h-5 w-5 fill-current stroke-[2] translate-x-0.5" />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSeek(Math.max(0, currentTime - 10))}
-                  aria-label="Rewind 10s"
-                  className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#CBD5E1] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all cursor-pointer"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSeek(Math.min(duration, currentTime + 10))}
-                  aria-label="Forward 10s"
-                  className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#CBD5E1] hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all cursor-pointer"
-                >
-                  <RotateCw className="h-4 w-4" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setMuted((m) => !m)}
-                  aria-label={muted ? 'Unmute' : 'Mute'}
-                  className="min-h-[38px] min-w-[38px] inline-flex items-center justify-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#CBD5E1] hover:text-[#D4AF37] transition-all cursor-pointer"
-                >
-                  {muted || volume === 0 ? <VolumeX className="h-4 w-4 text-[#94A3B8]" /> : <Volume2 className="h-4 w-4 text-[#D4AF37]" />}
-                </button>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  value={muted ? 0 : volume}
-                  onChange={(e) => {
-                    setVolume(Number(e.target.value));
-                    setMuted(false);
-                  }}
-                  aria-label="Volume"
-                  className="hidden sm:block w-20 accent-[#D4AF37]"
-                />
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                {/* Autonomous AI Subtitle Sync Trigger inside player bar */}
-                <button
-                  type="button"
-                  onClick={() => setSubtitlePanelOpen((o) => !o)}
-                  aria-label={t('AI Subtitle Sync Studio', 'تنظیمات همسان‌سازی زیرنویس')}
-                  className={`min-h-[36px] inline-flex items-center gap-1.5 rounded-full border px-3 text-xs cursor-pointer transition-all ${
-                    aiSyncedSub || subtitlePanelOpen
-                      ? 'border-emerald-500/60 bg-emerald-500/15 text-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.3)]'
-                      : 'border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#D4AF37] hover:border-[#D4AF37]'
-                  }`}
-                >
-                  <Wand2 className="h-3.5 w-3.5 text-[#D4AF37]" />
-                  <span className="hidden sm:inline">{t('AI Sub Sync', 'همسان‌سازی AI')}</span>
-                </button>
-
-                {/* Subtitle Switcher */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSubMode((s) =>
-                      s === 'auto' ? 'fa' : s === 'fa' ? 'en' : s === 'en' ? 'off' : 'auto'
-                    )
-                  }
-                  className="min-h-[36px] inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 px-3 text-xs text-[#E2E8F0] hover:text-[#D4AF37] hover:border-[#D4AF37] cursor-pointer transition-all"
-                >
-                  <Captions className="h-3.5 w-3.5 text-[#D4AF37]" />
-                  <span>
-                    {subMode === 'off'
-                      ? t('CC Off', 'زیرنویس خاموش')
-                      : subMode === 'auto'
-                      ? `CC (${lang.toUpperCase()})`
-                      : `CC ${subMode.toUpperCase()}`}
-                  </span>
-                </button>
-
-                {/* Speed Switcher */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    setSpeed((sp) => (sp === 1 ? 1.25 : sp === 1.25 ? 1.5 : sp === 1.5 ? 2 : 1))
-                  }
-                  className="min-h-[36px] rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 px-3 text-xs font-mono text-[#D4AF37] hover:border-[#D4AF37] cursor-pointer transition-all"
-                >
-                  {speed}x
-                </button>
-
-                {/* Backend Quality Selector */}
-                <select
-                  value={activeQuality?.id || selectedQualityId}
-                  onChange={(e) => setSelectedQualityId(e.target.value)}
-                  aria-label="Backend Stream Quality"
-                  className="min-h-[36px] rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508] px-3 text-xs font-mono font-bold text-[#D4AF37] focus:border-[#D4AF37] cursor-pointer"
-                >
-                  {backendQualities.length > 0 ? (
-                    backendQualities.map((q) => (
-                      <option key={q.id} value={q.id} className="bg-[#0B0C10] text-[#E2E8F0]">
-                        {q.resolution} · {t(q.label)}
-                      </option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="auto" className="bg-[#0B0C10] text-[#E2E8F0]">Auto (ABR)</option>
-                      <option value="4k" className="bg-[#0B0C10] text-[#E2E8F0]">4K HDR</option>
-                      <option value="1080p" className="bg-[#0B0C10] text-[#E2E8F0]">1080p</option>
-                      <option value="720p" className="bg-[#0B0C10] text-[#E2E8F0]">720p Lite</option>
-                    </>
-                  )}
-                </select>
-
-                <button
-                  type="button"
-                  onClick={() => void toggleFullscreen()}
-                  aria-label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-                  className="min-h-[36px] min-w-[36px] inline-flex items-center justify-center rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 text-[#D4AF37] hover:border-[#D4AF37] hover:scale-105 transition-all cursor-pointer"
-                >
-                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
+          {/* Spatial Glass Playback HUD (Curved VisionOS Amphitheater Control Dock) */}
+          <div className="absolute bottom-3 sm:bottom-4 inset-x-3 sm:inset-x-8 z-30">
+            <SpatialPlaybackHud
+              duration={duration}
+              currentTime={currentTime}
+              isPlaying={isPlaying}
+              volume={volume}
+              muted={muted}
+              speed={speed}
+              subMode={subMode}
+              lang={lang}
+              isFullscreen={isFullscreen}
+              onTogglePlay={togglePlay}
+              onSeek={handleSeek}
+              onVolumeChange={(v) => {
+                setVolume(v);
+                setMuted(false);
+              }}
+              onToggleMute={() => setMuted((m) => !m)}
+              onToggleFullscreen={() => void toggleFullscreen()}
+              onToggleSubtitleMode={() =>
+                setSubMode((s) => (s === 'auto' ? 'fa' : s === 'fa' ? 'en' : s === 'en' ? 'off' : 'auto'))
+              }
+              onToggleSpeed={() =>
+                setSpeed((sp) => (sp === 1 ? 1.25 : sp === 1.25 ? 1.5 : sp === 1.5 ? 2 : 1))
+              }
+              onOpenAiSubtitlePanel={() => setSubtitlePanelOpen((o) => !o)}
+            />
           </div>
         </div>
       </div>
@@ -1381,6 +1278,13 @@ export function CinematicPlayerScreen({
       <div className="mt-5">
         <CryptoAdBanner unitType="banner-728x90" lang={lang === 'fa' ? 'fa' : 'en'} />
       </div>
+
+      {/* 1-Click Viral Watch-Party Share Modal */}
+      <WatchPartyShareModal
+        isOpen={isWatchPartyOpen}
+        item={item}
+        onClose={() => setIsWatchPartyOpen(false)}
+      />
     </div>
   );
 }

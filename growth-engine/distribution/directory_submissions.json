@@ -1,0 +1,38 @@
+{
+  "product": {
+    "name": "AI Petros (Petros Cinema)",
+    "tagline": "Next-Gen VIP Cinema Streaming — 100% Free Forever with Zero Subscriptions",
+    "taglineFa": "سینمای نسل جدید — تماشای تمام فیلم‌ها و سریال‌های جهان ۱۰۰٪ رایگان و بدون سانسور",
+    "url": "https://aipetrosapp-max.github.io/Petros-cinama/",
+    "repo": "https://github.com/aipetrosapp-max/Petros-cinama",
+    "pricing": "Free / Open-Access",
+    "platforms": ["Web", "PWA", "iOS", "Android", "Android TV", "macOS", "Windows"]
+  },
+  "directories": [
+    {
+      "platform": "AlternativeTo",
+      "url": "https://alternativeto.net/software/submit/",
+      "category": "Video & Movies",
+      "license": "Free",
+      "tags": ["streaming", "movies", "free", "cinema", "pwa", "netflix-alternative", "stremio-alternative", "plex-alternative"],
+      "replaces": ["Netflix", "Filimo", "Namava", "Stremio", "Plex", "Popcorn Time"]
+    },
+    {
+      "platform": "Product Hunt",
+      "url": "https://www.producthunt.com/posts/new",
+      "headline": "Watch 4K HDR movies & series in your browser — zero ads, zero fees",
+      "topics": ["Entertainment", "Streaming", "Web App", "Free", "Open Source"]
+    },
+    {
+      "platform": "FindPWA / Appscope",
+      "url": "https://findpwa.com/submit",
+      "category": "Entertainment",
+      "features": ["Offline Mode", "Remote TV Control", "Watch-Party Sync", "4K Video"]
+    },
+    {
+      "platform": "Alternative.me",
+      "url": "https://alternative.me/submit/",
+      "category": "Media Players & Streaming"
+    }
+  ]
+}

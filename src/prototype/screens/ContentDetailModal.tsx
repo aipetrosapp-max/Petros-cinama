@@ -39,6 +39,7 @@ import {
 } from '../filmDetailsClient';
 import { useT } from '../i18n';
 import { AdaptiveModal, Button, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
+import { FilmScreeningDossier } from '../components/FilmScreeningDossier';
 
 export type ContentFeedbackIssueReason = 'broken_link' | 'quality_issue' | 'not_interested' | 'other';
 
@@ -230,26 +231,60 @@ export function ContentDetailModal({
           <motion.div
             key={`${item.id}-${openSeq}-poster`}
             {...getMotionProps(1)}
-            className="md:col-span-5 overflow-hidden rounded-2xl border-2 border-[rgba(212,175,55,0.4)] bg-[#050508] aspect-[16/10] md:aspect-[4/3] relative shadow-[0_0_24px_rgba(212,175,55,0.25)]"
+            className="md:col-span-5 relative group"
           >
-            <img src={item.posterUrl} alt={title} className="h-full w-full object-cover" />
-            {imdb && (
-              <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F5B942] px-3 py-1 text-xs font-bold text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.6)]">
-                <span className="font-mono">IMDb</span>
-                <Star className="h-3.5 w-3.5 fill-current" />
-                <span dir="ltr" className="font-mono-tabular">
-                  {imdb.imdbRating}
-                </span>
+            {/* Top Glowing Marquee Title Plaque */}
+            <div className="relative -mt-2 mb-2 mx-auto max-w-[95%] px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#8a7224] via-[#F5B942] to-[#8a7224] border-2 border-[#FFF2A7] shadow-[0_6px_20px_rgba(212,175,55,0.7)] text-center z-20">
+              <span className="font-cinzel text-xs font-black tracking-widest text-[#050508] uppercase truncate block">
+                {cleanCinemaTitle(title)}
+              </span>
+            </div>
+
+            {/* Marquee Frame with Glowing Incandescent Bulbs */}
+            <div className="relative p-2.5 rounded-2xl bg-gradient-to-b from-[#2a2416] via-[#151720] to-[#0c0d12] border-2 border-[rgba(212,175,55,0.65)] shadow-[0_0_35px_rgba(212,175,55,0.3)]">
+              {/* Outer Bulbs Top */}
+              <div className="absolute top-1 inset-x-4 flex justify-between pointer-events-none">
+                {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                  <span
+                    key={`top-${i}`}
+                    className="w-1.5 h-1.5 rounded-full bg-[#FFF2A7] shadow-[0_0_6px_#F5B942] animate-pulse"
+                    style={{ animationDelay: `${(i * 150) % 1200}ms` }}
+                  />
+                ))}
               </div>
-            )}
-            <button
-              type="button"
-              onClick={() => onWatchTrailer(item, activeQuality)}
-              className="absolute bottom-3 end-3 inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,55,0.4)] bg-[#050508]/85 px-3.5 py-1.5 text-xs font-semibold text-[#D4AF37] backdrop-blur-md hover:bg-[#D4AF37]/20 transition-all cursor-pointer shadow-md"
-            >
-              <Clapperboard className="h-3.5 w-3.5 text-[#D4AF37]" />
-              <span>{t('Watch Trailer', 'تماشای تریلر')}</span>
-            </button>
+
+              {/* Outer Bulbs Bottom */}
+              <div className="absolute bottom-1 inset-x-4 flex justify-between pointer-events-none">
+                {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                  <span
+                    key={`bot-${i}`}
+                    className="w-1.5 h-1.5 rounded-full bg-[#FFF2A7] shadow-[0_0_6px_#F5B942] animate-pulse"
+                    style={{ animationDelay: `${((i + 3) * 150) % 1200}ms` }}
+                  />
+                ))}
+              </div>
+
+              <div className="overflow-hidden rounded-xl border border-[rgba(212,175,55,0.4)] bg-[#050508] aspect-[16/10] md:aspect-[4/3] relative shadow-inner">
+                <img src={item.posterUrl} alt={title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                {imdb && (
+                  <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F5B942] px-3 py-1 text-xs font-bold text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.6)]">
+                    <span className="font-mono">IMDb</span>
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    <span dir="ltr" className="font-mono-tabular">
+                      {imdb.imdbRating}
+                    </span>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => onWatchTrailer(item, activeQuality)}
+                  className="absolute bottom-3 end-3 inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,55,0.4)] bg-[#050508]/85 px-3.5 py-1.5 text-xs font-semibold text-[#D4AF37] backdrop-blur-md hover:bg-[#D4AF37]/20 transition-all cursor-pointer shadow-md"
+                >
+                  <Clapperboard className="h-3.5 w-3.5 text-[#D4AF37]" />
+                  <span>{t('Watch Trailer', 'تماشای تریلر')}</span>
+                </button>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div
@@ -374,6 +409,20 @@ export function ContentDetailModal({
             )}
           </motion.div>
         </div>
+
+        {/* Film Screening Room Hub & Dossier (From VIP Cinema Design) */}
+        <motion.div
+          key={`${item.id}-${openSeq}-screening-dossier`}
+          {...getMotionProps(3)}
+          className="w-full"
+        >
+          <FilmScreeningDossier
+            item={item}
+            onPlayScreening={(slot) => {
+              onPlay(item, activeQuality);
+            }}
+          />
+        </motion.div>
 
         {/* IMDb Live Database Record + Backend Stream Qualities List (Animated from Random Sides) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">

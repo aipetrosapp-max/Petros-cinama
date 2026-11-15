@@ -14,3 +14,6 @@ temp_telegram_downloads/
 telegram_session.txt
 *.session
 *.session*
+telethon_auth.json
+transfer_state.json
+

@@ -24,6 +24,8 @@ import { computeLivingHomepage } from '../tasteEngine';
 import { useT } from '../i18n';
 import { Button, MediaCard, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
 import { CryptoAdBanner } from '../../components/CryptoAdBanner';
+import { SavingsCalculatorCard } from '../components/SavingsCalculatorCard';
+import { GoldenMarqueePoster } from '../components/GoldenMarqueePoster';
 
 function cleanCinemaSynopsis(raw: string): string {
   if (!raw) return '';
@@ -324,6 +326,17 @@ export function LivingHomeScreen({
         </section>
       )}
 
+      {/* Featured Marquee Cinema Poster Showcase (From Reference VIP Design) */}
+      {hero && (
+        <section className="py-2 flex justify-center">
+          <GoldenMarqueePoster
+            item={hero.item}
+            titleOverride={cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
+            onClick={() => onOpenDetail(hero.item)}
+          />
+        </section>
+      )}
+
       {layout.continueWatching.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3">
@@ -421,6 +434,9 @@ export function LivingHomeScreen({
           </div>
         </section>
       )}
+
+      {/* Free Forever vs Paid Competitors Subscription Savings Calculator */}
+      <SavingsCalculatorCard />
 
       {/* Non-intrusive Crypto Sponsor Banner (No KYC) */}
       <div className="py-2">

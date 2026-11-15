@@ -70,6 +70,7 @@ import { autoUpdateService } from '../services/autoUpdateService';
 import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
 import { tvRemote } from '../services/tvRemoteNavigation';
 import { CryptoAdModal } from '../components/CryptoAdModal';
+import { InstantInstallBanner } from './components/InstantInstallBanner';
 import { InteractiveSpotlightTour } from '../components/InteractiveSpotlightTour';
 import { OwnerSecretPortal } from '../components/OwnerSecretPortal';
 
@@ -1341,6 +1342,8 @@ function UniversePrototypeShell({
             }}
           />
         )}
+        {/* PWA 2-Second Instant Install Prompt */}
+        <InstantInstallBanner />
       </div>
     </MotionConfig>
   );
