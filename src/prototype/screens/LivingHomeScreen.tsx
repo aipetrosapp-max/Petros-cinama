@@ -227,164 +227,100 @@ export function LivingHomeScreen({
 
   return (
     <div className="space-y-8 sm:space-y-12 pb-12">
-      {/* 1. FEATURED IMAX STAGE (Top Hero with 3D Cinema Bezel & Ambient Reflection) */}
+      {/* 1. FULL-BLEED IMMERSIVE HERO STAGE (Reference Image 1) */}
       {hero && (
         <section
           id="tour-step-cinema-hero"
-          className="relative group rounded-[28px] sm:rounded-[36px] border-2 border-[rgba(212,175,55,0.4)] bg-[#0B0C10] shadow-[0_25px_80px_rgba(0,0,0,0.98),0_0_40px_rgba(212,175,55,0.2)] overflow-hidden"
+          className="relative -mx-3 sm:-mx-6 lg:-mx-8 -mt-5 sm:-mt-6 h-[66vh] sm:h-[72vh] min-h-[520px] max-h-[720px] overflow-hidden group select-none"
         >
-          {/* Ambient Lighting Rays inside Bezel */}
-          <div className="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-[radial-gradient(circle,rgba(245,185,66,0.2)_0%,transparent_70%)] pointer-events-none z-10" />
-          <div className="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] bg-[radial-gradient(circle,rgba(212,175,55,0.15)_0%,transparent_70%)] pointer-events-none z-10" />
+          {/* Edge-to-Edge Movie Backdrop / Cinematic Space Visual */}
+          <div className="absolute inset-0 bg-black">
+            <img
+              src={hero.item.posterUrl}
+              alt={cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
+              className="h-full w-full object-cover object-center scale-105 group-hover:scale-100 transition-transform duration-1000 opacity-90"
+            />
+            {/* Top Atmospheric Shadow for Status / Header */}
+            <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#050508]/85 via-[#050508]/30 to-transparent pointer-events-none z-10" />
 
-          {/* Bezel Golden Top Accent */}
-          <div className="absolute top-0 inset-x-12 h-[2px] bg-gradient-to-r from-transparent via-[#F5B942] to-transparent z-20 shadow-[0_0_12px_#F5B942]" />
+            {/* Seamless Deep Obsidian Multi-stop Bottom Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/80 via-45% to-transparent pointer-events-none z-10" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch min-h-[420px] sm:min-h-[460px]">
-            {/* Cinema Stage Screen Backdrop */}
-            <div className="lg:col-span-7 relative min-h-[280px] sm:min-h-[420px] overflow-hidden bg-black flex items-center justify-center">
-              <img
-                src={hero.item.posterUrl}
-                alt={cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
-                className="h-full w-full object-cover scale-105 group-hover:scale-100 transition-transform duration-700"
-              />
-              {/* Cinema Vignette & Multi-stop Gradients */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C10] via-black/40 to-transparent lg:bg-gradient-to-l lg:from-[#0B0C10] lg:via-black/50 lg:to-transparent pointer-events-none" />
-
-              {/* Centered Play Watermark */}
-              <div
-                onClick={() => onPlay(hero.item)}
-                className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer z-10"
-              >
-                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#FFF2A7] text-[#050508] flex items-center justify-center shadow-[0_0_35px_rgba(212,175,55,0.8)] scale-90 group-hover:scale-105 transition-transform">
-                  <Play className="w-8 h-8 fill-current stroke-[2.5] translate-x-0.5" />
-                </div>
-              </div>
-            </div>
-
-            {/* Stage Right Information & Action Hierarchy */}
-            <div className="lg:col-span-5 p-6 sm:p-9 flex flex-col justify-between gap-6 z-10 bg-[#0B0C10]/95 backdrop-blur-xl border-t lg:border-t-0 lg:border-l border-[rgba(212,175,55,0.18)]">
-              <div className="space-y-4">
-                {/* Gold VIP Pass Badge */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[rgba(212,175,55,0.25)] to-[rgba(245,185,66,0.15)] text-[#D4AF37] border border-[rgba(212,175,55,0.4)] text-[11px] font-mono font-bold tracking-wider shadow-[0_0_15px_rgba(212,175,55,0.2)]">
-                    <Sparkles className="h-3 w-3 animate-pulse text-[#F5B942]" />
-                    <span>[VIP HALL 01 · 4K IMAX]</span>
-                  </span>
-                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/25">
-                    {hero.score}% MATCH
-                  </span>
-                </div>
-
-                {/* Movie Title */}
-                <h1 className="font-cinzel text-2xl sm:text-4xl font-black tracking-wide text-[#F5F7FA] leading-tight drop-shadow-lg">
-                  {cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
-                </h1>
-
-                {/* Specs Strip */}
-                <div className="flex flex-wrap items-center gap-2 text-xs text-[#A3AEC2]">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/35 font-mono text-[10px] font-bold">
-                    {hero.item.quality || '4K HDR'}
-                  </span>
-                  <span className="font-mono-tabular">
-                    {formatDuration(hero.item.durationSec)}
-                  </span>
-                  <span>·</span>
-                  <span className="text-slate-300 font-medium">
-                    {t(hero.item.categoryEn, hero.item.categoryFa)}
-                  </span>
-                  <span>·</span>
-                  <span className="font-mono text-slate-300">
-                    {hero.item.releaseYear || 2026}
-                  </span>
-                </div>
-
-                {/* Synopsis */}
-                <p className="text-xs sm:text-sm text-[#CBD5E1] leading-relaxed line-clamp-3">
-                  {cleanCinemaSynopsis(t(hero.item.synopsisEn, hero.item.synopsisFa))}
-                </p>
-
-                {/* AI Matching Reason */}
-                <div className="rounded-2xl bg-[#050508]/80 border border-[rgba(212,175,55,0.25)] p-3 text-xs text-[#D4AF37] flex items-center gap-2">
-                  <Star className="w-3.5 h-3.5 fill-current shrink-0 text-[#F5B942]" />
-                  <span>{t(hero.reasonEn, hero.reasonFa)}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons: Primary Gold Watch in VIP Hall + Secondary Controls */}
-              <div className="space-y-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => onPlay(hero.item)}
-                  className="w-full h-13 inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] text-[#050508] font-cinzel font-black text-sm tracking-wider shadow-[0_0_35px_rgba(212,175,55,0.65)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-                >
-                  <Play className="h-5 w-5 fill-current stroke-[2.5]" />
-                  <span>{t('Watch in VIP Hall', 'پخش در سالن اصلی (VIP 4K)')}</span>
-                </button>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onOpenDetail(hero.item)}
-                    className="h-10 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 hover:bg-[#151722] hover:border-[#D4AF37] text-slate-200 hover:text-[#D4AF37] transition-all cursor-pointer text-xs font-semibold"
-                  >
-                    <Sparkles className="h-4 w-4 text-[#D4AF37]" />
-                    <span>{t('Dossier', 'شناسنامه')}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onWatchTrailer(hero.item)}
-                    className="h-10 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 hover:bg-[#151722] hover:border-[#D4AF37] text-slate-200 hover:text-[#D4AF37] transition-all cursor-pointer text-xs font-semibold"
-                  >
-                    <Clapperboard className="h-4 w-4 text-[#D4AF37]" />
-                    <span>{t('Trailer', 'تریلر')}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onDownload(hero.item)}
-                    className="h-10 inline-flex items-center justify-center gap-1.5 rounded-xl border border-[rgba(212,175,55,0.25)] bg-[#050508]/80 hover:bg-[#151722] hover:border-[#D4AF37] text-slate-200 hover:text-[#D4AF37] transition-all cursor-pointer text-xs font-semibold"
-                  >
-                    <Download className="h-4 w-4 text-[#D4AF37]" />
-                    <span>{t('Download', 'دانلود')}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            {/* Ambient Warm Golden Color Glow Radiating Behind UI */}
+            <div
+              className="absolute inset-0 pointer-events-none z-10 opacity-60"
+              style={{
+                background:
+                  'radial-gradient(circle at 50% 82%, rgba(245, 185, 66, 0.28) 0%, rgba(212, 175, 55, 0.12) 35%, transparent 70%)'
+              }}
+            />
           </div>
 
-          {/* Ambient Theater Light Reflection Below Bezel */}
-          <div className="h-3 w-full bg-gradient-to-b from-[rgba(212,175,55,0.3)] to-transparent blur-sm pointer-events-none" />
+          {/* Centered / Aligned Lower Stage Overlay Content */}
+          <div className="absolute bottom-6 sm:bottom-10 inset-x-4 sm:inset-x-8 z-20 flex flex-col items-center text-center space-y-3 sm:space-y-4 max-w-4xl mx-auto">
+            {/* Subtle Frosted Glass Pill */}
+            <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-xl shadow-lg">
+              <span className="text-[11px] sm:text-xs font-semibold text-white/90 tracking-wide">
+                {t('Recommended based on your taste', 'توصیه شده بر اساس سلیقه شما')}
+              </span>
+            </div>
+
+            {/* Giant Bold Gold-Tinted Cinematic Title */}
+            <h1 className="font-cinzel text-3xl sm:text-5xl md:text-6xl font-black tracking-wide leading-tight text-transparent bg-clip-text bg-gradient-to-b from-[#FFF4BA] via-[#F3D06B] to-[#D4AF37] drop-shadow-[0_4px_30px_rgba(212,175,55,0.5)]">
+              {cleanCinemaTitle(t(hero.item.titleEn, hero.item.titleFa))}
+            </h1>
+
+            {/* Crisp Gold-Bordered Metadata Capsule */}
+            <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-4 py-1.5 rounded-full border border-[rgba(212,175,55,0.45)] bg-black/65 backdrop-blur-xl text-xs sm:text-sm font-bold text-[#F3D06B] shadow-[0_0_20px_rgba(212,175,55,0.22)]">
+              <span>{t('🏆 Box Office Leader #1', '🏆 صدرنشین گیشه #1')}</span>
+              <span className="text-[rgba(212,175,55,0.5)]">•</span>
+              <span className="font-mono">★ 8.7 IMDb</span>
+              <span className="text-[rgba(212,175,55,0.5)]">•</span>
+              <span className="font-mono tracking-wider">4K IMAX</span>
+            </div>
+
+            {/* Primary CTA Row: Golden Ticket Button + Frosted Glass Preview Button */}
+            <div className="flex items-center justify-center gap-3 pt-2 w-full max-w-md">
+              {/* Ticket-shaped Glowing Gold Button */}
+              <button
+                type="button"
+                onClick={() => onPlay(hero.item)}
+                className="relative flex-1 min-h-[48px] sm:min-h-[52px] inline-flex items-center justify-center gap-2.5 px-6 rounded-2xl bg-gradient-to-r from-[#F3D06B] via-[#E5C158] to-[#D4AF37] text-black font-extrabold text-xs sm:text-sm tracking-wide shadow-[0_0_35px_rgba(212,175,55,0.55)] hover:scale-[1.03] active:scale-95 transition-all cursor-pointer overflow-hidden group/btn"
+              >
+                {/* Left/Right ticket notches */}
+                <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-[#050508]" />
+                <span className="absolute -right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-[#050508]" />
+
+                <span className="font-bold">{t('Enter VIP Hall', 'ورود به سالن اکران')}</span>
+                <span className="text-base">🎟️</span>
+              </button>
+
+              {/* Frosted Glass Secondary Button */}
+              <button
+                type="button"
+                onClick={() => onWatchTrailer(hero.item)}
+                className="min-h-[48px] sm:min-h-[52px] px-6 rounded-2xl border border-white/25 bg-[#141620]/80 backdrop-blur-2xl text-white font-bold text-xs sm:text-sm hover:bg-white/10 hover:border-white/40 active:scale-95 transition-all cursor-pointer shadow-lg"
+              >
+                {t('Preview', 'پیش‌نمایش')}
+              </button>
+            </div>
+          </div>
         </section>
       )}
 
-      {/* 2. 🔥 ترندهای روز سینما (Top 10 Ranked Cinema Titles with Giant Gold Numbers 1-10) */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between border-b border-[rgba(212,175,55,0.2)] pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[rgba(212,175,55,0.15)] border border-[rgba(212,175,55,0.35)] flex items-center justify-center text-[#F5B942]">
-              <Flame className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="font-cinzel text-lg sm:text-2xl font-black text-[#F5F7FA] tracking-wide flex items-center gap-2">
-                <span>{t('TRENDING NOW · TOP 10', '🔥 ترندهای برتر روز سینما پتروس')}</span>
-              </h2>
-              <p className="text-xs text-[#A3AEC2]">
-                {t(
-                  'The 10 most watched & acclaimed cinematic masterpieces this week',
-                  '۱۰ اثر برتر سینمایی با بالاترین نرخ تماشا و امتیاز منتقدان'
-                )}
-              </p>
-            </div>
-          </div>
-          <span className="text-[10px] font-mono tracking-widest text-[#D4AF37] uppercase bg-[rgba(212,175,55,0.1)] px-2.5 py-1 rounded-full border border-[rgba(212,175,55,0.3)] hidden sm:inline">
-            GLOBAL CHARTS
+      {/* 2. BOX OFFICE & DAILY TRENDS (Reference Image 1) */}
+      <section className="space-y-4 pt-2">
+        <div className="flex items-center justify-between border-b border-[rgba(212,175,55,0.2)] pb-2.5">
+          <h2 className="font-cinzel text-xl sm:text-2xl font-black text-[#F3D06B] tracking-wide">
+            {t('Box Office & Daily Trends', 'گیشه و ترندهای روز')}
+          </h2>
+          <span className="text-[10px] font-mono tracking-widest text-[#D4AF37] uppercase bg-[rgba(212,175,55,0.1)] px-3 py-1 rounded-full border border-[rgba(212,175,55,0.3)]">
+            TOP 10 VIP
           </span>
         </div>
 
         {/* Horizontal Scroll Track with Giant 3D Gold Numbers */}
-        <div className="relative overflow-x-auto pb-4 pt-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="relative overflow-x-auto pb-6 pt-2 -mx-3 px-3 sm:mx-0 sm:px-0 no-scrollbar">
           <div className="flex gap-4 sm:gap-6 min-w-max">
             {top10Trending.map((item, index) => {
               const rank = index + 1;
@@ -392,25 +328,11 @@ export function LivingHomeScreen({
                 <div
                   key={item.id}
                   onClick={() => onOpenDetail(item)}
-                  className="group relative w-44 sm:w-52 shrink-0 cursor-pointer select-none transition-transform duration-300 hover:scale-[1.03]"
+                  className="group relative w-38 sm:w-46 shrink-0 cursor-pointer select-none transition-transform duration-300 hover:scale-[1.03]"
                 >
-                  <div className="relative flex items-end">
-                    {/* Giant Gold Metallic Rank Number (1-10) */}
-                    <span
-                      className="font-cinzel text-7xl sm:text-8xl font-black tracking-tighter leading-none select-none pointer-events-none z-10 -mr-4 sm:-mr-6 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)]"
-                      style={{
-                        background:
-                          'linear-gradient(180deg, #FFF2A7 0%, #F5B942 35%, #D4AF37 70%, #684f10 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        textShadow: '0 0 25px rgba(212, 175, 55, 0.4)'
-                      }}
-                    >
-                      {rank}
-                    </span>
-
+                  <div className="relative">
                     {/* Movie Poster Card */}
-                    <div className="relative flex-1 aspect-[2/3] rounded-2xl overflow-hidden border border-[rgba(212,175,55,0.35)] bg-black shadow-[0_12px_30px_rgba(0,0,0,0.85)] group-hover:border-[#D4AF37] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all">
+                    <div className="relative aspect-[2/3] rounded-2xl overflow-hidden border border-[rgba(212,175,55,0.4)] bg-black shadow-[0_12px_30px_rgba(0,0,0,0.85)] group-hover:border-[#F3D06B] group-hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all">
                       <img
                         src={item.posterUrl}
                         alt={cleanCinemaTitle(t(item.titleEn, item.titleFa))}
@@ -419,9 +341,12 @@ export function LivingHomeScreen({
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-80" />
 
                       {/* Top Badges */}
-                      <div className="absolute top-2 start-2 flex items-center gap-1">
-                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-black/75 text-[#F5B942] border border-[#F5B942]/30 backdrop-blur-md">
-                          {item.quality || '4K'}
+                      <div className="absolute top-2 inset-x-2 flex items-center justify-between pointer-events-none">
+                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-black/80 text-[#F5B942] border border-[#F5B942]/40 backdrop-blur-md">
+                          {item.quality || '4K HDR'}
+                        </span>
+                        <span className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-white/15 text-white/95 border border-white/20 backdrop-blur-md">
+                          {t('Preview', 'پیش‌نمایش')}
                         </span>
                       </div>
 
@@ -439,15 +364,26 @@ export function LivingHomeScreen({
                       </button>
 
                       {/* Bottom Info */}
-                      <div className="absolute bottom-2 inset-x-2">
+                      <div className="absolute bottom-2 inset-x-2 text-center">
                         <p className="font-cinzel text-xs font-bold text-white truncate">
                           {cleanCinemaTitle(t(item.titleEn, item.titleFa))}
                         </p>
-                        <p className="text-[10px] font-mono text-[#D4AF37]">
-                          {item.releaseYear || 2026} · {t(item.categoryEn, item.categoryFa)}
-                        </p>
                       </div>
                     </div>
+
+                    {/* Giant 3D Metallic Gold Rank Number (1-10) Overlapping Bottom Corner */}
+                    <span
+                      className="font-cinzel text-7xl sm:text-8xl font-black tracking-tighter leading-none select-none pointer-events-none absolute -bottom-5 -right-4 z-20 drop-shadow-[0_8px_16px_rgba(0,0,0,0.95)]"
+                      style={{
+                        background:
+                          'linear-gradient(180deg, #FFF9D2 0%, #F3D06B 35%, #D4AF37 70%, #684f10 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.8))'
+                      }}
+                    >
+                      {rank}
+                    </span>
                   </div>
                 </div>
               );

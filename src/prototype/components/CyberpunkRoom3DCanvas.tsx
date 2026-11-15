@@ -882,12 +882,7 @@ export function CyberpunkRoom3DCanvas({
     const floorTex = createPolishedObsidianConcreteFloorTexture(maxAniso);
     const floorMat = new THREE.MeshPhysicalMaterial({
       map: floorTex,
-      color: 0x121720,
-      metalness: 0.45,
-      roughness: 0.18,
-      clearcoat: 0.78,
-      clearcoatRoughness: 0.14,
-      envMapIntensity: 1.9
+      color: 0x08090E, metalness: 0.88, roughness: 0.08, clearcoat: 1.0, clearcoatRoughness: 0.05, envMapIntensity: 2.5
     });
     const floorMesh = new THREE.Mesh(new THREE.CylinderGeometry(18.0, 18.0, 0.2, 64), floorMat);
     floorMesh.position.y = -0.1;
@@ -913,147 +908,67 @@ export function CyberpunkRoom3DCanvas({
     circuitOverlayPlane.position.y = 0.015;
     facilityGroup.add(circuitOverlayPlane);
 
-    // B. 12 Cavernous Brutalist Concrete Alcove Bays + Massive Cast-Concrete Pillars +
-    //    Towering Cylindrical Glass-and-Steel Host "Stasis" Chambers (r = 15.6m)
-    const wallRadius = 15.8;
-    const bayCount = 12;
-    const bayWidth = 2 * wallRadius * Math.tan(Math.PI / bayCount) + 0.3;
-    const wallHeight = 9.4;
+    // B. LUXURY OBSIDIAN & GOLD CINEMA ARCHES GALLERY (Reference Image 3)
+    const archGroup = new THREE.Group();
+    facilityGroup.add(archGroup);
 
-    const stasisLiquidTex = createStasisChamberLiquidTexture(maxAniso);
-    const stasisLiquidMat = new THREE.MeshStandardMaterial({
-      map: stasisLiquidTex,
-      emissive: 0x00d8ff,
-      emissiveMap: stasisLiquidTex,
-      emissiveIntensity: 0.55,
-      roughness: 0.2,
-      metalness: 0.3,
-      transparent: true,
-      opacity: 0.9
+    const goldArchMat = new THREE.MeshStandardMaterial({
+      color: 0xD4AF37,
+      roughness: 0.22,
+      metalness: 0.88,
+      envMapIntensity: 2.4
     });
-    const stasisGlassMat = new THREE.MeshPhysicalMaterial({
-      color: 0xcffafe,
-      metalness: 0.05,
-      roughness: 0.06,
-      transmission: 0.72,
-      transparent: true,
-      opacity: 0.42,
-      clearcoat: 1.0
+    const goldStripMat = new THREE.MeshBasicMaterial({ color: 0xF5B942 });
+
+    // Concentric grand golden architectural arches spaced along the gallery corridor
+    const corridorArches = [-16, -10, -4, 2, 8, 14];
+    corridorArches.forEach((zPos, aIdx) => {
+      const archRadius = 9.0 + (aIdx % 3) * 0.6;
+      const archGeom = new THREE.TorusGeometry(archRadius, 0.42, 16, 64, Math.PI);
+      const archMesh = new THREE.Mesh(archGeom, goldArchMat);
+      archMesh.position.set(0, 0, zPos);
+      archMesh.rotation.z = Math.PI;
+      archGroup.add(archMesh);
+
+      // Inner glowing ambient gold strip
+      const stripGeom = new THREE.TorusGeometry(archRadius - 0.22, 0.08, 12, 64, Math.PI);
+      const stripMesh = new THREE.Mesh(stripGeom, goldStripMat);
+      stripMesh.position.set(0, 0, zPos);
+      stripMesh.rotation.z = Math.PI;
+      archGroup.add(stripMesh);
+
+      // Side vertical architectural support columns
+      const colGeo = new THREE.CylinderGeometry(0.35, 0.4, 9.0, 24);
+      const leftCol = new THREE.Mesh(colGeo, goldArchMat);
+      leftCol.position.set(-archRadius, 4.5, zPos);
+      archGroup.add(leftCol);
+
+      const rightCol = new THREE.Mesh(colGeo, goldArchMat);
+      rightCol.position.set(archRadius, 4.5, zPos);
+      archGroup.add(rightCol);
     });
 
-    const wallBackGeo = new THREE.PlaneGeometry(bayWidth, wallHeight);
-    // Massive raw board-formed cast concrete pillars between alcoves
-    const concretePillarGeo = new THREE.BoxGeometry(1.45, wallHeight, 1.85);
-    // Deep heavy-duty concrete ceiling coffer beams
-    const ceilingCofferBeamGeo = new THREE.BoxGeometry(0.95, 0.9, wallRadius + 1.0);
-
-    // Stasis Chamber Geometries
-    const stasisCapGeo = new THREE.CylinderGeometry(1.12, 1.18, 0.48, 32);
-    const stasisCollarGeo = new THREE.CylinderGeometry(1.02, 1.02, 0.24, 32);
-    const stasisLiquidGeo = new THREE.CylinderGeometry(0.86, 0.86, 4.9, 32);
-    const stasisGlassGeo = new THREE.CylinderGeometry(0.96, 0.96, 5.0, 32, 1, true);
-    const stasisSideStrutGeo = new THREE.BoxGeometry(0.18, 5.2, 0.28);
-
-    for (let i = 0; i < bayCount; i++) {
-      const angle = (i / bayCount) * Math.PI * 2;
-      const wx = Math.cos(angle) * wallRadius;
-      const wz = Math.sin(angle) * wallRadius;
-
-      const bayGroup = new THREE.Group();
-      bayGroup.position.set(wx, 0, wz);
-      bayGroup.lookAt(0, 0, 0);
-
-      // Raw Board-Formed Cast Concrete Wall
-      const wallBack = new THREE.Mesh(wallBackGeo, brutalistConcreteMat);
-      wallBack.position.y = wallHeight * 0.5;
-      bayGroup.add(wallBack);
-
-      // Massive Brutalist Concrete Pillar on Bay Seam
-      const seamX = bayWidth * 0.49;
-      const concretePillar = new THREE.Mesh(concretePillarGeo, brutalistConcreteMat);
-      concretePillar.position.set(seamX, wallHeight * 0.5, 0.65);
-      bayGroup.add(concretePillar);
-
-      // Radial Heavy-Duty Concrete Coffer Beam across the high industrial ceiling
-      const cofferBeam = new THREE.Mesh(ceilingCofferBeamGeo, darkConcreteCofferMat);
-      cofferBeam.position.set(seamX, wallHeight - 0.5, (wallRadius - 1.0) * 0.5);
-      bayGroup.add(cofferBeam);
-
-      // Antiseptic Cool-White Linear Industrial Light Fixture mounted along the concrete ceiling beam
-      if (i % 2 === 0) {
-        const lightHousing = new THREE.Mesh(
-          new THREE.BoxGeometry(0.24, 0.1, 2.5),
-          heavyIndustrialSteelMat
-        );
-        lightHousing.position.set(0, 6.65, 2.2);
-        bayGroup.add(lightHousing);
-
-        const lightTube = new THREE.Mesh(
-          new THREE.BoxGeometry(0.16, 0.04, 2.35),
-          antisepticWhiteLedMat
-        );
-        lightTube.position.set(0, 6.59, 2.2);
-        bayGroup.add(lightTube);
-      }
-
-      // Towering Cylindrical Glass-and-Steel Host "Stasis" Chamber in each Concrete Alcove!
-      const stasisGroup = new THREE.Group();
-      stasisGroup.position.set(0, 0, 1.05);
-      bayGroup.add(stasisGroup);
-
-      // Heavy Metal Bottom Pedestal & Mechanical Input Pipes
-      const botCrown = new THREE.Mesh(stasisCapGeo, heavyIndustrialSteelMat);
-      botCrown.position.y = 0.24;
-      stasisGroup.add(botCrown);
-
-      const botCollar = new THREE.Mesh(stasisCollarGeo, darkObsidianPedestalMat);
-      botCollar.position.y = 0.56;
-      stasisGroup.add(botCollar);
-
-      // Mechanical input valves at bottom front of Stasis Chamber
-      for (const vx of [-0.36, 0, 0.36]) {
-        const mechInput = new THREE.Mesh(
-          new THREE.BoxGeometry(0.14, 0.38, 0.28),
-          heavyIndustrialSteelMat
-        );
-        mechInput.position.set(vx, 0.32, 1.05);
-        stasisGroup.add(mechInput);
-      }
-
-      // Heavy Metal Top Crown with Mechanical Header Block
-      const topCrown = new THREE.Mesh(stasisCapGeo, heavyIndustrialSteelMat);
-      topCrown.position.y = 5.68;
-      stasisGroup.add(topCrown);
-
-      const topLatch = new THREE.Mesh(
-        new THREE.BoxGeometry(0.32, 0.42, 0.3),
-        heavyIndustrialSteelMat
-      );
-      topLatch.position.set(0, 5.7, 1.08);
-      stasisGroup.add(topLatch);
-
-      // Left & Right Heavy Metal Vertical Framing Struts clamping the Stasis Cylinder
-      const leftStrut = new THREE.Mesh(stasisSideStrutGeo, heavyIndustrialSteelMat);
-      leftStrut.position.set(-1.02, 3.05, 0);
-      stasisGroup.add(leftStrut);
-
-      const rightStrut = new THREE.Mesh(stasisSideStrutGeo, heavyIndustrialSteelMat);
-      rightStrut.position.set(1.02, 3.05, 0);
-      stasisGroup.add(rightStrut);
-
-      // Dark Faintly Glowing Stasis Liquid + Floating Bio-Particles Core
-      const liquidCore = new THREE.Mesh(stasisLiquidGeo, stasisLiquidMat);
-      liquidCore.position.y = 3.05;
-      stasisGroup.add(liquidCore);
-
-      // Outer Cylindrical Glass Wall
-      const glassWall = new THREE.Mesh(stasisGlassGeo, stasisGlassMat);
-      glassWall.position.y = 3.05;
-      stasisGroup.add(glassWall);
-
-      facilityGroup.add(bayGroup);
+    // Volumetric golden particles / cinema sparks
+    const sparkCount = 180;
+    const sparkGeo = new THREE.BufferGeometry();
+    const sparkPos = new Float32Array(sparkCount * 3);
+    for (let s = 0; s < sparkCount; s++) {
+      sparkPos[s * 3] = (Math.random() - 0.5) * 22;
+      sparkPos[s * 3 + 1] = Math.random() * 9 + 0.5;
+      sparkPos[s * 3 + 2] = (Math.random() - 0.5) * 32;
     }
+    sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPos, 3));
+    const sparkMat = new THREE.PointsMaterial({
+      color: 0xF5B942,
+      size: 0.12,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending
+    });
+    const sparks = new THREE.Points(sparkGeo, sparkMat);
+    facilityGroup.add(sparks);
 
+    const wallHeight = 9.4;
     // C. High Industrial Ceiling Concrete Deck & Curved Overhead Metal Cable Trays / Utility Tracks
     const ceilingDeck = new THREE.Mesh(
       new THREE.CylinderGeometry(18.0, 18.0, 0.3, 32),
@@ -1296,6 +1211,7 @@ export function CyberpunkRoom3DCanvas({
     const disposableGeometries: THREE.BufferGeometry[] = [];
     const disposableMaterials: THREE.Material[] = [];
     const hudTextureCache = new Map<string, THREE.CanvasTexture>();
+    const posterTextureCache = new Map<string, THREE.Texture>();
 
     const clearDynamicGraph = () => {
       clickableProxies.length = 0;
@@ -1395,61 +1311,62 @@ export function CyberpunkRoom3DCanvas({
               ? amberNeonMat
               : cyanNeonMat;
 
-        // 1. Minimalist Brutalist Pedestal Foot with Glowing Flush Edge Strip
-        const footGeo = new THREE.BoxGeometry(1.42, 0.1, 0.92);
-        disposableGeometries.push(footGeo);
-        const footMesh = new THREE.Mesh(footGeo, darkObsidianPedestalMat);
-        footMesh.position.y = 0.05;
-        termGroup.add(footMesh);
-
-        const trimGeo = new THREE.BoxGeometry(1.48, 0.025, 0.98);
-        disposableGeometries.push(trimGeo);
-        const trimMesh = new THREE.Mesh(trimGeo, trimMat);
-        trimMesh.position.y = 0.015;
-        termGroup.add(trimMesh);
-
-        // 2. Vertical Matte-Dark Pedestal Stand + Slanted Console Lectern
-        const standGeo = new THREE.BoxGeometry(0.44, 1.12, 0.32);
-        disposableGeometries.push(standGeo);
-        const standMesh = new THREE.Mesh(standGeo, heavyIndustrialSteelMat);
-        standMesh.position.y = 0.62;
-        termGroup.add(standMesh);
-
-        const lecternGeo = new THREE.BoxGeometry(1.26, 0.06, 0.58);
-        disposableGeometries.push(lecternGeo);
-        const lecternMesh = new THREE.Mesh(lecternGeo, darkObsidianPedestalMat);
-        lecternMesh.position.set(0, 1.18, 0.1);
-        lecternMesh.rotation.x = 0.34;
-        termGroup.add(lecternMesh);
-
-        // 3. Sleek Minimalist Glass Holographic Diagnostic HUD Panel floating above Pedestal
-        const cacheKey = `${node.id}-${isSelected ? 'sel' : 'norm'}`;
-        let hudTex = hudTextureCache.get(cacheKey);
-        if (!hudTex) {
-          hudTex = createDelosDiagnosticHudTexture(node, isSelected, maxAniso);
-          hudTextureCache.set(cacheKey, hudTex);
+        // Floating 3D Movie Poster in Space (Reference Image 3)
+        let posterTex = posterTextureCache.get(node.item.posterUrl);
+        if (!posterTex) {
+          posterTex = new THREE.TextureLoader().load(node.item.posterUrl);
+          posterTex.colorSpace = THREE.SRGBColorSpace;
+          posterTextureCache.set(node.item.posterUrl, posterTex);
         }
 
-        const hudGeo = new THREE.PlaneGeometry(2.28, 1.36);
-        const hudMat = new THREE.MeshBasicMaterial({
-          map: hudTex,
-          transparent: true,
-          opacity: 0.95,
+        const posterGeo = new THREE.PlaneGeometry(2.1, 3.15);
+        disposableGeometries.push(posterGeo);
+        const posterMat = new THREE.MeshStandardMaterial({
+          map: posterTex,
+          roughness: 0.18,
+          metalness: 0.15,
           side: THREE.DoubleSide
         });
-        disposableGeometries.push(hudGeo);
-        disposableMaterials.push(hudMat);
-        const hudMesh = new THREE.Mesh(hudGeo, hudMat);
-        hudMesh.position.set(0, 2.18, 0.06);
-        termGroup.add(hudMesh);
+        disposableMaterials.push(posterMat);
+        const posterMesh = new THREE.Mesh(posterGeo, posterMat);
+        posterMesh.position.set(0, 2.5, 0);
+        posterMesh.rotation.y = idx % 2 === 0 ? 0.08 : -0.08;
+        termGroup.add(posterMesh);
+
+        // Gold Beveled Border Frame around Poster
+        const frameGeo = new THREE.BoxGeometry(2.18, 3.23, 0.06);
+        disposableGeometries.push(frameGeo);
+        const frameMat = new THREE.MeshStandardMaterial({
+          color: isSelected ? 0xF5B942 : 0xD4AF37,
+          roughness: 0.2,
+          metalness: 0.88,
+          envMapIntensity: 2.2
+        });
+        disposableMaterials.push(frameMat);
+        const frameMesh = new THREE.Mesh(frameGeo, frameMat);
+        frameMesh.position.set(0, 2.5, -0.02);
+        frameMesh.rotation.y = posterMesh.rotation.y;
+        termGroup.add(frameMesh);
+
+        // Glowing Golden Light Streams along the Reflective Floor (Reference Image 3)
+        const startPt = new THREE.Vector3(0, 0.03, 4.5);
+        const midPt = new THREE.Vector3(node.position.x * 0.45 + (idx % 2 === 0 ? 0.8 : -0.8), 0.03, (node.position.z + 4.5) * 0.5);
+        const endPt = new THREE.Vector3(node.position.x, 0.03, node.position.z);
+        const curve = new THREE.CatmullRomCurve3([startPt, midPt, endPt]);
+        const curveGeo = new THREE.TubeGeometry(curve, 32, isSelected ? 0.04 : 0.022, 8, false);
+        disposableGeometries.push(curveGeo);
+        const curveMat = new THREE.MeshBasicMaterial({ color: isSelected ? 0xFFF2A7 : 0xD4AF37 });
+        disposableMaterials.push(curveMat);
+        const curveMesh = new THREE.Mesh(curveGeo, curveMat);
+        termGroup.add(curveMesh);
 
         // Click proxy
-        const hitGeo = new THREE.BoxGeometry(2.5, 3.2, 1.4);
+        const hitGeo = new THREE.BoxGeometry(2.4, 3.6, 1.2);
         const hitMat = new THREE.MeshBasicMaterial({ visible: false });
         disposableGeometries.push(hitGeo);
         disposableMaterials.push(hitMat);
         const hitProxy = new THREE.Mesh(hitGeo, hitMat);
-        hitProxy.position.set(0, 1.65, 0);
+        hitProxy.position.set(0, 2.5, 0);
         hitProxy.userData = { nodeId: node.id };
         termGroup.add(hitProxy);
         clickableProxies.push(hitProxy);
@@ -1650,7 +1567,7 @@ export function CyberpunkRoom3DCanvas({
       orbitalBandTex.offset.x = -elapsed * 0.06;
 
       // 2. Gently drift floating bio-particles inside Stasis Chambers & room atmosphere
-      stasisLiquidTex.offset.y = -elapsed * 0.03;
+      // stasis removed
       atmosphericDust.rotation.y = elapsed * 0.025;
 
       for (let i = 0; i < activePackets.length; i++) {
@@ -1840,9 +1757,9 @@ export function CyberpunkRoom3DCanvas({
       floorMat.dispose();
       circuitOverlayTex.dispose();
       circuitOverlayMat.dispose();
-      stasisLiquidTex.dispose();
-      stasisLiquidMat.dispose();
-      stasisGlassMat.dispose();
+      
+      
+      
       globeTex.dispose();
       globeMat.dispose();
       orbitalBandTex.dispose();

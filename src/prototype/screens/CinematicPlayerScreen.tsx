@@ -55,6 +55,17 @@ import { Button, formatDuration, cleanCinemaTitle } from '../components/UiPrimit
 import { WatchPartyShareModal } from '../components/WatchPartyShareModal';
 import { SpatialPlaybackHud } from '../components/SpatialPlaybackHud';
 
+function cleanCinemaSynopsis(raw: string): string {
+  if (!raw) return '';
+  return (
+    raw
+      .replace(/\[Telegram\/.*?\]/gi, '')
+      .replace(/https?:\/\/t\.me\/\S+/gi, '')
+      .replace(/@\w+/g, '')
+      .trim() || 'A curated cinematic experience streaming in ultra-high fidelity VIP 4K HDR.'
+  );
+}
+
 interface CinematicPlayerScreenProps {
   item: PrototypeMediaItem | null;
   lang: LanguageCode;
@@ -728,71 +739,49 @@ function getVerifiedCinemaStream(item?: PrototypeMediaItem | null, qualityId?: s
 
   return (
     <div className="space-y-5 pb-16 overflow-x-hidden">
-      {/* 1. Minimal Floating Top Bar (Single Row Only) */}
-      <div className="flex items-center justify-between gap-3 px-1">
-        {/* Right/Start: Back button */}
+      {/* 1. Minimal Floating Top Bar (Single Row Only - Reference Image 2) */}
+      <div className="flex items-center justify-between gap-3 px-1 py-1">
+        {/* Right/Start: Back Pill with Movie Title */}
         <button
           type="button"
           onClick={onBack}
-          className="min-h-[38px] px-3.5 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/85 hover:bg-[rgba(212,175,55,0.15)] text-[#F5F7FA] text-xs font-semibold backdrop-blur-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-md hover:border-[#D4AF37]"
+          className="min-h-[40px] px-4 rounded-full border border-[rgba(212,175,55,0.35)] bg-[#0B0C10]/90 hover:bg-[rgba(212,175,55,0.15)] text-[#F5F7FA] text-xs font-bold backdrop-blur-2xl flex items-center gap-2 transition-all cursor-pointer shadow-lg hover:border-[#D4AF37] max-w-[70vw] truncate"
         >
-          <BackIcon className="h-4 w-4 text-[#D4AF37]" />
-          <span>{t('Back', 'بازگشت')}</span>
+          <BackIcon className="h-4 w-4 text-[#D4AF37] shrink-0" />
+          <span className="truncate">{title}</span>
         </button>
 
-        {/* Center/End: Mode Segmented Toggle + Watch Party Button */}
+        {/* Left/End: Exit Fullscreen / Watch Party / Telegram File */}
         <div className="flex items-center gap-2">
-          <div className="inline-flex items-center rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508]/90 backdrop-blur-xl p-0.5 shadow-md">
-            <button
-              type="button"
-              onClick={() => setPlaybackMode('movie')}
-              className={`min-h-[32px] inline-flex items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-all cursor-pointer ${
-                playbackMode === 'movie'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-[#050508] font-bold shadow-[0_0_12px_rgba(212,175,55,0.4)]'
-                  : 'text-[#A3AEC2] hover:text-[#D4AF37]'
-              }`}
-            >
-              <Film className="h-3.5 w-3.5" />
-              <span>{t('Full Movie', '🎬 فیلم کامل')}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setPlaybackMode('trailer')}
-              className={`min-h-[32px] inline-flex items-center gap-1.5 rounded-full px-3.5 text-xs font-medium transition-all cursor-pointer ${
-                playbackMode === 'trailer'
-                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-[#050508] font-bold shadow-[0_0_12px_rgba(212,175,55,0.4)]'
-                  : 'text-[#A3AEC2] hover:text-[#D4AF37]'
-              }`}
-            >
-              <Clapperboard className="h-3.5 w-3.5" />
-              <span>{t('Watch Trailer', '🎞️ پیش‌نمایش (تریلر)')}</span>
-            </button>
-          </div>
-
-          {/* Single Icon Button for Watch Party */}
+          {/* Watch Party Button */}
           <button
             type="button"
             onClick={() => setIsWatchPartyOpen(true)}
             title={t('Watch Party', 'تماشای همزمان')}
-            className="min-h-[36px] px-3 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/85 hover:bg-[rgba(212,175,55,0.15)] text-[#D4AF37] backdrop-blur-xl flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer shadow-md"
+            className="min-h-[40px] px-3.5 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/90 hover:bg-[rgba(212,175,55,0.15)] text-[#D4AF37] backdrop-blur-2xl flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer shadow-md"
           >
-            <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">{t('Watch Party', '👥 تماشای همزمان')}</span>
+            <Users className="h-4 w-4 text-[#D4AF37]" />
+            <span className="hidden sm:inline">{t('Watch Party', 'تماشای همزمان')}</span>
           </button>
 
-          {/* Direct Telegram Stream Link if Available */}
-          {(item.streamUrl?.includes('t.me') || (item as any).defaultStreamUrl?.includes('t.me')) && (
-            <a
-              href={item.streamUrl?.includes('t.me') ? item.streamUrl : (item as any).defaultStreamUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={t('Original Telegram Stream File', 'فایل اصلی در تلگرام')}
-              className="min-h-[36px] px-3 rounded-full border border-sky-400/40 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 backdrop-blur-xl flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer shadow-md"
-            >
-              <Send className="h-3.5 w-3.5" />
-              <span className="hidden md:inline">{t('Telegram File', 'فایل تلگرام')}</span>
-            </a>
-          )}
+          {/* Fullscreen Toggle Pill */}
+          <button
+            type="button"
+            onClick={() => void toggleFullscreen()}
+            className="min-h-[40px] px-4 rounded-full border border-[rgba(212,175,55,0.4)] bg-[#D4AF37]/15 hover:bg-[#D4AF37]/25 text-[#F5B942] backdrop-blur-2xl flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-[0_0_12px_rgba(212,175,55,0.15)]"
+          >
+            {isFullscreen ? (
+              <>
+                <Minimize2 className="h-3.5 w-3.5" />
+                <span>{t('Exit Fullscreen', 'خروج از تمام‌صفحه')}</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="h-3.5 w-3.5" />
+                <span>{t('Exit Fullscreen', 'Exit Fullscreen')}</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -962,176 +951,147 @@ function getVerifiedCinemaStream(item?: PrototypeMediaItem | null, qualityId?: s
 
             {/* Subtitles Overlay */}
             {activeSubtitle && (
-              <div className="pointer-events-none absolute bottom-20 sm:bottom-24 inset-x-4 z-20 flex justify-center">
+              <div className="pointer-events-none absolute bottom-6 inset-x-4 z-20 flex justify-center">
                 <p className="max-w-3xl rounded-xl bg-[#06070C]/90 px-4 py-2 text-center text-xs sm:text-base font-medium text-[#F5F7FA] shadow-lg backdrop-blur-md border border-[rgba(212,175,55,0.2)]">
                   {activeSubtitle}
                 </p>
               </div>
             )}
-
-            {/* Spatial Glass Playback HUD Overlay */}
-            <div className="absolute bottom-3 sm:bottom-4 inset-x-3 sm:inset-x-8 z-30">
-              <SpatialPlaybackHud
-                duration={duration}
-                currentTime={currentTime}
-                isPlaying={isPlaying}
-                volume={volume}
-                muted={muted}
-                speed={speed}
-                subMode={subMode}
-                lang={lang}
-                isFullscreen={isFullscreen}
-                activeQualityLabel={activeQuality?.resolution || selectedQualityId.toUpperCase()}
-                aiSyncConfidencePct={aiSyncedSub?.confidencePct || 98.5}
-                onTogglePlay={togglePlay}
-                onSeek={handleSeek}
-                onVolumeChange={(v) => {
-                  setVolume(v);
-                  setMuted(false);
-                }}
-                onToggleMute={() => setMuted((m) => !m)}
-                onToggleFullscreen={() => void toggleFullscreen()}
-                onToggleSubtitleMode={() =>
-                  setSubMode((s) => (s === 'auto' ? 'fa' : s === 'fa' ? 'en' : s === 'en' ? 'off' : 'auto'))
-                }
-                onToggleSpeed={() =>
-                  setSpeed((sp) => (sp === 1 ? 1.25 : sp === 1.25 ? 1.5 : sp === 1.5 ? 2 : 1))
-                }
-                onOpenAiSubtitlePanel={() => setSubtitlePanelOpen(true)}
-                onOpenQualityPicker={() => setSubtitlePanelOpen(true)}
-              />
-            </div>
           </div>
+
+          {/* Theater Foreground Cinema Hall Seats Silhouette Overlay (Reference Image 2) */}
+          {!isFullscreen && (
+            <div className="relative h-6 sm:h-8 w-full bg-[#050508] flex items-end justify-center pointer-events-none opacity-50 px-2 overflow-hidden">
+              <div className="w-full flex items-center justify-around gap-1 text-black/90">
+                {Array.from({ length: 18 }).map((_, i) => (
+                  <div key={i} className="w-4 sm:w-6 h-4 sm:h-5 rounded-t-lg bg-[#0e0f14] border-t border-white/5" />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* 3. Luxury Film Dossier Card (Directly Below the Video) */}
-      <div className="rounded-[28px] border border-[rgba(212,175,55,0.25)] bg-[#0B0C10]/95 backdrop-blur-2xl p-5 sm:p-7 space-y-4 sm:space-y-5 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_20px_rgba(212,175,55,0.06)]">
-        {/* Title & Badges Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-xl sm:text-3xl font-extrabold tracking-wide text-[#F5F7FA] font-cinzel">
-            {title}
-          </h1>
+      {/* 2.5 Spatial Glass Playback HUD (Positioned Directly Below Screen - Reference Image 2) */}
+      <div className="relative z-30 pt-1">
+        <SpatialPlaybackHud
+          duration={duration}
+          currentTime={currentTime}
+          isPlaying={isPlaying}
+          volume={volume}
+          muted={muted}
+          speed={speed}
+          subMode={subMode}
+          lang={lang}
+          isFullscreen={isFullscreen}
+          activeQualityLabel={activeQuality?.resolution || selectedQualityId.toUpperCase()}
+          aiSyncConfidencePct={aiSyncedSub?.confidencePct || 98.5}
+          onTogglePlay={togglePlay}
+          onSeek={handleSeek}
+          onVolumeChange={(v) => {
+            setVolume(v);
+            setMuted(false);
+          }}
+          onToggleMute={() => setMuted((m) => !m)}
+          onToggleFullscreen={() => void toggleFullscreen()}
+          onToggleSubtitleMode={() =>
+            setSubMode((s) => (s === 'auto' ? 'fa' : s === 'fa' ? 'en' : s === 'en' ? 'off' : 'auto'))
+          }
+          onToggleSpeed={() =>
+            setSpeed((sp) => (sp === 1 ? 1.25 : sp === 1.25 ? 1.5 : sp === 1.5 ? 2 : 1))
+          }
+          onOpenAiSubtitlePanel={() => setSubtitlePanelOpen(true)}
+          onOpenQualityPicker={() => setSubtitlePanelOpen(true)}
+        />
+      </div>
 
-          <div className="flex items-center gap-2">
-            {details?.imdb && (
-              <a
-                href={details.imdb.imdbUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(212,175,55,0.4)] bg-[rgba(212,175,55,0.15)] px-3.5 py-1 text-xs font-bold text-[#F5B942] hover:bg-[rgba(212,175,55,0.25)] transition-all"
-              >
-                <Star className="h-3.5 w-3.5 fill-[#F5B942] text-[#F5B942]" />
-                <span dir="ltr">{details.imdb.imdbRating}</span>
-                <span className="text-[10px] font-mono text-[#D4AF37]/80">IMDb</span>
-              </a>
-            )}
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-mono font-semibold text-zinc-300">
-              4K IMAX
-            </span>
-            <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-mono font-semibold text-zinc-300">
-              Dolby Atmos
-            </span>
+      {/* 3. Luxury Film Dossier Card (Match Reference Image 2) */}
+      <div className="rounded-[28px] border border-[rgba(212,175,55,0.25)] bg-[#0B0C10]/95 backdrop-blur-2xl p-5 sm:p-7 space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_20px_rgba(212,175,55,0.06)]">
+        {/* Title, Metadata & Solid Gold IMDb Badge Row */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <h1 className="text-xl sm:text-3xl font-extrabold tracking-wide text-[#F5F7FA] font-cinzel truncate">
+              {title}
+            </h1>
+            <p className="text-xs sm:text-sm font-medium text-[#A3AEC2] flex flex-wrap items-center gap-2">
+              <span dir="ltr">{item.releaseYear || 2026}</span>
+              <span>•</span>
+              <span dir="ltr">{formatDuration(duration || item.durationSec)}</span>
+              <span>•</span>
+              <span>{category}</span>
+              <span>•</span>
+              <span className="font-mono font-bold text-[#F5B942]">4K HDR</span>
+            </p>
+          </div>
+
+          {/* Solid Gold IMDb Badge */}
+          <div className="shrink-0">
+            <div className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#F5B942] to-[#D4AF37] px-3.5 py-1.5 text-xs sm:text-sm font-black text-[#050508] shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+              <Star className="h-4 w-4 fill-current" />
+              <span>{details?.imdb?.imdbRating ? details.imdb.imdbRating : '8.3'} IMDb</span>
+            </div>
           </div>
         </div>
 
-        {/* Primary Action Row (One Clean Symmetrical Line) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        {/* 3-Line Clean Synopsis */}
+        <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed font-normal">
+          {cleanCinemaSynopsis(synopsis)}
+        </p>
+
+        {/* Clean Metadata: Director & Cast */}
+        <div className="space-y-1.5 border-t border-[rgba(212,175,55,0.12)] pt-3 text-xs sm:text-sm text-[#A3AEC2]">
+          <p>
+            <span className="text-[#D4AF37] font-semibold">{t('Director:', 'کارگردان:')}</span>{' '}
+            <span className="text-white">
+              {details?.imdb?.director ? t(details.imdb.director) : (item.creatorFa || item.creatorEn || 'برایان سینگر')}
+            </span>
+          </p>
+          <p>
+            <span className="text-[#D4AF37] font-semibold">{t('Cast:', 'بازیگران:')}</span>{' '}
+            <span className="text-white">
+              {details?.imdb?.cast && details.imdb.cast.length > 0
+                ? details.imdb.cast.slice(0, 3).map((c) => t(c)).join('، ')
+                : (item.creatorFa || 'اسکار آیزاک، جیمز مک‌آووی، جنیفر لارنس')}
+            </span>
+          </p>
+        </div>
+
+        {/* Symmetrical Bottom Action Buttons (Reference Image 2) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          {/* Smart Subtitle & AI Calibration Modal Trigger */}
+          <button
+            type="button"
+            onClick={() => setSubtitlePanelOpen(true)}
+            className="min-h-[46px] rounded-2xl border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.1)] hover:bg-[rgba(212,175,55,0.2)] text-[#F5B942] text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_15px_rgba(212,175,55,0.15)]"
+          >
+            <Wand2 className="h-4 w-4 text-[#F5B942]" />
+            <span>{t('Smart Subtitle AI Sync', '✨ تنظیم زیرنویس هوشمند')}</span>
+          </button>
+
           {/* Save Offline in Archive */}
           <button
             type="button"
             onClick={() => onDownload(item, false, activeQuality)}
             disabled={!activeStreamUrl || isDownloading}
-            className="min-h-[46px] rounded-2xl border border-[rgba(212,175,55,0.35)] bg-[#050508]/80 hover:bg-[rgba(212,175,55,0.12)] hover:border-[#D4AF37] text-[#F5F7FA] text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-md disabled:opacity-50"
+            className="min-h-[46px] rounded-2xl border border-white/15 bg-white/[0.05] hover:bg-white/10 hover:border-white/30 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md disabled:opacity-50"
           >
             {isDownloading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin text-[#D4AF37]" />
-                <span>{t('Saving Offline...', 'در حال ذخیره‌سازی...')} {downloadRecord?.progressPct}%</span>
+                <span>{t('Saving...', 'در حال ذخیره‌سازی...')} {downloadRecord?.progressPct}%</span>
               </>
             ) : isDownloaded ? (
               <>
                 <Check className="h-4 w-4 text-emerald-400" />
-                <span className="text-emerald-400">{t('Saved in Offline Vault', 'ذخیره در آرشیو آفلاین')}</span>
+                <span className="text-emerald-400">{t('Saved in Offline Vault', 'ذخیره در گیشه آفلاین')}</span>
               </>
             ) : (
               <>
-                <Download className="h-4 w-4 text-[#D4AF37]" />
-                <span>{t('Save in Offline Archive', '📥 ذخیره آفلاین در آرشیو')}</span>
+                <Download className="h-4 w-4 text-[#A3AEC2]" />
+                <span>{t('Save in Offline Vault', '📥 ذخیره در گیشه آفلاین')}</span>
               </>
             )}
           </button>
-
-          {/* AI Subtitle Sync Modal Trigger */}
-          <button
-            type="button"
-            onClick={() => setSubtitlePanelOpen(true)}
-            className="min-h-[46px] rounded-2xl border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.08)] hover:bg-[rgba(212,175,55,0.18)] hover:border-[#D4AF37] text-[#D4AF37] text-xs sm:text-sm font-bold flex items-center justify-center gap-2.5 transition-all cursor-pointer shadow-[0_0_15px_rgba(212,175,55,0.1)]"
-          >
-            <Wand2 className="h-4 w-4 text-[#D4AF37]" />
-            <span>{t('AI Subtitle & Quality Settings', '✨ تنظیم زیرنویس هوشمند (AI Sync)')}</span>
-          </button>
-        </div>
-
-        {/* Synopsis */}
-        <p className="text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
-          {synopsis}
-        </p>
-
-        {/* Cast & Crew Grid: Horizontal row of clean glass metadata pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 border-t border-white/10 pt-4">
-          {/* Director */}
-          <div className="rounded-xl border border-white/10 bg-[#050508]/60 p-3 space-y-1">
-            <span className="text-[10px] font-mono text-[#D4AF37] uppercase tracking-wider block">
-              {t('Director', 'کارگردان')}
-            </span>
-            <p className="text-xs font-semibold text-white truncate">
-              {details?.imdb?.director ? t(details.imdb.director) : (item.creatorFa || item.creatorEn || '—')}
-            </p>
-          </div>
-
-          {/* Cast */}
-          <div className="rounded-xl border border-white/10 bg-[#050508]/60 p-3 space-y-1">
-            <span className="text-[10px] font-mono text-[#D4AF37] uppercase tracking-wider block">
-              {t('Stars', 'ستارگان')}
-            </span>
-            <p className="text-xs font-semibold text-white truncate">
-              {details?.imdb?.cast && details.imdb.cast.length > 0
-                ? details.imdb.cast.slice(0, 2).map((c) => t(c)).join('، ')
-                : (item.creatorFa || '—')}
-            </p>
-          </div>
-
-          {/* Genre */}
-          <div className="rounded-xl border border-white/10 bg-[#050508]/60 p-3 space-y-1">
-            <span className="text-[10px] font-mono text-[#D4AF37] uppercase tracking-wider block">
-              {t('Genre', 'ژانر')}
-            </span>
-            <p className="text-xs font-semibold text-white truncate">
-              {category}
-            </p>
-          </div>
-
-          {/* Year */}
-          <div className="rounded-xl border border-white/10 bg-[#050508]/60 p-3 space-y-1">
-            <span className="text-[10px] font-mono text-[#D4AF37] uppercase tracking-wider block">
-              {t('Release Year', 'سال ساخت')}
-            </span>
-            <p className="text-xs font-semibold text-white font-mono truncate" dir="ltr">
-              {item.releaseYear || 2026}
-            </p>
-          </div>
-        </div>
-
-        {/* Keyboard Shortcuts - Hidden on touch/mobile! */}
-        <div className="hidden lg:flex items-center gap-2 text-[11px] text-[#A3AEC2] border-t border-white/10 pt-3">
-          <Sparkles className="h-3.5 w-3.5 text-[#D4AF37] shrink-0" />
-          <span>
-            {t(
-              'Shortcuts: Space (Play/Pause) · J/L (±10s) · M (Mute) · F (Fullscreen)',
-              'کلیدهای میانبر: Space (پخش/توقف) · J/L (±۱۰ ثانیه) · M (صدا) · F (تمام‌صفحه)'
-            )}
-          </span>
         </div>
       </div>
 

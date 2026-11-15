@@ -144,134 +144,94 @@ export function SpatialPlaybackHud({
         </div>
       </div>
 
-      {/* 2. Controls Row: Left Utility Pills + Centered Tactile Glass + Right Pills */}
-      <div className="flex items-center justify-between gap-2 pt-0.5">
-        {/* Left Side: Quality & Subtitle Pills */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Subtitle Sync Pill */}
-          <button
-            type="button"
-            onClick={onOpenAiSubtitlePanel || onToggleSubtitleMode}
-            className={`min-h-[34px] px-2.5 sm:px-3 rounded-full border text-[11px] font-medium inline-flex items-center gap-1.5 transition-all cursor-pointer ${
-              subMode !== 'off'
-                ? 'border-[rgba(212,175,55,0.4)] bg-[rgba(212,175,55,0.12)] text-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.2)]'
-                : 'border-white/10 bg-white/[0.04] text-[#A3AEC2] hover:text-white'
-            }`}
-            title={t('Subtitle Sync & Settings', 'تنظیمات و همسان‌سازی زیرنویس هوشمند')}
-          >
-            <Captions className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span className="truncate max-w-[130px] sm:max-w-[170px]">{subtitleLabel}</span>
-          </button>
+      {/* 2. Exact VisionOS Circular Controls Row (Reference Image 2) */}
+      <div className="flex items-center justify-around gap-2 pt-2 px-1 sm:px-4 max-w-lg mx-auto">
+        {/* 1. Speed Control */}
+        <button
+          type="button"
+          onClick={onToggleSpeed}
+          className="flex flex-col items-center gap-1 group cursor-pointer"
+        >
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[rgba(212,175,55,0.3)] bg-gradient-to-b from-[#181a24] to-[#0c0d14] text-[#D4AF37] group-hover:border-[#F5B942] group-hover:shadow-[0_0_15px_rgba(212,175,55,0.35)] flex items-center justify-center font-mono font-bold text-xs sm:text-sm transition-all active:scale-95">
+            {speed}x
+          </div>
+          <span className="text-[10px] text-[#A3AEC2] group-hover:text-[#D4AF37] transition-colors">
+            {t('Speed', 'سرعت')}
+          </span>
+        </button>
 
-          {/* Quality Selector Pill */}
-          <button
-            type="button"
-            onClick={onOpenQualityPicker || onOpenAiSubtitlePanel}
-            className="min-h-[34px] px-2.5 sm:px-3 rounded-full border border-[rgba(212,175,55,0.3)] bg-white/[0.04] hover:bg-[rgba(212,175,55,0.1)] text-[11px] font-mono font-bold text-[#F5B942] inline-flex items-center gap-1.5 transition-all cursor-pointer"
-            title={t('Projection Quality', 'کیفیت پخش سالن')}
-          >
-            <Tv className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>{activeQualityLabel}</span>
-          </button>
-        </div>
+        {/* 2. Subtitles Toggle */}
+        <button
+          type="button"
+          onClick={onOpenAiSubtitlePanel || onToggleSubtitleMode}
+          className="flex flex-col items-center gap-1 group cursor-pointer"
+        >
+          <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full border flex flex-col items-center justify-center transition-all active:scale-95 ${
+            subMode !== 'off'
+              ? 'border-[rgba(212,175,55,0.6)] bg-gradient-to-b from-[#252014] to-[#12100a] text-[#F5B942] shadow-[0_0_16px_rgba(212,175,55,0.3)]'
+              : 'border-white/15 bg-gradient-to-b from-[#181a24] to-[#0c0d14] text-[#A3AEC2] group-hover:text-white group-hover:border-white/30'
+          }`}>
+            <span className="font-bold text-[11px] leading-tight">CC</span>
+            <span className="text-[9px] leading-tight text-[#D4AF37]">
+              {subMode === 'en' ? 'ENG' : subMode === 'off' ? 'OFF' : 'فارسی'}
+            </span>
+          </div>
+          <span className="text-[10px] text-[#A3AEC2] group-hover:text-[#D4AF37] transition-colors">
+            {t('Subtitles', 'زیرنویس')}
+          </span>
+        </button>
 
-        {/* Center: Tactile Glass Controls (Rewind 10s, Glowing Play/Pause, Forward 10s) */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Rewind 10s */}
-          <button
-            type="button"
-            onClick={() => onSeek(Math.max(0, currentTime - 10))}
-            aria-label="Rewind 10 seconds"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/85 text-zinc-300 hover:text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
-            title="10s Rewind"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
-
-          {/* Glowing Gold Play/Pause Button */}
+        {/* 3. Center Glowing Gold Double-Ring Play/Pause Button */}
+        <div className="flex flex-col items-center gap-1">
           <button
             type="button"
             onClick={onTogglePlay}
             aria-label={isPlaying ? 'Pause' : 'Play'}
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-tr from-[#A68019] via-[#F5B942] to-[#FFF2A7] text-[#050508] flex items-center justify-center shadow-[0_0_24px_rgba(212,175,55,0.7)] hover:scale-108 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-full p-1 bg-gradient-to-tr from-[#99761E] via-[#F5B942] to-[#FFF4BA] shadow-[0_0_35px_rgba(245,185,66,0.65),0_0_12px_rgba(212,175,55,0.9)] hover:scale-108 active:scale-95 transition-all cursor-pointer group"
           >
-            {isPlaying ? (
-              <Pause className="w-5 h-5 fill-current stroke-[2.5]" />
-            ) : (
-              <Play className="w-5 h-5 fill-current stroke-[2.5] translate-x-0.5" />
-            )}
-          </button>
-
-          {/* Forward 10s */}
-          <button
-            type="button"
-            onClick={() => onSeek(Math.min(duration, currentTime + 10))}
-            aria-label="Forward 10 seconds"
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-[rgba(212,175,55,0.25)] bg-[#050508]/85 text-zinc-300 hover:text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
-            title="10s Forward"
-          >
-            <RotateCw className="w-3.5 h-3.5" />
+            {/* Inner Black/Gold Glass Ring */}
+            <div className="w-full h-full rounded-full bg-gradient-to-b from-[#1c180f] to-[#090805] border border-[rgba(255,244,186,0.4)] flex items-center justify-center text-[#F5B942] group-hover:text-white transition-colors">
+              {isPlaying ? (
+                <Pause className="w-6 h-6 sm:w-7 sm:h-7 fill-current stroke-[2.5]" />
+              ) : (
+                <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current stroke-[2.5] translate-x-0.5" />
+              )}
+            </div>
           </button>
         </div>
 
-        {/* Right Side: Speed, Volume & Fullscreen Pills */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Speed Pill */}
-          <button
-            type="button"
-            onClick={onToggleSpeed}
-            className="min-h-[34px] px-2.5 sm:px-3 rounded-full border border-white/10 bg-white/[0.04] text-[11px] font-mono text-[#D4AF37] hover:border-[#D4AF37]/50 inline-flex items-center gap-1 transition-all cursor-pointer"
-            title={t('Playback Speed', 'سرعت پخش')}
-          >
-            <Gauge className="w-3 h-3 text-[#D4AF37]" />
-            <span>{speed}x</span>
-          </button>
+        {/* 4. Quality Selector */}
+        <button
+          type="button"
+          onClick={onOpenQualityPicker || onOpenAiSubtitlePanel}
+          className="flex flex-col items-center gap-1 group cursor-pointer"
+        >
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[rgba(212,175,55,0.3)] bg-gradient-to-b from-[#181a24] to-[#0c0d14] text-[#D4AF37] group-hover:border-[#F5B942] group-hover:shadow-[0_0_15px_rgba(212,175,55,0.35)] flex flex-col items-center justify-center font-mono font-bold transition-all active:scale-95">
+            <span className="text-[11px] leading-tight text-[#F5B942]">4K</span>
+            <span className="text-[9px] leading-tight text-[#A3AEC2]">HDR</span>
+          </div>
+          <span className="text-[10px] text-[#A3AEC2] group-hover:text-[#D4AF37] transition-colors">
+            {t('Quality', 'کیفیت')}
+          </span>
+        </button>
 
-          {/* Volume Button with Popover on Hover / Click */}
-          <div
-            className="relative flex items-center"
-            onMouseEnter={() => setShowVolumeSlider(true)}
-            onMouseLeave={() => setShowVolumeSlider(false)}
-          >
-            <button
-              type="button"
-              onClick={onToggleMute}
-              className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full border border-white/10 bg-white/[0.04] text-zinc-300 hover:text-[#D4AF37] hover:border-[#D4AF37]/40 flex items-center justify-center transition-all cursor-pointer"
-              title={muted || volume === 0 ? t('Unmute', 'وصل صدا') : t('Mute', 'قطع صدا')}
-            >
-              {muted || volume === 0 ? (
-                <VolumeX className="w-3.5 h-3.5 text-zinc-400" />
-              ) : (
-                <Volume2 className="w-3.5 h-3.5 text-[#D4AF37]" />
-              )}
-            </button>
-
-            {showVolumeSlider && (
-              <div className="absolute bottom-full mb-2 start-1/2 -translate-x-1/2 p-2 rounded-xl border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/95 backdrop-blur-xl shadow-xl flex items-center gap-2 z-40">
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={muted ? 0 : volume}
-                  onChange={(e) => onVolumeChange(Number(e.target.value))}
-                  aria-label="Volume Slider"
-                  className="w-20 accent-[#D4AF37] cursor-pointer"
-                />
-              </div>
+        {/* 5. Fullscreen Toggle */}
+        <button
+          type="button"
+          onClick={onToggleFullscreen}
+          className="flex flex-col items-center gap-1 group cursor-pointer"
+        >
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[rgba(212,175,55,0.3)] bg-gradient-to-b from-[#181a24] to-[#0c0d14] text-[#A3AEC2] group-hover:text-[#D4AF37] group-hover:border-[#F5B942] group-hover:shadow-[0_0_15px_rgba(212,175,55,0.35)] flex items-center justify-center transition-all active:scale-95">
+            {isFullscreen ? (
+              <Minimize2 className="w-5 h-5" />
+            ) : (
+              <Maximize2 className="w-5 h-5" />
             )}
           </div>
-
-          {/* Fullscreen Button */}
-          <button
-            type="button"
-            onClick={onToggleFullscreen}
-            className="w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full border border-[rgba(212,175,55,0.3)] bg-[rgba(212,175,55,0.1)] text-[#D4AF37] hover:bg-[rgba(212,175,55,0.2)] flex items-center justify-center transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
-            title={isFullscreen ? t('Exit Fullscreen', 'خروج از تمام‌صفحه') : t('Fullscreen', 'تمام‌صفحه')}
-          >
-            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-          </button>
-        </div>
+          <span className="text-[10px] text-[#A3AEC2] group-hover:text-[#D4AF37] transition-colors">
+            {t('Fullscreen', 'تمام‌صفحه')}
+          </span>
+        </button>
       </div>
     </div>
   );

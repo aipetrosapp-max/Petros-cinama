@@ -10,6 +10,7 @@ import {
   Search,
   Settings,
   Sparkles,
+  Ticket,
   Tv
 } from 'lucide-react';
 import { AnimatePresence, MotionConfig, motion } from 'motion/react';
@@ -814,10 +815,10 @@ function UniversePrototypeShell({
     icon: React.ReactNode;
   }> = useMemo(
     () => [
-      { id: 'universe', fa: 'سینما', en: 'Universe', icon: <Home className="h-4 w-4" /> },
+      { id: 'universe', fa: 'سینما', en: 'Cinema', icon: <Ticket className="h-4 w-4" /> },
       { id: 'discover', fa: 'کاوش', en: 'Discover', icon: <Compass className="h-4 w-4" /> },
       { id: 'search', fa: 'جستجو', en: 'Search', icon: <Search className="h-4 w-4" /> },
-      { id: 'library', fa: 'آرشیو', en: 'Library', icon: <Film className="h-4 w-4" /> },
+      { id: 'library', fa: 'آرشیو', en: 'Archive', icon: <Film className="h-4 w-4" /> },
       { id: 'settings', fa: 'تنظیمات', en: 'Settings', icon: <Settings className="h-4 w-4" /> }
     ],
     []
@@ -1222,7 +1223,7 @@ function UniversePrototypeShell({
         {/* Mobile Floating VisionOS Spatial Dock with Frosted Glass Pill & Glowing Gold Indicator */}
         <nav
           id="tour-step-mobile-nav"
-          className="md:hidden fixed bottom-3 inset-x-3 z-40 h-16 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#0B0C10]/90 backdrop-blur-2xl px-2 flex items-center justify-around shadow-[0_16px_40px_-8px_rgba(0,0,0,0.95),0_0_24px_-2px_rgba(212,175,55,0.2)]"
+          className="md:hidden fixed bottom-3 inset-x-3 max-w-md mx-auto z-40 h-16 rounded-[28px] border border-[rgba(212,175,55,0.35)] bg-[#0B0C10]/95 backdrop-blur-2xl px-2 flex items-center justify-around shadow-[0_16px_40px_-8px_rgba(0,0,0,0.95),0_0_24px_-2px_rgba(212,175,55,0.2)]"
           aria-label="Mobile Navigation"
         >
           {effectiveNavItems.map((nav) => {
@@ -1232,7 +1233,7 @@ function UniversePrototypeShell({
                 key={nav.id}
                 type="button"
                 onClick={() => navigateTo(nav.id)}
-                className={`relative min-h-[48px] flex-1 flex flex-col items-center justify-center gap-1 rounded-full text-[11px] font-medium cursor-pointer transition-all ${
+                className={`relative min-h-[48px] flex-1 flex flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-medium cursor-pointer transition-all ${
                   active ? 'text-[#D4AF37] font-bold' : 'text-[#A3AEC2] hover:text-white'
                 }`}
               >
@@ -1240,7 +1241,7 @@ function UniversePrototypeShell({
                   <motion.span
                     layoutId="mobileDockPill"
                     transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                    className="absolute inset-1 rounded-full bg-gradient-to-b from-[rgba(212,175,55,0.22)] to-[rgba(212,175,55,0.06)] border border-[rgba(212,175,55,0.45)] shadow-[0_0_12px_rgba(212,175,55,0.25)]"
+                    className="absolute inset-1 rounded-2xl bg-gradient-to-b from-[rgba(212,175,55,0.24)] to-[rgba(212,175,55,0.08)] border border-[rgba(212,175,55,0.55)] shadow-[0_0_16px_rgba(212,175,55,0.3)]"
                   />
                 )}
                 <span className="relative z-10 flex flex-col items-center gap-0.5">

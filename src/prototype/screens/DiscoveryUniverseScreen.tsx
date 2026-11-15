@@ -811,64 +811,98 @@ export function DiscoveryUniverseScreen({
               )}
             </AnimatePresence>
 
-            {/* 3D Cinema Node Ticket HUD with Poster, AI Match Reason and Instant Play */}
-            {selectedNode && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="pointer-events-auto w-full max-w-2xl rounded-2xl border border-[rgba(212,175,55,0.4)] bg-[#0B0C10]/95 backdrop-blur-2xl p-3 sm:p-4 shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_25px_rgba(212,175,55,0.18)] flex items-center justify-between gap-3"
-              >
-                <div
-                  className="flex items-center gap-3 min-w-0 cursor-pointer"
-                  onClick={() => onOpenDetail(selectedNode.item)}
+            {/* ===============================================================
+                FLOATING VISION-OS EXPLAINABILITY BADGE (Reference Image 3)
+                =============================================================== */}
+            {(selectedNode || roomNodes[0]) && (
+              <div className="pointer-events-none absolute top-16 sm:top-18 inset-x-4 z-20 flex justify-center">
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-2xl border border-[rgba(212,175,55,0.45)] bg-[#0d0e14]/80 backdrop-blur-2xl px-5 py-3 text-center shadow-[0_16px_40px_rgba(0,0,0,0.85),0_0_25px_rgba(212,175,55,0.2)] max-w-sm sm:max-w-md space-y-2 select-none"
                 >
-                  <img
-                    src={selectedNode.item.posterUrl}
-                    alt={selectedNode.item.titleEn}
-                    className="w-12 h-16 sm:w-14 sm:h-20 rounded-xl object-cover border border-[#D4AF37]/50 shadow-md shrink-0 hover:scale-105 transition-transform"
-                  />
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
-                        {selectedNode.score}% MATCH
-                      </span>
-                      <span className="text-[10px] font-mono text-[#D4AF37]">
-                        {selectedNode.item.quality} · {selectedNode.item.releaseYear || 2026}
-                      </span>
-                    </div>
-                    <h3 className="font-cinzel text-xs sm:text-sm font-bold text-white truncate">
-                      {cleanCinemaTitle(t(selectedNode.item.titleEn, selectedNode.item.titleFa))}
-                    </h3>
-                    <p className="text-[10px] sm:text-[11px] text-[#A3AEC2] truncate">
-                      {t(
-                        `AI Match: Selected for your interest in ${selectedNode.item.clusterLabelEn}`,
-                        `انتخاب هوش مصنوعی بر اساس علاقه به سبک ${selectedNode.item.clusterLabelFa}`
-                      )}
-                    </p>
-                  </div>
-                </div>
+                  <p className="font-cinzel text-xs sm:text-sm font-bold text-[#FFF4BA] leading-tight flex items-center justify-center gap-1.5">
+                    <span>✨ {t(
+                      `${(selectedNode || roomNodes[0]).score}% Match to your Sci-Fi & Cinema taste`,
+                      `۹۹٪ منطبق با علاقه شما به علمی-تخیلی و فضایی`
+                    )}</span>
+                  </p>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => onPlay(selectedNode.item)}
-                    className="h-10 sm:h-11 px-4 sm:px-6 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] text-[#050508] font-cinzel font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(212,175,55,0.7)] hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <Play className="w-4 h-4 fill-current stroke-[2.5]" />
-                    <span className="hidden sm:inline">{t('Watch in VIP Hall', 'ورود به سالن و پخش')}</span>
-                    <span className="sm:hidden">{t('Play', 'پخش')}</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onOpenDetail(selectedNode.item)}
-                    className="h-10 w-10 rounded-xl border border-[rgba(212,175,55,0.3)] bg-[#050508]/80 text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-colors cursor-pointer"
-                    title={t('Dossier', 'شناسنامه')}
-                  >
-                    <Eye className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
+                  {/* Mini Match Badges */}
+                  <div className="flex items-center justify-center gap-2 pt-0.5">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.12)] text-[10px] font-mono font-bold text-[#F3D06B]">
+                      🚀 99%
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.12)] text-[10px] font-mono font-bold text-[#F3D06B]">
+                      🌌 99%
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-[rgba(212,175,55,0.35)] bg-[rgba(212,175,55,0.12)] text-[10px] font-mono font-bold text-[#F3D06B]">
+                      ⏱ 99%
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
             )}
+
+            {/* ===============================================================
+                PERFORATED VIP CINEMA TICKET GLASS CARD (Reference Image 3)
+                =============================================================== */}
+            {(() => {
+              const activeItem = (selectedNode || roomNodes[0])?.item;
+              if (!activeItem) return null;
+              return (
+                <div className="pointer-events-auto absolute bottom-4 sm:bottom-6 inset-x-3 sm:inset-x-8 z-30 flex justify-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="relative w-full max-w-xl rounded-3xl border border-[rgba(212,175,55,0.45)] bg-[#0B0C10]/95 backdrop-blur-2xl p-4 sm:p-5 shadow-[0_20px_60px_rgba(0,0,0,0.95),0_0_35px_rgba(212,175,55,0.25)] flex flex-col sm:flex-row items-center justify-between gap-4 overflow-hidden"
+                  >
+                    {/* Left and Right Perforated Ticket Notches */}
+                    <span className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#050508] border border-[rgba(212,175,55,0.4)] pointer-events-none" />
+                    <span className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#050508] border border-[rgba(212,175,55,0.4)] pointer-events-none" />
+
+                    {/* Movie Info & Poster */}
+                    <div
+                      className="flex items-center gap-3.5 min-w-0 w-full sm:w-auto cursor-pointer"
+                      onClick={() => onOpenDetail(activeItem)}
+                    >
+                      <img
+                        src={activeItem.posterUrl}
+                        alt={activeItem.titleEn}
+                        className="w-14 h-20 sm:w-16 sm:h-22 rounded-2xl object-cover border border-[#D4AF37]/60 shadow-[0_4px_16px_rgba(0,0,0,0.8)] shrink-0 hover:scale-105 transition-transform"
+                      />
+                      <div className="min-w-0 space-y-1 text-start">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-cinzel text-sm sm:text-base font-black text-white truncate">
+                            {cleanCinemaTitle(t(activeItem.titleEn, activeItem.titleFa))}
+                          </h3>
+                          <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#D4AF37]/20 text-[#F5B942] border border-[#D4AF37]/40 shrink-0">
+                            VIP 💺
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#A3AEC2]">
+                          <span>(VIP 4K)</span>
+                          <span className="mx-1.5">•</span>
+                          <span>{t(activeItem.categoryEn, activeItem.categoryFa)}</span>
+                          <span className="mx-1.5">•</span>
+                          <span dir="ltr">{Math.floor((activeItem.durationSec || 6000) / 60)} {t('min', 'دقیقه')}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Glowing Gold Action Button (Reference Image 3) */}
+                    <button
+                      type="button"
+                      onClick={() => onPlay(activeItem)}
+                      className="w-full sm:w-auto min-h-[46px] px-6 rounded-full bg-gradient-to-r from-[#F3D06B] via-[#E5C158] to-[#D4AF37] text-black font-extrabold text-xs sm:text-sm tracking-wide shadow-[0_0_25px_rgba(212,175,55,0.65)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                    >
+                      <Play className="w-4 h-4 fill-current stroke-[2.5]" />
+                      <span>{t('Enter VIP Seat & Watch', 'ورود به صندلی VIP و پخش')}</span>
+                    </button>
+                  </motion.div>
+                </div>
+              );
+            })()}
 
             {/* ===============================================================
                 MAIN FROSTED GLASS FLOATING CONTROL BAR (Dark Tinted Glass Backing)
