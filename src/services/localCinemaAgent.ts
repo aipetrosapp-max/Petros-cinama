@@ -5,7 +5,7 @@
 // ============================================================================
 
 import type { PrototypeMediaItem } from '../prototype/types';
-import type { AiStreamResolutionResult } from './aiCinemaStreamEngine';
+import { UNBLOCKED_CINEMA_CDN_NODES, isPlayableDirectMediaUrl, type AiStreamResolutionResult } from './aiCinemaStreamEngine';
 import {
   cinemaStreamAgent,
   playbackScrubberAgent,
@@ -96,7 +96,7 @@ class LocalCinemaAgentService {
     const resolutionTool = cinemaStreamAgent.tools.get('resolveGenuineStream');
     
     let resolution: AiStreamResolutionResult;
-    if (item?.streamUrl && !item.streamUrl.includes('flower') && !item.streamUrl.includes('bigbuckbunny')) {
+    if (item?.streamUrl && isPlayableDirectMediaUrl(item.streamUrl)) {
       resolution = {
         streamUrl: item.streamUrl,
         sourceType: 'direct_mp4',
@@ -113,9 +113,9 @@ class LocalCinemaAgentService {
       }, ctx);
 
       resolution = {
-        streamUrl: bestNode?.url || 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+        streamUrl: bestNode?.url || UNBLOCKED_CINEMA_CDN_NODES[0].url,
         sourceType: 'direct_mp4',
-        nodeName: `ADK Stream Node (${bestNode?.name || 'VIP Hollywood Action'})`,
+        nodeName: `ADK Stream Node (${bestNode?.name || 'Hollywood VIP Action'})`,
         quality: bestNode?.quality || '4K HDR Cinema',
         isIranAccessible: true,
         resolutionTimeMs: 8,

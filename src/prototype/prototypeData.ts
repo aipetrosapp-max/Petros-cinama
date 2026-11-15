@@ -31,7 +31,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+    streamUrl: 'https://vjs.zencdn.net/v/oceans.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: -4, y: 1.5, z: -8 }
@@ -155,7 +155,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
+    streamUrl: 'https://vjs.zencdn.net/v/oceans.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: 6, y: 1.5, z: -6 }

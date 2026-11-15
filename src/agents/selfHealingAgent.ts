@@ -57,13 +57,19 @@ export class SelfHealingAgent extends AdkAgent {
         if (!video) return;
 
         video.src = params.backupUrl;
-        video.load();
+        if (typeof video.load === 'function') {
+          video.load();
+        }
         video.currentTime = params.resumePos;
-        video.play().catch(() => {
-          context.log('warn', 'Autoplay gesture policy caught, retrying muted');
-          video.muted = true;
-          video.play().catch(() => {});
-        });
+        if (typeof video.play === 'function') {
+          video.play().catch(() => {
+            context.log('warn', 'Autoplay gesture policy caught, retrying muted');
+            video.muted = true;
+            if (typeof video.play === 'function') {
+              video.play().catch(() => {});
+            }
+          });
+        }
       }
     });
   }

@@ -63,13 +63,14 @@ export class PlaybackScrubberAgent extends AdkAgent {
       },
       execute: (params: { targetRatio: number; effectiveDuration: number; videoDuration?: number }, context: AdkContext) => {
         const clampedRatio = Math.max(0, Math.min(1, params.targetRatio));
-        const rawSec = clampedRatio * params.effectiveDuration;
         const hasVid = params.videoDuration && isFinite(params.videoDuration) && params.videoDuration > 0;
-        const maxBound = hasVid ? Math.max(0, params.videoDuration! - 0.25) : rawSec;
-        const safeSec = Math.min(rawSec, maxBound);
+        const playableDuration = hasVid ? params.videoDuration! : (params.effectiveDuration || 360);
+        const safeSec = clampedRatio * playableDuration;
+        const maxBound = Math.max(0, playableDuration - 0.25);
+        const clampedSec = Math.min(safeSec, maxBound);
 
-        context.log('action', `Clamped seek: ${(clampedRatio * 100).toFixed(1)}% -> ${safeSec.toFixed(1)}s (max: ${maxBound.toFixed(1)}s)`);
-        return safeSec;
+        context.log('action', `Clamped seek: ${(clampedRatio * 100).toFixed(1)}% -> ${clampedSec.toFixed(1)}s of ${playableDuration.toFixed(1)}s`);
+        return clampedSec;
       }
     });
   }

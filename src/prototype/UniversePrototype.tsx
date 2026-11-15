@@ -162,8 +162,8 @@ function UniversePrototypeShell({
     const fromDynamic = dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem);
     const combined = fromVault.length > 0 ? fromVault : fromDynamic.length > 0 ? fromDynamic : PROTOTYPE_MEDIA_CATALOG;
     const valid = combined.filter((item) => Boolean(
-      (item.streamUrl && item.streamUrl.startsWith('http') && !item.streamUrl.includes('oceans.mp4')) ||
-      (item.qualities && item.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4'))) ||
+      (item.streamUrl && item.streamUrl.startsWith('http')) ||
+      (item.qualities && item.qualities.some((q) => q.url && q.url.startsWith('http'))) ||
       item.streamUrl?.includes('t.me/') ||
       item.id?.startsWith('tg-')
     ));
@@ -282,8 +282,8 @@ function UniversePrototypeShell({
       if (dynamicStreams && dynamicStreams.length > 0) {
         const validConverted = dynamicStreams
           .filter((s) => Boolean(
-            (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http') && !s.defaultStreamUrl.includes('oceans.mp4')) ||
-            (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4')))
+            (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http')) ||
+            (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http')))
           ))
           .map(convertDynamicStreamToMediaItem);
         setCatalog(validConverted);
@@ -298,8 +298,8 @@ function UniversePrototypeShell({
         if (isMounted) {
           const validOnly = dynamicStreamSync.getStreams()
             .filter((s) => Boolean(
-              (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http') && !s.defaultStreamUrl.includes('oceans.mp4')) ||
-              (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4')))
+              (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http')) ||
+              (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http')))
             ))
             .map(convertDynamicStreamToMediaItem);
           if (validOnly.length > 0) {
@@ -788,8 +788,8 @@ function UniversePrototypeShell({
     void clearVaultSnapshot();
     const validOnly = dynamicStreamSync.getStreams()
       .filter((s) => Boolean(
-        (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http') && !s.defaultStreamUrl.includes('oceans.mp4')) ||
-        (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4')))
+        (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http')) ||
+        (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http')))
       ))
       .map(convertDynamicStreamToMediaItem);
     setCatalog(validOnly);
@@ -1342,8 +1342,8 @@ function UniversePrototypeShell({
             onRefreshCatalog={() => {
               const updatedStreams = dynamicStreamSync.getStreams()
                 .filter((s) => Boolean(
-                  (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http') && !s.defaultStreamUrl.includes('oceans.mp4')) ||
-                  (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4')))
+                  (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http')) ||
+                  (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http')))
                 ));
               if (updatedStreams.length > 0) {
                 const converted = updatedStreams.map(convertDynamicStreamToMediaItem);

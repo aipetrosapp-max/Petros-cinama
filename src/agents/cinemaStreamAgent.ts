@@ -7,7 +7,7 @@
 // ============================================================================
 
 import { AdkAgent, type AdkContext, type AdkExecutionResult } from './adkTypes';
-import { UNBLOCKED_CINEMA_CDN_NODES, type AiStreamResolutionResult } from '../services/aiCinemaStreamEngine';
+import { UNBLOCKED_CINEMA_CDN_NODES, isPlayableDirectMediaUrl, type AiStreamResolutionResult } from '../services/aiCinemaStreamEngine';
 import type { PrototypeMediaItem } from '../prototype/types';
 
 export interface ResolveStreamInput {
@@ -58,7 +58,7 @@ export class CinemaStreamAgent extends AdkAgent<ResolveStreamInput, AiStreamReso
           titleLower.includes('solaris')
         ) {
           context.log('action', `Matched Cosmic Deep Space Master for "${params.movieTitle}"`);
-          return UNBLOCKED_CINEMA_CDN_NODES[2];
+          return UNBLOCKED_CINEMA_CDN_NODES[0];
         }
 
         // 3. Epic Fantasy & Desert Battles (Dune, Gladiator, etc.)
@@ -68,7 +68,8 @@ export class CinemaStreamAgent extends AdkAgent<ResolveStreamInput, AiStreamReso
           titleLower.includes('fantasy') ||
           titleLower.includes('epic') ||
           titleLower.includes('dragon') ||
-          titleLower.includes('حماسی')
+          titleLower.includes('حماسی') ||
+          titleLower.includes('یل')
         ) {
           context.log('action', `Matched Epic Fantasy Combat Master for "${params.movieTitle}"`);
           return UNBLOCKED_CINEMA_CDN_NODES[1];
@@ -88,17 +89,12 @@ export class CinemaStreamAgent extends AdkAgent<ResolveStreamInput, AiStreamReso
     ctx.log('info', `Resolving stream for: ${title}`);
 
     // Check if item has a valid, non-blocked direct stream URL
-    let chosenUrl = input.item?.streamUrl || '';
+    let chosenUrl = input.item?.streamUrl || input.item?.defaultStreamUrl || '';
     let nodeName = 'Direct Master Stream';
     let matchedGenre = input.item?.categoryEn || 'Cinema';
     let quality = input.preferredQuality?.toUpperCase() || input.item?.quality || '4K HDR';
 
-    const lower = chosenUrl.toLowerCase();
-    const isInvalid = !chosenUrl ||
-      lower.includes('flower.mp4') ||
-      lower.includes('bigbuckbunny') ||
-      lower.includes('commondatastorage.googleapis.com') ||
-      lower.includes('archive.org');
+    const isInvalid = !isPlayableDirectMediaUrl(chosenUrl);
 
     if (isInvalid) {
       const bestNode = await this.invokeTool<typeof UNBLOCKED_CINEMA_CDN_NODES[0]>('resolveGenuineStream', {

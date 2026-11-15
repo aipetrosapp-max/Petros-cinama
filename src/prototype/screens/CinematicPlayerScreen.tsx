@@ -38,7 +38,7 @@ import type {
   WatchProgressEntry
 } from '../types';
 import { formatBytes, loadOfflineMediaBlob, triggerBrowserDownload } from '../downloadEngine';
-import { aiCinemaStreamEngine } from '../../services/aiCinemaStreamEngine';
+import { aiCinemaStreamEngine, UNBLOCKED_CINEMA_CDN_NODES } from '../../services/aiCinemaStreamEngine';
 import { localCinemaAgent } from '../../services/localCinemaAgent';
 import { monetizationAdAgent, securityGuardAgent, masterSupremeOrchestratorAgent } from '../../agents';
 import {
@@ -134,6 +134,9 @@ export function CinematicPlayerScreen({
   const currentTimeRef = useRef(startOffset);
   currentTimeRef.current = currentTime;
   const [muted, setMuted] = useState(false);
+  const [unmuteNotice, setUnmuteNotice] = useState(false);
+  const lastErrorRecoveryRef = useRef<number>(0);
+  const errorRetryCountRef = useRef<number>(0);
   const [volume, setVolume] = useState(0.8);
   const [selectedQualityId, setSelectedQualityId] = useState<string>(
     initialSelectedQualityId || defaultQuality
@@ -370,6 +373,16 @@ export function CinematicPlayerScreen({
     return aiResolution.streamUrl;
   }, [item, playbackMode, details, aiResolution]);
 
+  const handleUnmute = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = false;
+      setMuted(false);
+      setUnmuteNotice(false);
+      video.volume = volume > 0 ? volume : 0.8;
+    }
+  };
+
   // Load real video stream URL into <video>
   useEffect(() => {
     const video = videoRef.current;
@@ -377,7 +390,6 @@ export function CinematicPlayerScreen({
 
     if (video.src !== activeStreamUrl) {
       video.src = activeStreamUrl;
-      video.load();
     }
     video.currentTime = currentTimeRef.current;
     video.muted = muted;
@@ -391,7 +403,10 @@ export function CinematicPlayerScreen({
           console.warn('Autoplay unmuted blocked by browser gesture policy, retrying muted...', err);
           video.muted = true;
           setMuted(true);
-          video.play().catch(() => {
+          video.play().then(() => {
+            setIsPlaying(true);
+            setUnmuteNotice(true);
+          }).catch(() => {
             setIsPlaying(false);
           });
         });
@@ -796,15 +811,19 @@ export function CinematicPlayerScreen({
                   onError={() => {
                     const video = videoRef.current;
                     if (!video) return;
-                    const nextUrl = localCinemaAgent.handlePlaybackError(video.src, video);
-                    console.warn('[AI Cinema Engine] Auto-routing to unblocked CDN node:', nextUrl);
-                    video.src = nextUrl;
-                    video.load();
-                    video.play().catch(() => {
+                    const now = Date.now();
+                    if (now - lastErrorRecoveryRef.current < 800) return;
+                    lastErrorRecoveryRef.current = now;
+                    errorRetryCountRef.current++;
+                    if (errorRetryCountRef.current > 4) {
+                      video.src = UNBLOCKED_CINEMA_CDN_NODES[0].url;
                       video.muted = true;
                       setMuted(true);
                       video.play().catch(() => setIsPlaying(false));
-                    });
+                      return;
+                    }
+                    const nextUrl = localCinemaAgent.handlePlaybackError(video.src, video);
+                    console.warn('[AI Cinema Engine] Auto-routing to unblocked CDN node:', nextUrl);
                   }}
                   onClick={togglePlay}
                   className={`absolute inset-0 h-full w-full cursor-pointer z-10 ${
@@ -822,6 +841,18 @@ export function CinematicPlayerScreen({
                     />
                   )}
                 </video>
+
+                {/* Floating Unmute Notice if Autoplay started in Muted Mode on iOS/Safari */}
+                {unmuteNotice && (
+                  <button
+                    type="button"
+                    onClick={handleUnmute}
+                    className="absolute top-4 left-4 z-30 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-400/50 bg-[#0B0C10]/90 backdrop-blur-xl text-amber-300 text-xs font-bold shadow-[0_0_20px_rgba(212,175,55,0.4)] animate-pulse cursor-pointer hover:bg-amber-400/20"
+                  >
+                    <span>🔊</span>
+                    <span>{t('Tap for Sound', 'لمس برای فعال‌سازی صدا')}</span>
+                  </button>
+                )}
 
                 {/* Big Center Play Button when paused */}
                 {!isPlaying && (

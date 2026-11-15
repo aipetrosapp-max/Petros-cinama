@@ -148,6 +148,7 @@ export function SpatialPlaybackHud({
         {/* Laser Scrub Track (Touch-friendly & Pointer-captured for smooth drag on Mobile & Desktop) */}
         <div
           ref={scrubTrackRef}
+          dir="ltr"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -163,7 +164,7 @@ export function SpatialPlaybackHud({
           <div className="h-1.5 sm:h-2 w-full rounded-full bg-white/10 group-hover:bg-white/20 transition-all overflow-hidden relative">
             {/* Played laser fill */}
             <div
-              className="absolute inset-y-0 start-0 bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#FFF2A7] shadow-[0_0_14px_rgba(212,175,55,0.95)]"
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#FFF2A7] shadow-[0_0_14px_rgba(212,175,55,0.95)]"
               style={{ width: `${activeRatio * 100}%` }}
             />
           </div>
