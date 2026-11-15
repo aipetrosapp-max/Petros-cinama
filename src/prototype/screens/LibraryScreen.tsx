@@ -259,17 +259,21 @@ export function LibraryScreen({
           {/* Offline Downloads Manager */}
           {activeTab === 'downloads' ? (
             downloadEntries.length === 0 ? (
-              <div className="rounded-[24px] border border-white/10 bg-[#0D101A] p-6 sm:p-8 text-center space-y-2.5">
-                <Download className="mx-auto h-7 w-7 text-[#F5B942]" />
-                <p className="text-sm font-medium text-[#F5F7FA]">
-                  {t('No offline downloads saved yet.', 'هنوز هیچ اثری برای تماشای آفلاین دانلود نشده است.')}
-                </p>
-                <p className="text-xs text-[#A3AEC2] max-w-md mx-auto">
-                  {t(
-                    'Tap the download icon on any card or Open Details to store clips offline in-app or save directly to your device.',
-                    'روی آیکون دانلود در هر کارت یا دکمه «ذخیره آفلاین» در پنجره جزئیات بزنید تا در حافظه داخل اپلیکیشن ذخیره شود یا فایل آن را روی دستگاه دانلود کنید.'
-                  )}
-                </p>
+              <div className="relative overflow-hidden rounded-[28px] border border-[rgba(212,175,55,0.3)] bg-gradient-to-b from-[#13141C] to-[#08090E] p-6 sm:p-10 text-center space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(212,175,55,0.1)]">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(212,175,55,0.15)] text-[#D4AF37] border border-[rgba(212,175,55,0.35)] shadow-[0_0_24px_rgba(212,175,55,0.3)]">
+                  <Download className="h-7 w-7" />
+                </div>
+                <div className="max-w-md mx-auto space-y-1.5">
+                  <h3 className="font-cinzel text-lg sm:text-xl font-bold text-[#F5F7FA]">
+                    {t('VIP Ticket Booth & Offline Vault', 'گیشه بلیت و سالن دانلودهای آفلاین')}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#A3AEC2] leading-relaxed">
+                    {t(
+                      'No movies are saved in your offline vault yet. Choose any film from Petros Cinema to download directly or save for high-speed offline projection.',
+                      'هنوز اثری در سالن آفلاین شما ذخیره نشده است. می‌توانید هر فیلمی را با دکمه دانلود به‌صورت مستقیم روی دستگاه ذخیره یا در حافظه پرسرعت درون‌برنامه‌ای ذخیره کنید.'
+                    )}
+                  </p>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -279,16 +283,31 @@ export function LibraryScreen({
                   return (
                     <div
                       key={record.contentId}
-                      className="rounded-[22px] border border-white/12 bg-[#0D101A] p-4 flex flex-col sm:flex-row gap-4 justify-between"
+                      className="relative overflow-hidden rounded-[24px] border border-[rgba(212,175,55,0.3)] bg-gradient-to-r from-[#0B0C10] via-[#10121A] to-[#0B0C10] p-4 flex flex-col sm:flex-row gap-4 justify-between shadow-[0_12px_36px_rgba(0,0,0,0.8),0_0_16px_rgba(212,175,55,0.08)] group"
                     >
+                      {/* Ticket notches */}
+                      <div className="hidden sm:block absolute -top-3 start-40 h-6 w-6 rounded-full bg-[#050508] border border-[rgba(212,175,55,0.3)]" />
+                      <div className="hidden sm:block absolute -bottom-3 start-40 h-6 w-6 rounded-full bg-[#050508] border border-[rgba(212,175,55,0.3)]" />
+                      <div className="hidden sm:block absolute top-3 bottom-3 start-43 border-e border-dashed border-[rgba(212,175,55,0.25)]" />
+
                       <div className="flex items-center gap-3.5 min-w-0">
-                        <img
-                          src={item.posterUrl}
-                          alt={itemTitle}
-                          className="h-20 w-28 rounded-xl object-cover shrink-0 bg-[#151A28]"
-                        />
+                        <div className="relative shrink-0">
+                          <img
+                            src={item.posterUrl}
+                            alt={itemTitle}
+                            className="h-24 w-18 rounded-xl object-cover border border-[rgba(212,175,55,0.25)] shadow-lg"
+                          />
+                          <div className="absolute top-1 start-1 rounded bg-[#D4AF37] px-1 py-0.5 text-[8px] font-bold text-black font-mono">
+                            4K MASTER
+                          </div>
+                        </div>
                         <div className="min-w-0 space-y-1">
-                          <h2 className="truncate text-sm font-semibold text-[#F5F7FA]">{itemTitle}</h2>
+                          <div className="inline-flex items-center gap-1.5 text-[10px] font-mono text-[#D4AF37] tracking-wider uppercase">
+                            <span>VIP PASS</span>
+                            <span>•</span>
+                            <span>DOLBY 5.1</span>
+                          </div>
+                          <h2 className="truncate text-base font-bold text-[#F5F7FA] font-cinzel">{itemTitle}</h2>
                           <p className="text-xs text-[#A3AEC2]">
                             {record.quality} ·{' '}
                             <span dir="ltr" className="font-mono-tabular">
@@ -299,25 +318,29 @@ export function LibraryScreen({
                             <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                             <span>
                               {completed
-                                ? `${t('Ready Offline', 'آماده پخش آفلاین')} (${record.mimeType})`
+                                ? `${t('Ready Offline in Vault', 'آماده در سالن آفلاین')} (${record.mimeType})`
                                 : `${record.progressPct}%`}
                             </span>
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap sm:flex-col items-center sm:items-end justify-end gap-2 shrink-0">
-                        <Button size="sm" onClick={() => onPlay(item)}>
-                          <Play className="h-3.5 w-3.5 fill-current" />
-                          {t('Play Offline', 'پخش آفلاین')}
-                        </Button>
+                      <div className="flex flex-wrap sm:flex-col items-center sm:items-end justify-center gap-2 shrink-0 sm:ps-6">
+                        <button
+                          type="button"
+                          onClick={() => onPlay(item)}
+                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] px-4 py-2.5 text-xs font-bold text-black shadow-[0_0_18px_rgba(212,175,55,0.4)] hover:shadow-[0_0_26px_rgba(212,175,55,0.7)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                        >
+                          <Play className="h-3.5 w-3.5 fill-black" />
+                          {t('Play in VIP Hall', 'ورود به سالن اکران')}
+                        </button>
                         <div className="flex items-center gap-2">
                           <Button
                             size="sm"
                             variant="secondary"
                             onClick={() => onSaveDownloadToDevice(item)}
                           >
-                            <HardDriveDownload className="h-3.5 w-3.5 text-[#F5B942]" />
+                            <HardDriveDownload className="h-3.5 w-3.5 text-[#D4AF37]" />
                             <span>{t('Save File', 'ذخیره در دستگاه')}</span>
                           </Button>
                           <Button
@@ -483,10 +506,55 @@ export function LibraryScreen({
               </div>
             )
           ) : activeItems.length === 0 ? (
-            <div className="rounded-[24px] border border-white/10 bg-[#0D101A] p-8 text-center text-sm text-[#A3AEC2]">
-              {t(
-                'This library section is currently empty. Bookmark or watch titles to populate it.',
-                'این بخش از کتابخانه شما هنوز خالی است. پس از تماشا یا نشان‌گذاری، آثار اینجا جمع می‌شوند.'
+            <div className="space-y-6">
+              <div className="relative overflow-hidden rounded-[28px] border border-[rgba(212,175,55,0.3)] bg-gradient-to-b from-[#13141C] to-[#08090E] p-6 sm:p-10 text-center space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(212,175,55,0.1)]">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(212,175,55,0.15)] text-[#D4AF37] border border-[rgba(212,175,55,0.35)] shadow-[0_0_24px_rgba(212,175,55,0.3)]">
+                  <Bookmark className="h-7 w-7" />
+                </div>
+                <div className="max-w-lg mx-auto space-y-1.5">
+                  <h3 className="font-cinzel text-lg sm:text-xl font-bold text-[#F5F7FA]">
+                    {t("VIP Collector's Vault is Empty", 'گیشه بلیت و آرشیو خصوصی شما خالی است')}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#A3AEC2] leading-relaxed">
+                    {t(
+                      'Your personal projection vault is waiting for its first screening ticket. Bookmark or watch any film to archive it here with full 4K master audio/visual specs.',
+                      'سالن اختصاصی شما در انتظار نخستین اکران است. هر اثری را با دکمه نشان‌گذاری یا تماشا به گیشه شخصی خود انتقال دهید تا شناسنامه کامل و بلیت VIP آن ثبت شود.'
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Instant Quick-Add Showcase from Catalog */}
+              {catalog.length > 0 && (
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between border-b border-[rgba(212,175,55,0.2)] pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-[#D4AF37] animate-ping" />
+                      <h4 className="text-sm sm:text-base font-semibold text-[#D4AF37]">
+                        {t('Featured VIP Masterpieces to Add to Your Vault', 'شاهکارهای پیشنهادی سینما پتروس برای افزودن به آرشیو')}
+                      </h4>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
+                    {catalog.slice(0, 5).map((item) => (
+                      <MediaCard
+                        key={`vault-rec-${item.id}`}
+                        recommendation={toRec(item, 'پیشنهاد اختصاصی برای آرشیو شما', 'Curated recommendation for your vault')}
+                        lang={lang}
+                        isFavorite={favoriteIds.has(item.id)}
+                        downloadRecord={downloadsMap[item.id]}
+                        progress={progressMap[item.id]}
+                        feedback={feedbackMap[item.id]}
+                        onOpenDetail={onOpenDetail}
+                        onPlay={onPlay}
+                        onDownload={(itm) => onDownload(itm, false)}
+                        onToggleFavorite={onToggleFavorite}
+                        onFeedback={onFeedback}
+                        onHide={onHide}
+                      />
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           ) : (

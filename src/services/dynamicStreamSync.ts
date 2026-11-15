@@ -271,6 +271,24 @@ class DynamicStreamSyncService {
 
 export const dynamicStreamSync = new DynamicStreamSyncService();
 
+const DEFAULT_CINEMA_POSTERS = [
+  'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1574267432553-4b4628081c31?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=800&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=800&auto=format&fit=crop&q=80'
+];
+
+export function getFallbackPoster(id: string): string {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash + id.charCodeAt(i)) % DEFAULT_CINEMA_POSTERS.length;
+  }
+  return DEFAULT_CINEMA_POSTERS[hash];
+}
+
 export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): PrototypeMediaItem {
   return {
     id: stream.id,
@@ -292,7 +310,7 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     quality: stream.qualities.some(q => q.quality === '4K') ? '4K HDR' : '1080p',
     releaseYear: stream.year || 2026,
     addedDaysAgo: 0,
-    posterUrl: stream.posterUrl,
+    posterUrl: stream.posterUrl || getFallbackPoster(stream.id),
     accentHex: '#F5B942',
     synopsisEn: stream.synopsis,
     synopsisFa: stream.synopsisFa || stream.synopsis,

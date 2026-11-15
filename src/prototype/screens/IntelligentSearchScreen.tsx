@@ -79,6 +79,115 @@ const QUICK_SPARKS = [
   { q: 'صدا', en: 'Binaural Audio', fa: 'صدا و اتمسفر' }
 ];
 
+export interface CinemaMoodCard {
+  id: string;
+  icon: string;
+  titleEn: string;
+  titleFa: string;
+  descEn: string;
+  descFa: string;
+  query: string;
+  targetVector: TasteVector6D;
+  bgGradient: string;
+  glowBorder: string;
+  accentColor: string;
+}
+
+export const CINEMA_MOOD_CARDS: CinemaMoodCard[] = [
+  {
+    id: 'noir-rain',
+    icon: '🌧️',
+    titleEn: 'Rainy Noir & Mystery',
+    titleFa: 'نوار بارانی و معمایی',
+    descEn: 'Deep shadows, tension, wet asphalt',
+    descFa: 'سایه‌های عمیق، ریتم معلق و باران شبانه',
+    query: 'باران',
+    targetVector: { tension: 0.92, pace: 0.35, surrealism: 0.45, nocturnal: 0.98, intimacy: 0.60, depth: 0.90 },
+    bgGradient: 'from-[#0B132B]/85 via-[#1C2541]/50 to-[#050508]',
+    glowBorder: 'border-cyan-500/30 hover:border-cyan-400/60 shadow-[0_0_20px_rgba(6,182,212,0.15)]',
+    accentColor: '#38BDF8'
+  },
+  {
+    id: 'cyber-tokyo',
+    icon: '🌆',
+    titleEn: 'Cyberpunk & Neon Futures',
+    titleFa: 'سایبرپانک و توکیو نئونی',
+    descEn: 'High-tech dystopias, synth wave, neon glow',
+    descFa: 'آینده دور، آسمان‌خراش‌های نئونی و ریتم الکترونیک',
+    query: 'سایبرپانک',
+    targetVector: { tension: 0.85, pace: 0.85, surrealism: 0.80, nocturnal: 0.95, intimacy: 0.45, depth: 0.75 },
+    bgGradient: 'from-[#2E0854]/85 via-[#180B2B]/50 to-[#050508]',
+    glowBorder: 'border-fuchsia-500/30 hover:border-fuchsia-400/60 shadow-[0_0_20px_rgba(217,70,239,0.15)]',
+    accentColor: '#E879F9'
+  },
+  {
+    id: 'velvet-intimacy',
+    icon: '🕯️',
+    titleEn: 'Velvet Intimacy & Calm',
+    titleFa: 'درام صمیمی و آرامش',
+    descEn: 'Warm light, poetic stillness, deep conversations',
+    descFa: 'اتمسفر گرم، خلوت شاعرانه و قصه‌های عمیق',
+    query: 'آرام',
+    targetVector: { tension: 0.35, pace: 0.25, surrealism: 0.40, nocturnal: 0.85, intimacy: 0.95, depth: 0.88 },
+    bgGradient: 'from-[#3B1F0B]/85 via-[#221307]/50 to-[#050508]',
+    glowBorder: 'border-amber-500/30 hover:border-amber-400/60 shadow-[0_0_20px_rgba(245,158,11,0.15)]',
+    accentColor: '#F59E0B'
+  },
+  {
+    id: 'surreal-mind',
+    icon: '🌌',
+    titleEn: 'Surreal & Mind-Bending',
+    titleFa: 'سورئال و ماورایی',
+    descEn: 'Cosmic mazes, alternate realities, lucid dreams',
+    descFa: 'هزارتوهای ذهنی، مرز رؤیا و واقعیت، شوک فکری',
+    query: 'سورئال',
+    targetVector: { tension: 0.70, pace: 0.45, surrealism: 0.98, nocturnal: 0.80, intimacy: 0.55, depth: 0.95 },
+    bgGradient: 'from-[#140B34]/85 via-[#0A1A2F]/50 to-[#050508]',
+    glowBorder: 'border-purple-500/30 hover:border-purple-400/60 shadow-[0_0_20px_rgba(168,85,247,0.15)]',
+    accentColor: '#C084FC'
+  },
+  {
+    id: 'kinetic-action',
+    icon: '⚡',
+    titleEn: 'Fast-Paced Action & Kinetic',
+    titleFa: 'اکشن سریع و آدرنالین',
+    descEn: 'Adrenaline rushes, relentless tempo, martial mastery',
+    descFa: 'مبارزات نفس‌گیر، هیجان بی‌وقفه و شتاب بالا',
+    query: 'اکشن',
+    targetVector: { tension: 0.95, pace: 0.95, surrealism: 0.40, nocturnal: 0.70, intimacy: 0.30, depth: 0.65 },
+    bgGradient: 'from-[#450A0A]/85 via-[#260505]/50 to-[#050508]',
+    glowBorder: 'border-rose-500/30 hover:border-rose-400/60 shadow-[0_0_20px_rgba(244,63,94,0.15)]',
+    accentColor: '#FB7185'
+  }
+];
+
+export const AI_CONCIERGE_PILLS = [
+  {
+    id: 'pill-masterpiece',
+    emoji: '🔥',
+    titleEn: 'Masterpieces Rated 8.5+',
+    titleFa: 'شاهکارهای سینمایی بالای ۸.۵',
+    query: 'شاهکار',
+    vector: { tension: 0.85, pace: 0.6, surrealism: 0.7, nocturnal: 0.9, intimacy: 0.8, depth: 0.98 }
+  },
+  {
+    id: 'pill-weekend',
+    emoji: '🍿',
+    titleEn: 'Weekend Blockbusters',
+    titleFa: 'هیجان و سرگرمی آخر هفته',
+    query: 'مهیج',
+    vector: { tension: 0.9, pace: 0.9, surrealism: 0.5, nocturnal: 0.8, intimacy: 0.4, depth: 0.7 }
+  },
+  {
+    id: 'pill-nolan',
+    emoji: '🧠',
+    titleEn: 'Mind-Bending Christopher Nolan Style',
+    titleFa: 'معمایی و شوک فکری شبیه نولان',
+    query: 'معمایی',
+    vector: { tension: 0.88, pace: 0.65, surrealism: 0.95, nocturnal: 0.85, intimacy: 0.5, depth: 0.95 }
+  }
+];
+
 const EXCLUDABLE_TAGS = [
   { tag: 'animation', fa: 'بدون انیمیشن', en: 'No Animation' },
   { tag: 'fast-paced', fa: 'بدون ریتم تند', en: 'No Fast-Paced' },
@@ -437,6 +546,37 @@ export function IntelligentSearchScreen({
     ]
   );
 
+  const fallbackMatches: ExplainedRecommendation[] = useMemo(() => {
+    if (grouped.totalCount > 0 || globalSearchResults.length > 0) return [];
+    return [...catalog]
+      .map((item) => {
+        const score = Math.max(
+          65,
+          Math.min(99, Math.round(cosineSimilarity6D(liveVector, item.vector) * 100))
+        );
+        return {
+          item,
+          score,
+          reasonEn: `Closest thematic & mood match to your request (${score}% resonance)`,
+          reasonFa: `نزدیک‌ترین تطابق حس‌وحال و اتمسفر با سلیقه شما (${score}٪ هم‌پوشانی)`
+        };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+  }, [grouped.totalCount, globalSearchResults.length, catalog, liveVector]);
+
+  const handleSelectMoodCard = (card: CinemaMoodCard) => {
+    setAiDismissed(false);
+    onChangeFilters({ ...filters, query: card.query });
+    onPersonalizeTaste?.(card.targetVector, 0.45, card.titleEn);
+  };
+
+  const handleSelectConciergePill = (pill: (typeof AI_CONCIERGE_PILLS)[0]) => {
+    setAiDismissed(false);
+    onChangeFilters({ ...filters, query: pill.query });
+    onPersonalizeTaste?.(pill.vector, 0.45, pill.titleEn);
+  };
+
   const handleSelectAiOption = (opt: AiQuestionOption) => {
     setAiSignals((prev) => [
       ...prev.filter((s) => s.id !== opt.id),
@@ -657,6 +797,64 @@ export function IntelligentSearchScreen({
               {t(sp.en, sp.fa)}
             </button>
           ))}
+        </div>
+
+        {/* Ask AI Concierge 3-Pill Quick Selector */}
+        <div className="pt-2 border-t border-[rgba(212,175,55,0.15)] space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-mono text-[#D4AF37] inline-flex items-center gap-1.5 uppercase tracking-wider font-semibold">
+              <Sparkles className="h-3.5 w-3.5 text-[#D4AF37]" />
+              {t('Ask AI Concierge (Instant Curations):', 'پرسش از کارگردان هوشمند (انتخاب سریع):')}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {AI_CONCIERGE_PILLS.map((pill) => (
+              <button
+                key={pill.id}
+                type="button"
+                onClick={() => handleSelectConciergePill(pill)}
+                className="flex items-center gap-2 rounded-xl border border-[rgba(212,175,55,0.25)] bg-[rgba(212,175,55,0.06)] px-3 py-2 text-start text-xs text-[#F5F7FA] hover:border-[#D4AF37] hover:bg-[rgba(212,175,55,0.14)] transition-all cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.4)]"
+              >
+                <span className="text-base shrink-0">{pill.emoji}</span>
+                <span className="font-medium truncate">{t(pill.titleEn, pill.titleFa)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 1-Tap Glowing Cinema Mood Cards */}
+        <div className="pt-2 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-mono text-[#A3AEC2] inline-flex items-center gap-1.5 uppercase tracking-wider">
+              {t('Cinema Mood Atmospheres (1-Tap Experience):', 'اتمسفرهای سینمایی (ورود با یک کلیک):')}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+            {CINEMA_MOOD_CARDS.map((card) => (
+              <button
+                key={card.id}
+                type="button"
+                onClick={() => handleSelectMoodCard(card)}
+                className={`group relative overflow-hidden rounded-2xl border bg-gradient-to-br ${card.bgGradient} p-3.5 text-start transition-all cursor-pointer ${card.glowBorder}`}
+              >
+                <div className="flex items-center justify-between pb-2">
+                  <span className="text-2xl">{card.icon}</span>
+                  <span
+                    className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-white/10 uppercase"
+                    style={{ color: card.accentColor, backgroundColor: `${card.accentColor}15` }}
+                  >
+                    {t('Explore', 'انتخاب')}
+                  </span>
+                </div>
+                <h4 className="text-xs sm:text-sm font-bold text-[#F5F7FA] group-hover:text-[#D4AF37] transition-colors truncate">
+                  {t(card.titleEn, card.titleFa)}
+                </h4>
+                <p className="text-[11px] text-[#A3AEC2] line-clamp-1 mt-0.5">
+                  {t(card.descEn, card.descFa)}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* LIVE ANIMATED AI CLARIFYING PANEL (Opens Smoothly Underneath While Typing!) */}
@@ -917,27 +1115,66 @@ export function IntelligentSearchScreen({
 
       {/* Live Results Showcase */}
       {grouped.totalCount === 0 && globalRecommendations.length === 0 ? (
-        <div className="rounded-[28px] border border-white/12 bg-[#0D101A] p-8 text-center space-y-4">
-          <h2 className="text-lg font-semibold text-[#F5F7FA]">
-            {t('No exact match for these strict constraints', 'موردی دقیقاً با این ترکیب پیدا نشد')}
-          </h2>
-          <p className="text-sm text-[#A3AEC2]">
-            {t('Suggested filter relaxations:', 'پیشنهادهای اصلاح جست‌وجو:')}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {grouped.suggestedRelaxationsEn.map((sugEn, idx) => (
-              <span
-                key={idx}
-                className="rounded-full border border-white/15 bg-white/[0.05] px-3.5 py-1.5 text-xs text-[#D2DAE8]"
-              >
-                {t(sugEn, grouped.suggestedRelaxationsFa[idx])}
-              </span>
-            ))}
+        <div className="space-y-6">
+          <div className="rounded-[28px] border border-[rgba(212,175,55,0.3)] bg-gradient-to-b from-[#13141C] to-[#08090E] p-6 sm:p-8 text-center space-y-4 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(212,175,55,0.1)]">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(212,175,55,0.15)] text-[#D4AF37] border border-[rgba(212,175,55,0.35)] shadow-[0_0_20px_rgba(212,175,55,0.25)]">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div className="space-y-1.5 max-w-xl mx-auto">
+              <h2 className="font-cinzel text-lg sm:text-xl font-bold text-[#F5F7FA]">
+                {t('Closest AI Thematic Matches & Trending Masterpieces', 'نزدیک‌ترین فیلم‌های سینما پتروس به حال‌وهوای درخواستی شما')}
+              </h2>
+              <p className="text-xs sm:text-sm text-[#A3AEC2] leading-relaxed">
+                {t(
+                  'No film is hidden under strict constraints! Our VIP Concierge surfaced the closest cinematic matches and top-rated masterworks for you:',
+                  'هیچ درِ بسته‌ای در سینما پتروس وجود ندارد! اگرچه اثری با این مشخصات بسیار دقیق ثبت نشده، نزدیک‌ترین شاهکارهای متناسب با اتمسفر مدنظر شما برای تماشا آماده شده است:'
+                )}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+              <Button variant="primary" onClick={resetAllFilters}>
+                <RotateCcw className="h-4 w-4" />
+                {t('Reset Filters & Show All Movies', 'پاک‌سازی فیلترها و نمایش همه آثار')}
+              </Button>
+            </div>
           </div>
-          <Button onClick={resetAllFilters}>
-            <RotateCcw className="h-4 w-4" />
-            {t('Reset Search & Personalization', 'پاک‌کردن محدودیت‌ها و شروع مجدد')}
-          </Button>
+
+          {/* Render Fallback Matches */}
+          {fallbackMatches.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-[rgba(212,175,55,0.2)] pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-[#D4AF37] animate-ping" />
+                  <h3 className="text-sm sm:text-base font-semibold text-[#D4AF37]">
+                    {t('AI Curated Suggestions for You', 'پیشنهادهای طلایی هوش مصنوعی برای این لحظه')}
+                  </h3>
+                </div>
+                <span dir="ltr" className="text-xs font-mono text-[#D4AF37]/80">
+                  {fallbackMatches.length} {t('Masterpieces', 'شاهکار')}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
+                {fallbackMatches.map((rec) => (
+                  <MediaCard
+                    key={`fallback-${rec.item.id}`}
+                    recommendation={rec}
+                    lang={lang}
+                    isFavorite={favoriteIds.has(rec.item.id)}
+                    downloadRecord={downloadsMap[rec.item.id]}
+                    progress={progressMap[rec.item.id]}
+                    feedback={feedbackMap[rec.item.id]}
+                    onOpenDetail={onOpenDetail}
+                    onPlay={onPlay}
+                    onDownload={onDownload}
+                    onToggleFavorite={onToggleFavorite}
+                    onFeedback={onFeedback}
+                    onHide={onHide}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-10">

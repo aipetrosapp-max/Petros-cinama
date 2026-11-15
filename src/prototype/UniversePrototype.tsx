@@ -155,13 +155,18 @@ function UniversePrototypeShell({
   const [langPickerOpen, setLangPickerOpen] = useState(false);
 
   const [catalog, setCatalog] = useState<PrototypeMediaItem[]>(() => {
-    const raw = initialVault?.catalog && initialVault.catalog.length > 0
+    const fromVault = initialVault?.catalog && initialVault.catalog.length > 0
       ? initialVault.catalog
-      : dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem);
-    return raw.filter((item) => Boolean(
+      : [];
+    const fromDynamic = dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem);
+    const combined = fromVault.length > 0 ? fromVault : fromDynamic.length > 0 ? fromDynamic : PROTOTYPE_MEDIA_CATALOG;
+    const valid = combined.filter((item) => Boolean(
       (item.streamUrl && item.streamUrl.startsWith('http') && !item.streamUrl.includes('oceans.mp4')) ||
-      (item.qualities && item.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4')))
+      (item.qualities && item.qualities.some((q) => q.url && q.url.startsWith('http') && !q.url.includes('oceans.mp4'))) ||
+      item.streamUrl?.includes('t.me/') ||
+      item.id?.startsWith('tg-')
     ));
+    return valid.length > 0 ? valid : PROTOTYPE_MEDIA_CATALOG;
   });
   const [user, setUser] = useState<UserAccountState>(() => initialVault?.user ?? INITIAL_USER_STATE);
   const [userVector, setUserVector] = useState<TasteVector6D>(
@@ -1194,9 +1199,15 @@ function UniversePrototypeShell({
                     lang={lang}
                     user={user}
                     vaultSizeBytes={vaultSizeBytes}
+                    userVector={userVector}
+                    catalog={catalog}
+                    progressMap={progressMap}
+                    feedbackMap={feedbackMap}
+                    favoriteIds={favoriteIds}
                     onChangeLang={setLang}
                     onOpenLanguagePicker={() => setLangPickerOpen(true)}
                     onUpdateUser={handleUpdateUser}
+                    onUpdateUserVector={(v) => setUserVector(v)}
                     onWipeLocalMemory={() => {
                       handleResetPrototype();
                       navigateTo('universe');

@@ -530,24 +530,24 @@ function createDelosDiagnosticHudTexture(
     ctx.fillStyle = bgGrad;
     ctx.fillRect(8, 8, 624, 364);
 
-    // Top Delos Diagnostic Header
-    ctx.fillStyle = isSelected ? '#F5B942' : '#52FFD8';
+    // Top Cinema Taste Node Header
+    ctx.fillStyle = isSelected ? '#F5B942' : '#D4AF37';
     ctx.beginPath();
-    ctx.arc(34, 34, 5, 0, Math.PI * 2);
+    ctx.arc(34, 34, 6, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#CBD5E1';
-    ctx.font = 'bold 15px "Courier Prime", monospace';
-    ctx.fillText(`DELOS // STASIS DIAGNOSTIC · ${node.id.toUpperCase()}`, 48, 39);
+    ctx.fillStyle = '#FFF2A7';
+    ctx.font = 'bold 15px "Cinzel", serif';
+    ctx.fillText(`AI PETROS // CINEMA TASTE NODE · ${node.score}% MATCH`, 48, 39);
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.35)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(24, 54);
     ctx.lineTo(616, 54);
     ctx.stroke();
 
-    // Left Half (x = 26..336): Film Poster Preview + Title
+    // Left Half: Film Poster Preview with Gold Cinema Frame
     if (img && img.complete && img.naturalWidth > 0) {
       ctx.save();
       ctx.beginPath();
@@ -562,60 +562,57 @@ function createDelosDiagnosticHudTexture(
       ctx.fill();
     }
 
-    ctx.strokeStyle = 'rgba(82, 255, 216, 0.35)';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = isSelected ? '#F5B942' : 'rgba(212, 175, 55, 0.65)';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.roundRect(26, 68, 304, 196, 14);
     ctx.stroke();
 
-    // Right Half (x = 352..608): Vertical Cyan-Green Bar Charts & Diagnostic Sine Waveform
-    // (Matches the exact bar chart + waveform layout on the HUD screens in image_f66af8e2.jpeg!)
-    const bars = [42, 68, 54, 86, 62, 94, 76, 58, 88, 72, 64, 82, 50];
-    bars.forEach((bh, idx) => {
-      const bx = 356 + idx * 19;
-      const by = 178 - bh;
-      ctx.fillStyle = idx % 4 === 0 ? '#F5B942' : '#52FFD8';
-      ctx.fillRect(bx, by, 11, bh);
-    });
+    // Right Half: Meaningful AI Taste Match Breakdown
+    ctx.fillStyle = '#D4AF37';
+    ctx.font = 'bold 13px "Courier Prime", monospace';
+    ctx.fillText(`MATCH SCORE: ${node.score}%`, 356, 88);
 
-    // Diagnostic Sine Wave Line below the bar chart
-    ctx.strokeStyle = '#52FFD8';
-    ctx.lineWidth = 2.2;
+    ctx.fillStyle = '#CBD5E1';
+    ctx.font = '12px "Courier Prime", monospace';
+    ctx.fillText(`CLUSTER: ${node.item.categoryEn}`, 356, 112);
+    ctx.fillText(`QUALITY: ${node.item.quality}`, 356, 134);
+
+    ctx.fillStyle = 'rgba(212, 175, 55, 0.18)';
     ctx.beginPath();
-    const wavePts = [
-      [356, 232],
-      [392, 208],
-      [428, 240],
-      [468, 204],
-      [508, 238],
-      [548, 212],
-      [596, 230]
-    ];
-    wavePts.forEach(([wx, wy], i) => {
-      if (i === 0) ctx.moveTo(wx, wy);
-      else ctx.lineTo(wx, wy);
-    });
+    ctx.roundRect(356, 150, 252, 90, 10);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
     ctx.stroke();
 
-    // Small diagnostic pill buttons at bottom-right of HUD
-    ctx.fillStyle = 'rgba(82, 255, 216, 0.14)';
+    ctx.fillStyle = '#FFF2A7';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('WHY AI CHOSE THIS FILM:', 368, 172);
+
+    ctx.fillStyle = '#E2E8F0';
+    ctx.font = '11px sans-serif';
+    ctx.fillText(`Matched to your mood for`, 368, 196);
+    ctx.fillText(`${node.item.clusterLabelEn || 'Atmospheric Cinema'}`, 368, 216);
+
+    // Pill buttons at bottom-right of HUD
+    ctx.fillStyle = 'rgba(212, 175, 55, 0.25)';
     ctx.beginPath();
     ctx.roundRect(356, 266, 116, 30, 8);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(82, 255, 216, 0.45)';
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.7)';
     ctx.stroke();
-    ctx.fillStyle = '#52FFD8';
+    ctx.fillStyle = '#FFF2A7';
     ctx.font = 'bold 13px "Courier Prime", monospace';
-    ctx.fillText(`SYNC ${node.score}%`, 374, 286);
+    ctx.fillText(`VIP HALL 01`, 372, 286);
 
-    ctx.fillStyle = 'rgba(245, 185, 66, 0.16)';
+    ctx.fillStyle = 'rgba(245, 185, 66, 0.25)';
     ctx.beginPath();
     ctx.roundRect(484, 266, 116, 30, 8);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(245, 185, 66, 0.5)';
+    ctx.strokeStyle = 'rgba(245, 185, 66, 0.7)';
     ctx.stroke();
     ctx.fillStyle = '#F5B942';
-    ctx.fillText(node.item.quality, 506, 286);
+    ctx.fillText('4K MASTER', 506, 286);
 
     // Bottom Left: Film Title in Cinema Typography
     ctx.fillStyle = '#F8FAFC';

@@ -2,30 +2,53 @@ import React, { useState } from 'react';
 import {
   Globe2,
   Sparkles,
-  RotateCcw
+  RotateCcw,
+  Sliders,
+  Tv,
+  Check,
+  Film,
+  HardDrive
 } from 'lucide-react';
 import type {
   LanguageCode,
-  UserAccountState
+  UserAccountState,
+  TasteVector6D,
+  PrototypeMediaItem,
+  WatchProgressEntry,
+  FeedbackRecord
 } from '../types';
 import { useT } from '../i18n';
-import { CinematicPassCard } from '../components/CinematicPassCard';
-import { ProjectionAcousticsDashboard } from '../components/ProjectionAcousticsDashboard';
+import { AiTasteDnaPanel } from '../components/AiTasteDnaPanel';
 
 interface SettingsScreenProps {
   lang: LanguageCode;
   user: UserAccountState;
   vaultSizeBytes: number;
+  userVector: TasteVector6D;
+  catalog: PrototypeMediaItem[];
+  progressMap: Record<string, WatchProgressEntry>;
+  feedbackMap: Record<string, FeedbackRecord>;
+  favoriteIds: Set<string>;
   onChangeLang: (lang: LanguageCode) => void;
   onOpenLanguagePicker: () => void;
   onUpdateUser: (patch: Partial<UserAccountState>) => void;
+  onUpdateUserVector?: (newVector: TasteVector6D) => void;
   onWipeLocalMemory: () => void;
 }
 
 export function SettingsScreen({
   lang,
+  user,
+  vaultSizeBytes,
+  userVector,
+  catalog,
+  progressMap,
+  feedbackMap,
+  favoriteIds,
   onChangeLang,
   onOpenLanguagePicker,
+  onUpdateUser,
+  onUpdateUserVector,
   onWipeLocalMemory
 }: SettingsScreenProps) {
   const { t } = useT();
@@ -47,33 +70,141 @@ export function SettingsScreen({
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-20">
-      {/* 1. Cinematic Pass & Entry (Access Authentication & Identity + 35mm Gold Projector + VIP Tickets) */}
-      <section className="p-6 sm:p-8 rounded-3xl bg-[#0B0C10]/95 border border-[rgba(212,175,55,0.3)] shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_25px_rgba(212,175,55,0.15)] relative overflow-hidden">
-        <CinematicPassCard
-          lang={lang}
-          onChangeLang={onChangeLang}
-          onOpenLanguagePicker={onOpenLanguagePicker}
-        />
+      {/* 1. Sleek Compact One-Line Language Toggle (No RTL / LTR jargon) */}
+      <section className="p-4 sm:p-5 rounded-2xl bg-[#0B0C10]/95 border border-[rgba(212,175,55,0.28)] shadow-lg flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-[rgba(212,175,55,0.12)] border border-[rgba(212,175,55,0.3)] flex items-center justify-center text-[#D4AF37]">
+            <Globe2 className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="font-cinzel text-sm sm:text-base font-bold text-[#F5F7FA]">
+              {t('INTERFACE LANGUAGE', 'زبان برنامه')}
+            </h2>
+            <p className="text-[11px] text-[#A3AEC2]">
+              {t('Select your preferred cinema language', 'زبان مورد نظر خود را انتخاب کنید')}
+            </p>
+          </div>
+        </div>
 
-        {/* More Languages Glass Pill */}
-        <div className="flex justify-center sm:justify-end pt-3">
+        {/* Clean Segmented Pill Toggle */}
+        <div className="inline-flex items-center p-1 rounded-full bg-black/60 border border-[rgba(212,175,55,0.3)]">
           <button
             type="button"
-            onClick={onOpenLanguagePicker}
-            className="px-4 py-2 rounded-full border border-[rgba(212,175,55,0.3)] bg-[#050508]/80 hover:bg-[#151720] hover:border-[#D4AF37] text-[#A3AEC2] hover:text-[#D4AF37] text-xs font-medium transition-all cursor-pointer flex items-center gap-2 shadow-sm"
+            onClick={() => onChangeLang('fa')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              lang === 'fa'
+                ? 'bg-gradient-to-r from-[#D4AF37] to-[#F5B942] text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.5)]'
+                : 'text-[#A3AEC2] hover:text-white'
+            }`}
           >
-            <Globe2 className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>+ {t('More World Languages', 'سایر زبان‌های جهانی')}</span>
+            فارسی
+          </button>
+          <button
+            type="button"
+            onClick={() => onChangeLang('en')}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              lang === 'en'
+                ? 'bg-gradient-to-r from-[#D4AF37] to-[#F5B942] text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.5)]'
+                : 'text-[#A3AEC2] hover:text-white'
+            }`}
+          >
+            English
           </button>
         </div>
       </section>
 
-      {/* 2. Theatre Dashboard & Acoustics (PROJECTION ROOM /// AI ENGINE) */}
+      {/* 2. Real AI Taste DNA & Explainability Engine */}
       <section>
-        <ProjectionAcousticsDashboard />
+        <AiTasteDnaPanel
+          userVector={userVector}
+          catalog={catalog}
+          progressMap={progressMap}
+          feedbackMap={feedbackMap}
+          favoriteIds={favoriteIds}
+          onUpdateVector={(v) => {
+            if (onUpdateUserVector) {
+              onUpdateUserVector(v);
+            }
+          }}
+        />
       </section>
 
-      {/* 3. Neuromorphic Calibration Capsule (Reset AI Taste Memory) */}
+      {/* 3. Cinema Streaming & Subtitle Preferences */}
+      <section className="p-6 rounded-3xl bg-[#0B0C10]/95 border border-[rgba(212,175,55,0.25)] shadow-xl space-y-5">
+        <div className="flex items-center gap-2.5 border-b border-[rgba(212,175,55,0.15)] pb-3">
+          <Film className="w-5 h-5 text-[#D4AF37]" />
+          <div>
+            <h3 className="font-cinzel text-sm sm:text-base font-bold text-[#D4AF37]">
+              {t('STREAMING & AUDITORIUM QUALITY', 'تنظیمات پخش و کیفیت تصویر')}
+            </h3>
+            <p className="text-[10px] text-[#A3AEC2]">
+              {t('Default video resolution and subtitle matching', 'کیفیت پیش‌فرض پخش و همسان‌سازی هوشمند زیرنویس')}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Quality Selector */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-200 block">
+              {t('Preferred Resolution', 'کیفیت پیش‌فرض پخش')}
+            </label>
+            <select
+              value={user.preferredQuality}
+              onChange={(e) => onUpdateUser({ preferredQuality: e.target.value as any })}
+              className="w-full h-10 rounded-xl border border-[rgba(212,175,55,0.3)] bg-black px-3 text-xs font-mono font-bold text-[#D4AF37] focus:border-[#D4AF37] cursor-pointer"
+            >
+              <option value="auto" className="bg-[#0B0C10] text-white">Auto (ABR · Adaptive Bitrate)</option>
+              <option value="4K" className="bg-[#0B0C10] text-white">4K HDR VIP Master (60 FPS)</option>
+              <option value="1080p" className="bg-[#0B0C10] text-white">1080p Full HD</option>
+              <option value="720p" className="bg-[#0B0C10] text-white">720p Mobile Lite</option>
+            </select>
+          </div>
+
+          {/* Subtitle Selector */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-200 block">
+              {t('Default Subtitle Language', 'زبان پیش‌فرض زیرنویس')}
+            </label>
+            <select
+              value={user.defaultSubtitleLang}
+              onChange={(e) => onUpdateUser({ defaultSubtitleLang: e.target.value as any })}
+              className="w-full h-10 rounded-xl border border-[rgba(212,175,55,0.3)] bg-black px-3 text-xs font-mono font-bold text-[#D4AF37] focus:border-[#D4AF37] cursor-pointer"
+            >
+              <option value="fa" className="bg-[#0B0C10] text-white">فارسی (Persian Subtitles)</option>
+              <option value="en" className="bg-[#0B0C10] text-white">English Subtitles</option>
+              <option value="off" className="bg-[#0B0C10] text-white">{t('Subtitles Off', 'بدون زیرنویس')}</option>
+            </select>
+          </div>
+        </div>
+
+        {/* TV Remote D-Pad Mode Toggle */}
+        <div className="p-3.5 rounded-2xl bg-black/40 border border-[rgba(212,175,55,0.18)] flex items-center justify-between">
+          <div className="space-y-0.5">
+            <p className="text-xs font-bold text-slate-200">
+              {t('Zero-Config TV Remote & Gamepad Mode', 'حالت کنترل ریموت تلویزیون و دسته بازی')}
+            </p>
+            <p className="text-[10px] text-[#A3AEC2]">
+              {t('Enables high-contrast D-pad navigation for Smart TVs and projectors', 'ناوبری ۴جهته با کنترل تلویزیون هوشمند')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onUpdateUser({ liteUniverseMode: !user.liteUniverseMode })}
+            className={`w-12 h-6 rounded-full p-0.5 transition-colors cursor-pointer relative ${
+              user.liteUniverseMode ? 'bg-[#D4AF37]' : 'bg-white/15'
+            }`}
+          >
+            <div
+              className={`w-5 h-5 rounded-full bg-[#050508] shadow-sm transition-transform ${
+                user.liteUniverseMode ? 'translate-x-6' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+      </section>
+
+      {/* 4. Neuromorphic Calibration Capsule (Reset AI Taste Memory) */}
       <section className="p-5 sm:p-6 rounded-3xl bg-[#0B0C10]/90 border border-amber-500/25 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">

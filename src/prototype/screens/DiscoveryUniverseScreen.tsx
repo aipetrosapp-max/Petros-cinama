@@ -50,7 +50,7 @@ import {
   type PlayerMoveInput
 } from '../components/CyberpunkRoom3DCanvas';
 import { useT } from '../i18n';
-import { MediaCard } from '../components/UiPrimitives';
+import { MediaCard, cleanCinemaTitle } from '../components/UiPrimitives';
 
 interface DiscoveryUniverseScreenProps {
   catalog: PrototypeMediaItem[];
@@ -810,6 +810,65 @@ export function DiscoveryUniverseScreen({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* 3D Cinema Node Ticket HUD with Poster, AI Match Reason and Instant Play */}
+            {selectedNode && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="pointer-events-auto w-full max-w-2xl rounded-2xl border border-[rgba(212,175,55,0.4)] bg-[#0B0C10]/95 backdrop-blur-2xl p-3 sm:p-4 shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_25px_rgba(212,175,55,0.18)] flex items-center justify-between gap-3"
+              >
+                <div
+                  className="flex items-center gap-3 min-w-0 cursor-pointer"
+                  onClick={() => onOpenDetail(selectedNode.item)}
+                >
+                  <img
+                    src={selectedNode.item.posterUrl}
+                    alt={selectedNode.item.titleEn}
+                    className="w-12 h-16 sm:w-14 sm:h-20 rounded-xl object-cover border border-[#D4AF37]/50 shadow-md shrink-0 hover:scale-105 transition-transform"
+                  />
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+                        {selectedNode.score}% MATCH
+                      </span>
+                      <span className="text-[10px] font-mono text-[#D4AF37]">
+                        {selectedNode.item.quality} · {selectedNode.item.releaseYear || 2026}
+                      </span>
+                    </div>
+                    <h3 className="font-cinzel text-xs sm:text-sm font-bold text-white truncate">
+                      {cleanCinemaTitle(t(selectedNode.item.titleEn, selectedNode.item.titleFa))}
+                    </h3>
+                    <p className="text-[10px] sm:text-[11px] text-[#A3AEC2] truncate">
+                      {t(
+                        `AI Match: Selected for your interest in ${selectedNode.item.clusterLabelEn}`,
+                        `انتخاب هوش مصنوعی بر اساس علاقه به سبک ${selectedNode.item.clusterLabelFa}`
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => onPlay(selectedNode.item)}
+                    className="h-10 sm:h-11 px-4 sm:px-6 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#F5B942] to-[#D4AF37] text-[#050508] font-cinzel font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(212,175,55,0.7)] hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <Play className="w-4 h-4 fill-current stroke-[2.5]" />
+                    <span className="hidden sm:inline">{t('Watch in VIP Hall', 'ورود به سالن و پخش')}</span>
+                    <span className="sm:hidden">{t('Play', 'پخش')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onOpenDetail(selectedNode.item)}
+                    className="h-10 w-10 rounded-xl border border-[rgba(212,175,55,0.3)] bg-[#050508]/80 text-[#D4AF37] hover:border-[#D4AF37] flex items-center justify-center transition-colors cursor-pointer"
+                    title={t('Dossier', 'شناسنامه')}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
             {/* ===============================================================
                 MAIN FROSTED GLASS FLOATING CONTROL BAR (Dark Tinted Glass Backing)
