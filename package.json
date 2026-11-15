@@ -18,6 +18,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@google/adk": "^2.5.0",
     "@tailwindcss/vite": "^4.3.3",
     "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^6.1.1",
