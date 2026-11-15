@@ -1396,7 +1396,7 @@ export const INITIAL_CATALOG_DATA: CatalogFilmItem[] = [
   {
     id: 'ai-crimson-mirage',
     indexNumber: 9,
-    streamUrl: '/assets/videos/stream_flower.mp4',
+    streamUrl: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
     posterUrl: './assets/images/boudoir_crimson_silk_suite_1794443433215.jpg',
     pillar: 'AI',
     resolution: '4K 60FPS',

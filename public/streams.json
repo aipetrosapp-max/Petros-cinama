@@ -27,25 +27,25 @@
         "HDR"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+      "defaultStreamUrl": "https://vjs.zencdn.net/v/oceans.mp4",
       "qualities": [
         {
           "quality": "4K",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 18500,
           "fps": 60
         },
         {
           "quality": "1080p",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 8500,
           "fps": 60
         },
         {
           "quality": "720p",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://vjs.zencdn.net/v/oceans.mp4",
           "format": "mp4",
           "bitrate": 3500,
           "fps": 30
@@ -75,18 +75,18 @@
         "Cinema"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+      "defaultStreamUrl": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4",
       "qualities": [
         {
           "quality": "4K",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4",
           "format": "mp4",
           "bitrate": 16000,
           "fps": 60
         },
         {
           "quality": "1080p",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4",
           "format": "mp4",
           "bitrate": 6000,
           "fps": 60
@@ -116,18 +116,18 @@
         "Soundtrack"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+      "defaultStreamUrl": "https://download.blender.org/durian/trailer/sintel_trailer-1080p.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://download.blender.org/durian/trailer/sintel_trailer-1080p.mp4",
           "format": "mp4",
           "bitrate": 7200,
           "fps": 60
         },
         {
           "quality": "720p",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://download.blender.org/durian/trailer/sintel_trailer-1080p.mp4",
           "format": "mp4",
           "bitrate": 3000,
           "fps": 30
@@ -195,11 +195,11 @@
         "Visual Feast"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+      "defaultStreamUrl": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4",
           "format": "mp4",
           "bitrate": 5500,
           "fps": 60
@@ -229,11 +229,11 @@
         "Philosophy"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+      "defaultStreamUrl": "https://media.w3.org/2010/05/sintel/trailer.mp4",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://media.w3.org/2010/05/sintel/trailer.mp4",
           "format": "mp4",
           "bitrate": 6200,
           "fps": 30

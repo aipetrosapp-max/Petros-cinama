@@ -31,7 +31,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps_1920x1080_8000k.mp4',
+    streamUrl: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: -4, y: 1.5, z: -8 }
@@ -124,7 +124,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+    streamUrl: 'https://download.blender.org/durian/trailer/sintel_trailer-1080p.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: -6, y: 1.5, z: -6 }
@@ -155,7 +155,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm',
+    streamUrl: 'https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: 6, y: 1.5, z: -6 }

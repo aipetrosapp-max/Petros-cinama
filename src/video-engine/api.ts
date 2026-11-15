@@ -147,7 +147,7 @@ videoApiRouter.get('/stream/:vid', async (req: Request, res: Response) => {
   const vid = String(req.params.vid || '').trim();
   const cleanVid = vid.replace(/^ep-/i, '').trim();
   // Only use faststart MP4s whose moov atom is at byte 24/32!
-  const LOCAL_VIDEOS = ['stream_movie.mp4', 'stream_flower.mp4', 'stream_oceans.mp4'];
+  const LOCAL_VIDEOS = ['stream_movie.mp4', 'stream_action.mp4', 'stream_oceans.mp4'];
   const vidHash = Math.abs(cleanVid.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0));
   const localChoice = LOCAL_VIDEOS[vidHash % LOCAL_VIDEOS.length];
   const fallbackLocalFile = path.resolve('public/assets/videos', localChoice);

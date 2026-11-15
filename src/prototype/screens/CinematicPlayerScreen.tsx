@@ -39,6 +39,7 @@ import type {
 } from '../types';
 import { formatBytes, loadOfflineMediaBlob, triggerBrowserDownload } from '../downloadEngine';
 import { aiCinemaStreamEngine } from '../../services/aiCinemaStreamEngine';
+import { localCinemaAgent } from '../../services/localCinemaAgent';
 import {
   fetchBackendFilmDetails,
   pickRandomCardinalEntrances,
@@ -116,6 +117,8 @@ export function CinematicPlayerScreen({
   const [details, setDetails] = useState<BackendFilmDetailsResponse | null>(null);
   const trailerDuration = details?.trailer?.durationSec || 45;
   const duration = playbackMode === 'trailer' ? trailerDuration : item?.durationSec ?? 360;
+  const [mediaDuration, setMediaDuration] = useState<number>(0);
+  const effectiveDuration = mediaDuration > 0 ? mediaDuration : duration;
 
   const startOffset =
     playbackMode === 'movie' &&
@@ -338,71 +341,9 @@ export function CinematicPlayerScreen({
     triggerBrowserDownload(blob, synced.matchedFilename);
   }, [item, aiSyncedSub, details, activeQuality, lang, syncOffsetMs, renderCueText]);
 
-const VERIFIED_CINEMA_STREAMS_POOL = [
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-  'https://archive.org/download/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4',
-  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4'
-];
-
-function getVerifiedCinemaStream(item?: PrototypeMediaItem | null, qualityId?: string): string {
-  if (!item) return VERIFIED_CINEMA_STREAMS_POOL[0];
-
-  const titleLower = (item.titleEn || item.titleFa || '').toLowerCase();
-  if (item.id === 'petros-stream-xmen-apocalypse' || titleLower.includes('x-men')) {
-    if (qualityId === '720p') {
-      return 'https://archive.org/download/youtube-Pg9_OKydeSU/Pg9_OKydeSU.mp4';
-    }
-    return 'https://archive.org/download/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4';
-  }
-
-  if (
-    item.categoryEn?.toLowerCase().includes('anim') ||
-    item.categoryFa?.includes('انیم') ||
-    titleLower.includes('animation')
-  ) {
-    return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-  }
-
-  if (
-    item.categoryEn?.toLowerCase().includes('sci') ||
-    item.categoryEn?.toLowerCase().includes('cyber') ||
-    item.clusterId === 'neon-futures'
-  ) {
-    return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4';
-  }
-
-  if (
-    item.categoryEn?.toLowerCase().includes('noir') ||
-    item.clusterId === 'noir-shadows'
-  ) {
-    return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
-  }
-
-  if (
-    item.categoryEn?.toLowerCase().includes('action') ||
-    item.categoryEn?.toLowerCase().includes('thrill')
-  ) {
-    return 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-  }
-
-  let hash = 0;
-  const str = item.id || item.titleEn || 'cinema';
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  const idx = Math.abs(hash) % VERIFIED_CINEMA_STREAMS_POOL.length;
-  return VERIFIED_CINEMA_STREAMS_POOL[idx];
-}
-
-  // Autonomous AI Video Playback Engine (100% Unblocked in Iran & Global CDNs)
+  // Autonomous Local Cinema AI Agent (Google Antigravity Architecture)
   const aiResolution = useMemo(() => {
-    return aiCinemaStreamEngine.resolvePlayableStream(item, selectedQualityId);
+    return localCinemaAgent.resolveStreamForMovie(item, selectedQualityId);
   }, [item, selectedQualityId]);
 
   // Determine actual playable direct stream URL for the current title
@@ -501,12 +442,14 @@ function getVerifiedCinemaStream(item?: PrototypeMediaItem | null, qualityId?: s
   const handleTimeUpdate = () => {
     const video = videoRef.current;
     if (!video) return;
-    const cur = video.currentTime;
-    currentTimeRef.current = cur;
-    setCurrentTime(cur);
-    const dur = video.duration || duration;
+    const progress = localCinemaAgent.calibratePlaybackProgress(video, duration);
+    if (progress.effectiveDurationSec > 0 && Math.abs(mediaDuration - progress.effectiveDurationSec) > 0.5) {
+      setMediaDuration(progress.effectiveDurationSec);
+    }
+    currentTimeRef.current = progress.currentSec;
+    setCurrentTime(progress.currentSec);
     if (playbackMode === 'movie' && item) {
-      onSaveProgress(item.id, cur, dur, cur >= dur);
+      onSaveProgress(item.id, progress.currentSec, progress.effectiveDurationSec, progress.currentSec >= progress.effectiveDurationSec);
     }
   };
 
@@ -514,20 +457,23 @@ function getVerifiedCinemaStream(item?: PrototypeMediaItem | null, qualityId?: s
     const video = videoRef.current;
     if (!video) return;
     setStreamReady(true);
+    const progress = localCinemaAgent.calibratePlaybackProgress(video, duration);
+    if (progress.effectiveDurationSec > 0) {
+      setMediaDuration(progress.effectiveDurationSec);
+    }
     if (currentTimeRef.current > 0 && Math.abs(video.currentTime - currentTimeRef.current) > 1) {
-      video.currentTime = currentTimeRef.current;
+      localCinemaAgent.executeSeek(video, currentTimeRef.current / progress.effectiveDurationSec, progress.effectiveDurationSec);
     }
   };
 
   const handleSeek = (next: number) => {
-    setCurrentTime(next);
-    currentTimeRef.current = next;
     const video = videoRef.current;
-    if (video) {
-      video.currentTime = next;
-    }
+    const targetRatio = effectiveDuration > 0 ? next / effectiveDuration : 0;
+    const finalSec = localCinemaAgent.executeSeek(video, targetRatio, effectiveDuration);
+    setCurrentTime(finalSec);
+    currentTimeRef.current = finalSec;
     if (playbackMode === 'movie' && item) {
-      onSaveProgress(item.id, next, duration, next >= duration);
+      onSaveProgress(item.id, finalSec, effectiveDuration, finalSec >= effectiveDuration);
     }
   };
 
@@ -814,13 +760,22 @@ function getVerifiedCinemaStream(item?: PrototypeMediaItem | null, qualityId?: s
                   poster={item.posterUrl}
                   onTimeUpdate={handleTimeUpdate}
                   onLoadedMetadata={handleLoadedMetadata}
+                  onDurationChange={() => {
+                    const video = videoRef.current;
+                    if (video) {
+                      const progress = localCinemaAgent.calibratePlaybackProgress(video, duration);
+                      if (progress.effectiveDurationSec > 0) {
+                        setMediaDuration(progress.effectiveDurationSec);
+                      }
+                    }
+                  }}
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
                   onEnded={() => setIsPlaying(false)}
                   onError={() => {
                     const video = videoRef.current;
                     if (!video) return;
-                    const nextUrl = aiCinemaStreamEngine.reportPlaybackFailure(video.src);
+                    const nextUrl = localCinemaAgent.handlePlaybackError(video.src, video);
                     console.warn('[AI Cinema Engine] Auto-routing to unblocked CDN node:', nextUrl);
                     video.src = nextUrl;
                     video.load();
@@ -964,7 +919,7 @@ function getVerifiedCinemaStream(item?: PrototypeMediaItem | null, qualityId?: s
       {/* 2.5 Spatial Glass Playback HUD (Positioned Directly Below Screen - Reference Image 2) */}
       <div className="relative z-30 pt-1">
         <SpatialPlaybackHud
-          duration={duration}
+          duration={effectiveDuration}
           currentTime={currentTime}
           isPlaying={isPlaying}
           volume={volume}
@@ -975,6 +930,7 @@ function getVerifiedCinemaStream(item?: PrototypeMediaItem | null, qualityId?: s
           isFullscreen={isFullscreen}
           activeQualityLabel={activeQuality?.resolution || selectedQualityId.toUpperCase()}
           aiSyncConfidencePct={aiSyncedSub?.confidencePct || 98.5}
+          agentStatusText={`AI Agent Active · ${aiResolution.matchedGenre?.toUpperCase() || 'VIP 4K'} Stream`}
           onTogglePlay={togglePlay}
           onSeek={handleSeek}
           onVolumeChange={(v) => {
