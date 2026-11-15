@@ -1,593 +1,890 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import {
-  Download,
-  Smartphone,
-  Laptop,
-  Tv,
-  Globe,
-  Sparkles,
-  Play,
-  ShieldCheck,
-  Zap,
-  CheckCircle2,
-  ChevronDown,
-  Layers,
-  ArrowRight,
-  Film,
-  Monitor,
-  Wifi,
-  ExternalLink,
-  Flame,
-  Radio,
-  Share2
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-
-interface PlatformInfo {
-  id: string;
-  name: string;
-  nameFa: string;
-  category: 'mobile' | 'desktop' | 'tv' | 'web';
-  icon: React.ElementType;
-  badge: string;
-  version: string;
-  size: string;
-  downloadUrl: string;
-  descriptionFa: string;
-  instructionsFa: string;
-  directDownload: boolean;
-}
+import React, { useState, useEffect, useRef } from 'react';
+import * as THREE from 'three';
 
 export interface AipetrosLandingProps {
   onEnterCinema: () => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
-export const AipetrosLandingScreen: React.FC<AipetrosLandingProps> = ({ onEnterCinema }) => {
-  const [detectedPlatformId, setDetectedPlatformId] = useState<string>('web');
-  const [downloadModalPlatform, setDownloadModalPlatform] = useState<PlatformInfo | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+interface DeviceOption {
+  id: string;
+  name: string;
+  sub: string;
+  badge: string;
+  badgeBtn: string;
+  size: string;
+  downloadUrl: string;
+  actionType: 'pwa' | 'apk' | 'tv' | 'exe';
+}
 
-  // 1. Intelligent OS & Device Detection Engine (like Spotify/Discord/Telegram)
+const DEVICES: DeviceOption[] = [
+  {
+    id: 'ios',
+    name: 'iPhone & iPad',
+    sub: 'Spatial PWA',
+    badge: 'Spatial PWA',
+    badgeBtn: '↓ Install PWA',
+    size: '12.9 MB • v2.4.0',
+    downloadUrl: '#pwa',
+    actionType: 'pwa',
+  },
+  {
+    id: 'android',
+    name: 'Android Mobile',
+    sub: 'Native 4K APK',
+    badge: 'Native 4K APK',
+    badgeBtn: '↓ Direct APK',
+    size: '18.4 MB • v2.4.0',
+    downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/Aipetros-Cinema.apk',
+    actionType: 'apk',
+  },
+  {
+    id: 'android-tv',
+    name: 'Android TV',
+    sub: 'Dolby Atmos',
+    badge: 'Dolby Atmos',
+    badgeBtn: '↓ TV Client',
+    size: '22.1 MB • v2.4.0',
+    downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/Aipetros-AndroidTV.apk',
+    actionType: 'tv',
+  },
+  {
+    id: 'windows',
+    name: 'Windows 11',
+    sub: 'GPU Desktop',
+    badge: 'GPU Desktop',
+    badgeBtn: '↓ .EXE Setup',
+    size: '64.5 MB • v2.4.0',
+    downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/Aipetros-Cinema-Setup.exe',
+    actionType: 'exe',
+  },
+];
+
+export const AipetrosLandingScreen: React.FC<AipetrosLandingProps> = ({
+  onEnterCinema,
+  onNavigateTab,
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState<DeviceOption>(DEVICES[0]);
+  const [downloadStatus, setDownloadStatus] = useState<string>('');
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  // Capture PWA install prompt if available
   useEffect(() => {
-    const ua = navigator.userAgent || '';
-    const platform = (navigator as unknown as { userAgentData?: { platform?: string } }).userAgentData?.platform || navigator.platform || '';
-    const maxTouchPoints = navigator.maxTouchPoints || 0;
-
-    let detected = 'web';
-
-    if (/android/i.test(ua)) {
-      if (/tv|smarttv|googletv|android tv|large screen/i.test(ua)) {
-        detected = 'android-tv';
-      } else {
-        detected = 'android';
-      }
-    } else if (/ipad|iphone|ipod/i.test(ua) || (platform === 'MacIntel' && maxTouchPoints > 1)) {
-      detected = 'ios';
-    } else if (/win/i.test(platform) || /windows/i.test(ua)) {
-      detected = 'windows';
-    } else if (/mac/i.test(platform) || /macintosh/i.test(ua)) {
-      detected = 'macos';
-    } else if (/smart-tv|tizen|webos|appletv/i.test(ua)) {
-      detected = 'smart-tv';
-    }
-
-    setDetectedPlatformId(detected);
-
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
 
-  // 2. Multi-Platform Specifications with Direct Download Assets
-  const platforms: PlatformInfo[] = useMemo(() => [
-    {
-      id: 'android',
-      name: 'Android Mobile',
-      nameFa: 'نسخه اندروید موبایل و تبلت',
-      category: 'mobile',
-      icon: Smartphone,
-      badge: 'نسخه رسمی APK',
-      version: 'v2.4.0',
-      size: '18.4 MB',
-      downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/Aipetros-Cinema.apk',
-      descriptionFa: 'دانلود مستقیم فایل نصبی APK با قابلیت پخش 4K، دانلود درون‌برنامه‌ای و بدون نیاز به گوگل‌پلی.',
-      instructionsFa: 'فایل APK را دانلود کنید و در مدیریت فایل گوشی روی آن بزنید و Install را انتخاب فرمایید.',
-      directDownload: true
-    },
-    {
-      id: 'android-tv',
-      name: 'Android TV / Box',
-      nameFa: 'نسخه تلویزیون هوشمند (Android TV)',
-      category: 'tv',
-      icon: Tv,
-      badge: 'مخصوص تلویزیون و اندروید باکس',
-      version: 'v2.4.0-tv',
-      size: '22.1 MB',
-      downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/Aipetros-AndroidTV.apk',
-      descriptionFa: 'سازگار کامل با ریموت کنترل تلویزیون (D-Pad)، تصویر فوق عریض 4K HDR و صدای دالبی سینمایی.',
-      instructionsFa: 'فایل را از طریق فلش مموری یا برنامه Send Files to TV روی تلویزیون نصب فرمایید.',
-      directDownload: true
-    },
-    {
-      id: 'windows',
-      name: 'Windows Desktop',
-      nameFa: 'نسخه دسکتاپ ویندوز (10 / 11)',
-      category: 'desktop',
-      icon: Laptop,
-      badge: 'نسخه 64 بیتی پرسرعت',
-      version: 'v2.4.0',
-      size: '64.5 MB',
-      downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/Aipetros-Cinema-Windows-x64.exe',
-      descriptionFa: 'اپلیکیشن مستقل دسکتاپ ویندوز با پشتیبانی از شتاب‌دهنده گرافیکی GPU و کلیدهای میانبر سینمایی.',
-      instructionsFa: 'فایل EXE را دانلود و اجرا فرمایید. نصب در چند ثانیه به صورت خودکار انجام می‌شود.',
-      directDownload: true
-    },
-    {
-      id: 'ios',
-      name: 'iOS / iPhone & iPad',
-      nameFa: 'نسخه آیفون و آیپد (PWA App)',
-      category: 'mobile',
-      icon: Smartphone,
-      badge: 'بدون نیاز به اپ‌استور',
-      version: 'v2.4.0 (WebPWA)',
-      size: 'سبک و ابری (بدون پر کردن حافظه)',
-      downloadUrl: '#ios-install',
-      descriptionFa: 'اپلیکیشن نیتیو فوق‌العاده نرم با پشتیبانی کامل از حالت تمام صفحه، بدون نیاز به تحریم‌شکن یا جیلبریک.',
-      instructionsFa: 'سایت را در مرورگر Safari باز کنید، دکمه Share (مربع با فلش رو به بالا) را بزنید و سپس "Add to Home Screen" را انتخاب کنید.',
-      directDownload: false
-    },
-    {
-      id: 'macos',
-      name: 'macOS (Apple Silicon & Intel)',
-      nameFa: 'نسخه مک‌او‌اس اپل',
-      category: 'desktop',
-      icon: Laptop,
-      badge: 'Universal App',
-      version: 'v2.4.0',
-      size: '58.2 MB',
-      downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/Aipetros-Cinema-macOS.dmg',
-      descriptionFa: 'عملکرد بهینه برای پردازنده‌های سری M اپل و مک‌های اینتل با وضوح رتینا (Retina Display).',
-      instructionsFa: 'فایل DMG را دانلود کرده و آیکون Aipetros را به پوشه Applications بکشید.',
-      directDownload: true
-    },
-    {
-      id: 'web',
-      name: 'Web Cinema (Browser)',
-      nameFa: 'نسخه تحت وب آنلاین',
-      category: 'web',
-      icon: Globe,
-      badge: 'بدون نیاز به نصب فایل',
-      version: 'Cloud Edge',
-      size: 'آنلاین',
-      downloadUrl: '#launch',
-      descriptionFa: 'ورود مستقیم و آنی به سینما از هر مرورگری روی هر سیستمی (کروم، فایرفاکس، سافاری، اج).',
-      instructionsFa: 'با فشردن دکمه ورود، سینما مستقیماً در مرورگر شما با بالاترین سرعت بارگذاری می‌شود.',
-      directDownload: false
-    }
-  ], []);
+  // THREE.JS REAL-TIME 3D CINEMA ARCHITECTURAL BACKGROUND
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-  const recommendedPlatform = useMemo(() => {
-    return platforms.find((p) => p.id === detectedPlatformId) || platforms[0];
-  }, [detectedPlatformId, platforms]);
+    let animationFrameId: number;
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-  const handleDownloadClick = (platform: PlatformInfo) => {
-    if (platform.id === 'web') {
-      onEnterCinema();
-      return;
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x040406, 0.035);
+
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      100
+    );
+    camera.position.set(0, 1.5, 9);
+
+    // 1. 3D Curved Golden Cinema Arches (Extending into depth)
+    const archGroup = new THREE.Group();
+    const archMaterial = new THREE.MeshBasicMaterial({
+      color: 0xd4af37,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.16,
+    });
+
+    for (let i = 0; i < 8; i++) {
+      const torusGeo = new THREE.TorusGeometry(6.2, 0.03, 12, 64, Math.PI);
+      const arch = new THREE.Mesh(torusGeo, archMaterial);
+      arch.position.z = -i * 3.2;
+      arch.position.y = -1.2;
+      archGroup.add(arch);
     }
-    if (platform.directDownload) {
+    scene.add(archGroup);
+
+    // 2. 3D Reflective Neural Floor Grid
+    const gridHelper = new THREE.GridHelper(40, 40, 0xd4af37, 0x3a2e14);
+    gridHelper.position.y = -2.4;
+    if (gridHelper.material instanceof THREE.Material) {
+      gridHelper.material.transparent = true;
+      gridHelper.material.opacity = 0.25;
+    }
+    scene.add(gridHelper);
+
+    // 3. Floating Volumetric Gold Dust Motes
+    const particleCount = 420;
+    const posArray = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      posArray[i] = (Math.random() - 0.5) * 18;
+      posArray[i + 1] = (Math.random() - 0.5) * 18;
+      posArray[i + 2] = (Math.random() - 0.5) * 24;
+    }
+    const particlesGeo = new THREE.BufferGeometry();
+    particlesGeo.setAttribute(
+      'position',
+      new THREE.BufferAttribute(posArray, 3)
+    );
+    const particlesMat = new THREE.PointsMaterial({
+      size: 0.055,
+      color: 0xfce79c,
+      transparent: true,
+      opacity: 0.65,
+    });
+    const particleMesh = new THREE.Points(particlesGeo, particlesMat);
+    scene.add(particleMesh);
+
+    // Interactive Mouse / Gyroscope Parallax + Scroll Depth
+    let targetX = 0;
+    let targetY = 0;
+    let scrollZ = 0;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      targetX = (e.clientX / window.innerWidth - 0.5) * 1.4;
+      targetY = -(e.clientY / window.innerHeight - 0.5) * 1.0;
+    };
+
+    const handleScroll = () => {
+      scrollZ = window.scrollY * 0.008;
+    };
+
+    const handleResize = () => {
+      if (!canvas) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+
+    const clock = new THREE.Clock();
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      // Smooth camera parallax & forward cinema hall motion
+      camera.position.x += (targetX - camera.position.x) * 0.05;
+      camera.position.y += (1.5 + targetY - camera.position.y) * 0.05;
+      camera.position.z = 9 - (scrollZ % 6);
+
+      // Gently rotate particles and pulse arches
+      particleMesh.rotation.y = elapsedTime * 0.04;
+      particleMesh.position.y = Math.sin(elapsedTime * 0.3) * 0.3;
+      gridHelper.position.z = (elapsedTime * 0.8) % 1;
+
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      renderer.dispose();
+      archMaterial.dispose();
+      particlesMat.dispose();
+      particlesGeo.dispose();
+    };
+  }, []);
+
+  const handleTriggerDownload = () => {
+    setDownloadStatus('INITIALIZING STREAM...');
+
+    if (selectedDevice.actionType === 'pwa') {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          setDeferredPrompt(null);
+        });
+      } else {
+        // Fallback: notify how to add to home screen or launch spatial cinema
+        onEnterCinema();
+      }
+    } else {
       // Trigger direct download
-      const a = document.createElement('a');
-      a.href = platform.downloadUrl;
-      a.download = '';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const link = document.createElement('a');
+      link.href = selectedDevice.downloadUrl;
+      link.download = '';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-    setDownloadModalPlatform(platform);
+
+    setTimeout(() => {
+      setDownloadStatus('');
+    }, 2000);
   };
 
-  const scrollToDownloads = () => {
-    const el = document.getElementById('platforms-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+  const handleTabClick = (tabKey: string) => {
+    if (tabKey === 'universe') {
+      onEnterCinema();
+    } else if (onNavigateTab) {
+      onNavigateTab(tabKey);
+    } else {
+      window.location.hash = tabKey;
+      onEnterCinema();
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#060913] text-white selection:bg-cyan-500 selection:text-black font-sans relative overflow-x-hidden" dir="rtl">
-      {/* Background Ambient Glows & Grid */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-cyan-600/15 rounded-full blur-[140px]" />
-        <div className="absolute top-1/3 -right-40 w-[700px] h-[700px] bg-indigo-600/15 rounded-full blur-[160px]" />
-        <div className="absolute -bottom-40 left-1/4 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[140px]" />
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)`,
-            backgroundSize: '32px 32px'
-          }}
-        />
-      </div>
+    <div className="relative min-h-screen bg-[#030305] text-[#F4F0EA] overflow-x-hidden font-sans select-none">
+      {/* SCOPED COMPONENT STYLES MATCHING THE EXACT CINEMATIC DESIGN */}
+      <style>{`
+        /* Volumetric Light Beam behind Top 3D Projector */
+        .projector-beam {
+          position: absolute;
+          top: -30px;
+          left: 50%;
+          transform: translateX(-50%) perspective(500px) rotateX(-25deg);
+          width: 340px;
+          height: 260px;
+          background: radial-gradient(ellipse at 35% 30%, rgba(252, 231, 156, 0.55) 0%, rgba(212, 175, 55, 0.22) 38%, rgba(4, 4, 6, 0) 75%);
+          filter: blur(18px);
+          pointer-events: none;
+          z-index: 1;
+          animation: pulseBeam 4s ease-in-out infinite alternate;
+        }
 
-      {/* Floating Header */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-[#060913]/85 backdrop-blur-xl border-b border-cyan-500/20 py-3 shadow-2xl shadow-cyan-950/30'
-            : 'bg-transparent py-5'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          {/* Logo & Identity */}
-          <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 p-[1px] shadow-lg shadow-cyan-500/30 flex items-center justify-center">
-              <div className="w-full h-full bg-[#080d1a] rounded-xl flex items-center justify-center">
-                <Film className="w-5 h-5 text-cyan-400" />
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">
-                  AIPETROS
-                </span>
-                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
-                  CINEMA
-                </span>
-              </div>
-              <p className="text-[10px] text-gray-400 tracking-wide font-mono">NEXT-GEN STREAMING ARCHIVE</p>
-            </div>
-          </div>
+        @keyframes pulseBeam {
+          0% { opacity: 0.75; transform: translateX(-50%) scale(0.96); }
+          100% { opacity: 1; transform: translateX(-50%) scale(1.06); }
+        }
 
-          {/* Quick Links & CTA Button: aipetros-cinema */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <button
-              onClick={scrollToDownloads}
-              className="hidden sm:inline-flex items-center gap-2 text-sm text-gray-300 hover:text-cyan-400 transition-colors px-3 py-2"
-            >
-              <Download className="w-4 h-4" />
-              <span>پلتفرم‌ها و دانلود</span>
-            </button>
+        /* 3D Floating Projector Rig Animation */
+        .projector-3d-rig {
+          transform-style: preserve-3d;
+          animation: floatProjector 6s ease-in-out infinite;
+          filter: drop-shadow(0 22px 35px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 25px rgba(212, 175, 55, 0.35));
+        }
 
-            {/* Special Highlighted CTA: aipetros-cinema */}
-            <button
-              onClick={onEnterCinema}
-              id="aipetros-cinema-btn"
-              className="relative group overflow-hidden rounded-xl px-4 sm:px-6 py-2.5 bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 text-black font-bold text-sm tracking-wide shadow-lg shadow-cyan-500/30 hover:shadow-cyan-400/50 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center gap-2"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                <Play className="w-4 h-4 fill-black text-black" />
-                <span>aipetros-cinema</span>
-              </span>
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
-            </button>
-          </div>
-        </div>
-      </header>
+        @keyframes floatProjector {
+          0%, 100% { transform: translateY(0px) rotateY(-8deg) rotateX(6deg); }
+          50% { transform: translateY(-8px) rotateY(8deg) rotateX(2deg); }
+        }
 
-      {/* Hero Section with Live Smart Auto-Suggest */}
-      <section className="relative z-10 pt-32 pb-20 md:pt-40 md:pb-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Top Status Pill */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono shadow-inner mb-6"
-        >
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-          <span>v2.4.0 MULTI-PLATFORM UNIVERSE • بدون فیلتر و بدون تبلیغات</span>
-        </motion.div>
+        /* Metallic Gold Text Gradient */
+        .gold-gradient-text {
+          background: linear-gradient(180deg, #FFF6D6 0%, #E5C158 52%, #9B7420 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          text-shadow: 0 10px 30px rgba(212, 175, 55, 0.25);
+        }
 
-        {/* Big Catchy Title */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-tight md:leading-none max-w-5xl mx-auto"
-        >
-          سینمای بی‌پایان، با کیفیت{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">
-            4K واقعی
-          </span>
-          <br />
-          برای تمام دستگاه‌های شما
-        </motion.h1>
+        /* Spatial 3D Glass Containers */
+        .spatial-section-frame {
+          background: linear-gradient(165deg, rgba(22, 19, 15, 0.72) 0%, rgba(8, 8, 12, 0.82) 100%);
+          backdrop-filter: blur(22px) saturate(160%);
+          -webkit-backdrop-filter: blur(22px) saturate(160%);
+          border: 1px solid rgba(212, 175, 55, 0.28);
+          box-shadow: 
+            0 25px 60px -15px rgba(0, 0, 0, 0.95),
+            inset 0 1px 1px rgba(255, 238, 186, 0.25),
+            0 0 40px -10px rgba(212, 175, 55, 0.14);
+          transform-style: preserve-3d;
+        }
 
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-6 text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
-        >
-          پلتفرم استریم و دانلود مستقیم فیلم، سریال و انیمه‌های روز دنیا با سرعت ابری، بدون نیاز به اشتراک، کاملاً رایگان و مجهز به سوئیچ هوشمند کیفیت‌ها و زیرنویس فارسی هماهنگ.
-        </motion.p>
+        /* 3D Device Cards */
+        .device-card-3d {
+          background: linear-gradient(180deg, rgba(38, 33, 26, 0.78) 0%, rgba(12, 11, 14, 0.92) 100%);
+          border: 1px solid rgba(212, 175, 55, 0.32);
+          box-shadow: 
+            0 14px 28px rgba(0, 0, 0, 0.85),
+            inset 0 1px 0 rgba(255, 240, 190, 0.3);
+          transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+          transform-style: preserve-3d;
+        }
+        .device-card-3d:hover, .device-card-3d.active-device {
+          transform: translateY(-6px) scale(1.02) rotateX(4deg);
+          border-color: rgba(252, 231, 156, 0.85);
+          box-shadow: 
+            0 20px 38px rgba(0, 0, 0, 0.95),
+            0 0 25px rgba(212, 175, 55, 0.32),
+            inset 0 1px 1px rgba(255, 245, 200, 0.5);
+        }
 
-        {/* SMART DEVICE AUTO-SUGGEST HERO BOX (Inspired by Spotify / Telegram / Discord) */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-10 max-w-2xl mx-auto rounded-3xl p-1 bg-gradient-to-b from-cyan-500/40 via-indigo-500/20 to-transparent shadow-2xl shadow-cyan-950/50"
-        >
-          <div className="bg-[#0b1122]/95 backdrop-blur-2xl rounded-[22px] p-6 sm:p-8 border border-cyan-500/20 text-right">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                  <recommendedPlatform.icon className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                      تشخیص خودکار دستگاه شما
-                    </span>
-                    <span className="text-xs text-gray-400 font-mono">{recommendedPlatform.version}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-white mt-1">
-                    {recommendedPlatform.nameFa}
-                  </h3>
-                </div>
-              </div>
-              <div className="text-left font-mono text-xs text-cyan-400 bg-cyan-950/40 px-3 py-1.5 rounded-xl border border-cyan-800/40">
-                حجم: {recommendedPlatform.size}
-              </div>
-            </div>
+        /* Hexagonal 3D Feature Nodes */
+        .hex-badge {
+          clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+          background: linear-gradient(135deg, rgba(212, 175, 55, 0.38) 0%, rgba(30, 24, 14, 0.95) 100%);
+          box-shadow: inset 0 0 12px rgba(252, 231, 156, 0.45);
+        }
 
-            <p className="text-sm text-gray-300 mt-4 leading-relaxed">
-              {recommendedPlatform.descriptionFa}
-            </p>
+        /* Hero Gold Launch Pill Button */
+        .gold-cta-btn {
+          background: linear-gradient(180deg, #FFF3B8 0%, #E7BE53 48%, #B3831E 100%);
+          color: #090806;
+          box-shadow: 
+            0 0 35px rgba(231, 190, 83, 0.55),
+            0 10px 25px rgba(0, 0, 0, 0.9),
+            inset 0 2px 2px rgba(255, 255, 255, 0.75);
+          transition: all 0.25s ease;
+        }
+        .gold-cta-btn:hover {
+          transform: translateY(-2px) scale(1.01);
+          box-shadow: 0 0 50px rgba(252, 231, 156, 0.8), 0 14px 28px rgba(0, 0, 0, 0.95);
+        }
+        .gold-cta-btn:active {
+          transform: translateY(1px) scale(0.99);
+        }
 
-            {/* Action Buttons for Auto-Suggested Platform */}
-            <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
-              <button
-                onClick={() => handleDownloadClick(recommendedPlatform)}
-                className="w-full sm:flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-500 text-black font-extrabold text-sm sm:text-base tracking-wide shadow-lg shadow-cyan-500/30 hover:shadow-cyan-400/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2.5"
+        /* Section Header Capsule */
+        .section-pill {
+          background: linear-gradient(180deg, rgba(32, 28, 22, 0.95) 0%, rgba(14, 12, 10, 0.98) 100%);
+          border: 1px solid rgba(212, 175, 55, 0.42);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 235, 175, 0.25);
+        }
+      `}</style>
+
+      {/* LIVE 3D WEBGL CINEMA ENVIRONMENT BACKGROUND */}
+      <canvas
+        ref={canvasRef}
+        id="cinema-3d-canvas"
+        className="fixed inset-0 w-screen h-screen z-0 pointer-events-none"
+      />
+
+      {/* MAIN RESPONSIVE CONTAINER (Mobile-First, Scales to Tablet/Desktop) */}
+      <main className="relative z-10 w-full max-w-[460px] md:max-w-[780px] lg:max-w-[980px] mx-auto px-3.5 pt-3 pb-28 flex flex-col items-center">
+        {/* 1. TOP 3D HOLOGRAPHIC IMAX PROJECTOR & VOLUMETRIC LIGHT */}
+        <section className="relative w-full flex flex-col items-center pt-2 pb-3">
+          <div className="projector-beam" />
+
+          {/* 3D Sculpted Cinema Projector SVG */}
+          <div className="projector-3d-rig relative z-10 w-44 h-28 md:w-56 md:h-36 flex items-center justify-center">
+            {/* Glowing Lens Flare */}
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-amber-300/60 blur-xl animate-pulse" />
+            <div className="absolute -left-16 top-1/2 -translate-y-1/2 w-36 h-20 bg-gradient-to-l from-amber-200/45 via-amber-500/15 to-transparent -rotate-6 blur-md pointer-events-none" />
+
+            {/* Detailed 3D Isometric Projector Illustration */}
+            <svg viewBox="0 0 260 165" className="w-full h-full overflow-visible">
+              <defs>
+                <linearGradient id="obsidianBody" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#3A352D" />
+                  <stop offset="45%" stopColor="#17161A" />
+                  <stop offset="100%" stopColor="#070709" />
+                </linearGradient>
+                <linearGradient id="goldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FFF2BE" />
+                  <stop offset="50%" stopColor="#D4AF37" />
+                  <stop offset="100%" stopColor="#6E5011" />
+                </linearGradient>
+                <radialGradient id="lensGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#FFFFFF" />
+                  <stop offset="35%" stopColor="#FFE484" />
+                  <stop offset="75%" stopColor="#D4AF37" />
+                  <stop offset="100%" stopColor="#141109" />
+                </radialGradient>
+              </defs>
+
+              {/* Base Pedestal */}
+              <ellipse
+                cx="135"
+                cy="142"
+                rx="52"
+                ry="12"
+                fill="url(#obsidianBody)"
+                stroke="url(#goldRim)"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M105 125 L165 125 L175 140 L95 140 Z"
+                fill="url(#obsidianBody)"
+                stroke="url(#goldRim)"
+                strokeWidth="1.2"
+              />
+
+              {/* Main 3D Projector Chassis */}
+              <rect
+                x="68"
+                y="34"
+                width="132"
+                height="86"
+                rx="14"
+                fill="url(#obsidianBody)"
+                stroke="url(#goldRim)"
+                strokeWidth="2"
+              />
+              {/* Side Mechanical Reel / Turbine */}
+              <circle
+                cx="172"
+                cy="76"
+                r="28"
+                fill="#0B0B0E"
+                stroke="url(#goldRim)"
+                strokeWidth="2"
+              />
+              <circle
+                cx="172"
+                cy="76"
+                r="18"
+                fill="none"
+                stroke="#D4AF37"
+                strokeDasharray="6 4"
+                strokeWidth="1.5"
+              />
+              <circle cx="172" cy="76" r="6" fill="url(#goldRim)" />
+
+              {/* Cooling Vents */}
+              <g stroke="#D4AF37" strokeWidth="1.2" opacity="0.55">
+                <line x1="115" y1="48" x2="135" y2="48" />
+                <line x1="115" y1="54" x2="135" y2="54" />
+                <line x1="115" y1="60" x2="135" y2="60" />
+              </g>
+
+              {/* Primary Optical Barrel & Glowing IMAX Lens */}
+              <ellipse
+                cx="72"
+                cy="76"
+                rx="26"
+                ry="32"
+                fill="url(#obsidianBody)"
+                stroke="url(#goldRim)"
+                strokeWidth="2.5"
+              />
+              <ellipse
+                cx="56"
+                cy="76"
+                rx="22"
+                ry="27"
+                fill="#0E0D12"
+                stroke="url(#goldRim)"
+                strokeWidth="2.5"
+              />
+              <ellipse cx="52" cy="76" rx="16" ry="21" fill="url(#lensGlow)" />
+
+              {/* IMAX Badge */}
+              <rect
+                x="115"
+                y="102"
+                width="36"
+                height="11"
+                rx="3"
+                fill="#09090C"
+                stroke="url(#goldRim)"
+                strokeWidth="0.9"
+              />
+              <text
+                x="133"
+                y="110"
+                fill="#FCE79C"
+                fontSize="6.5"
+                fontWeight="700"
+                textAnchor="middle"
+                letterSpacing="1.2"
               >
-                <Download className="w-5 h-5 stroke-[2.5]" />
-                <span>
-                  {recommendedPlatform.directDownload
-                    ? `دانلود مستقیم برای دستگاه شما (${recommendedPlatform.name})`
-                    : `اجرای مستقیم در دستگاه شما`}
-                </span>
-              </button>
-
-              <button
-                onClick={onEnterCinema}
-                className="w-full sm:w-auto py-3.5 px-6 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-medium text-sm transition-all flex items-center justify-center gap-2"
-              >
-                <Play className="w-4 h-4 fill-white" />
-                <span>ورود آنلاین به وب‌سینما</span>
-              </button>
-            </div>
-
-            <div className="mt-4 pt-3 flex items-center justify-between text-xs text-gray-400">
-              <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
-                <CheckCircle2 className="w-4 h-4" />
-                <span>تایید شده و امن بدون ویروس و تبلیغات</span>
-              </span>
-              <button
-                onClick={scrollToDownloads}
-                className="text-cyan-400 hover:text-cyan-300 underline underline-offset-4 flex items-center gap-1"
-              >
-                <span>مشاهده سایر پلتفرم‌ها</span>
-                <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-            </div>
+                IMAX 4K
+              </text>
+            </svg>
           </div>
-        </motion.div>
-      </section>
 
-      {/* MULTI-PLATFORM DIRECT DOWNLOADS GRID */}
-      <section id="platforms-section" className="relative z-10 py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold mb-3">
-            <Layers className="w-3.5 h-3.5" />
-            <span>یک اکانت، همه دیوایس‌ها</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-white">
-            دانلود مستقیم پلتفرم‌های <span className="text-cyan-400">aipetros-cinema</span>
-          </h2>
-          <p className="mt-3 text-gray-400 text-sm sm:text-base">
-            تمامی نسخه‌ها به صورت مستقیم، بدون واسطه و با حداکثر پهنای باند آماده دریافت هستند.
+          {/* Main Editorial Headlines */}
+          <h1 className="font-serif text-center font-extrabold tracking-wider leading-[1.12] text-[24px] sm:text-[30px] md:text-[38px] gold-gradient-text mt-1">
+            NEXT-GEN NEURAL
+            <br />
+            CINEMA ARCHITECTURE
+          </h1>
+          <p className="text-center text-zinc-300/90 text-[11.5px] sm:text-[13.5px] md:text-[15px] max-w-[360px] md:max-w-[540px] leading-snug mt-2 font-medium">
+            AI-Driven 4K HDR Mastering, Real-Time Neural Subtitle
+            <br className="hidden sm:inline" />
+            Synthesis &amp; Spatial Acoustics Across Every Screen
           </p>
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {platforms.map((platform) => {
-            const isCurrent = platform.id === detectedPlatformId;
-            const Icon = platform.icon;
+        {/* 2. CHOOSE YOUR SPATIAL DEVICE (4-COLUMN INTERACTIVE 3D GRID) */}
+        <section className="relative w-full mt-4">
+          {/* Floating Header Pill */}
+          <div className="relative z-20 flex justify-center -mb-3.5">
+            <div className="section-pill px-5 py-1.5 rounded-full">
+              <span className="text-[10.5px] sm:text-xs font-bold tracking-[0.16em] text-amber-200/95 uppercase">
+                CHOOSE YOUR SPATIAL DEVICE
+              </span>
+            </div>
+          </div>
 
-            return (
-              <motion.div
-                key={platform.id}
-                whileHover={{ y: -6 }}
-                transition={{ duration: 0.2 }}
-                className={`relative rounded-2xl p-6 transition-all border ${
-                  isCurrent
-                    ? 'bg-[#0c1326] border-cyan-400/50 shadow-xl shadow-cyan-950/40 ring-1 ring-cyan-500/30'
-                    : 'bg-[#090e1c]/80 border-white/10 hover:border-cyan-500/30 hover:bg-[#0b1224]'
+          {/* Spatial Frame Container */}
+          <div className="spatial-section-frame rounded-[26px] pt-6 pb-4 px-2.5 sm:px-4">
+            <div className="grid grid-cols-4 gap-2 sm:gap-3.5">
+              {/* Card 1: iPhone & iPad */}
+              <div
+                onClick={() => setSelectedDevice(DEVICES[0])}
+                className={`device-card-3d cursor-pointer rounded-[18px] p-2 sm:p-3 flex flex-col items-center text-center justify-between ${
+                  selectedDevice.id === 'ios' ? 'active-device ring-1 ring-amber-300/70' : ''
                 }`}
               >
-                {/* Header Badge */}
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-                    <Icon className="w-6 h-6" />
+                <div className="w-full h-20 sm:h-28 rounded-xl bg-gradient-to-b from-amber-500/15 via-black/60 to-black/90 border border-amber-400/25 flex items-center justify-center relative overflow-hidden p-1.5">
+                  <div className="w-9 h-16 sm:w-12 sm:h-22 rounded-[10px] border-2 border-amber-300/70 bg-gradient-to-br from-amber-300 via-orange-500/80 to-purple-900 shadow-[0_0_18px_rgba(251,191,36,0.45)] flex items-center justify-center">
+                    <div className="w-3.5 h-3.5 rounded-full bg-white/80 blur-[1px]" />
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    {isCurrent && (
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-cyan-500 text-black animate-pulse">
-                        دستگاه فعلی شما
-                      </span>
-                    )}
-                    <span className="text-[11px] font-mono text-gray-400 bg-white/5 px-2 py-0.5 rounded-md border border-white/10">
-                      {platform.version}
+                </div>
+                <div className="mt-2 w-full">
+                  <h3 className="text-[10px] sm:text-xs font-bold text-white leading-tight truncate">
+                    iPhone &amp; iPad
+                  </h3>
+                  <p className="text-[8.5px] sm:text-[10px] text-amber-200/80 font-medium mt-0.5 truncate">
+                    Spatial PWA
+                  </p>
+                </div>
+                <div className="w-full mt-2 pt-1.5 border-t border-amber-500/20 flex flex-col items-center gap-1">
+                  <span className="inline-flex items-center gap-0.5 text-[8px] sm:text-[9.5px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-400/30 rounded-full px-2 py-0.5">
+                    ↓ Install PWA
+                  </span>
+                  <span className="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">
+                    12.9 MB • v2.4.0
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 2: Android Mobile */}
+              <div
+                onClick={() => setSelectedDevice(DEVICES[1])}
+                className={`device-card-3d cursor-pointer rounded-[18px] p-2 sm:p-3 flex flex-col items-center text-center justify-between ${
+                  selectedDevice.id === 'android' ? 'active-device ring-1 ring-amber-300/70' : ''
+                }`}
+              >
+                <div className="w-full h-20 sm:h-28 rounded-xl bg-gradient-to-b from-zinc-800/60 to-black/90 border border-amber-500/20 flex items-center justify-center relative overflow-hidden p-1.5">
+                  <div className="w-9 h-16 sm:w-12 sm:h-22 rounded-[9px] border border-amber-400/40 bg-zinc-900 flex flex-col items-center justify-between py-1.5 shadow-inner">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400/70" />
+                    <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-400/60 flex items-center justify-center text-[9px] text-amber-300">
+                      ↓
+                    </div>
+                    <div className="w-4 h-0.5 bg-zinc-600 rounded" />
+                  </div>
+                </div>
+                <div className="mt-2 w-full">
+                  <h3 className="text-[10px] sm:text-xs font-bold text-white leading-tight truncate">
+                    Android Mobile
+                  </h3>
+                  <p className="text-[8.5px] sm:text-[10px] text-amber-200/80 font-medium mt-0.5 truncate">
+                    Native 4K APK
+                  </p>
+                </div>
+                <div className="w-full mt-2 pt-1.5 border-t border-amber-500/20 flex flex-col items-center gap-1">
+                  <span className="inline-flex items-center gap-0.5 text-[8px] sm:text-[9.5px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-400/30 rounded-full px-2 py-0.5">
+                    ↓ Direct APK
+                  </span>
+                  <span className="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">
+                    18.4 MB • v2.4.0
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 3: Android TV */}
+              <div
+                onClick={() => setSelectedDevice(DEVICES[2])}
+                className={`device-card-3d cursor-pointer rounded-[18px] p-2 sm:p-3 flex flex-col items-center text-center justify-between ${
+                  selectedDevice.id === 'android-tv' ? 'active-device ring-1 ring-amber-300/70' : ''
+                }`}
+              >
+                <div className="w-full h-20 sm:h-28 rounded-xl bg-gradient-to-b from-amber-500/10 to-black/90 border border-amber-500/25 flex items-center justify-center relative overflow-hidden p-1.5">
+                  <div className="w-16 h-11 sm:w-22 sm:h-14 rounded-md border border-amber-300/60 bg-gradient-to-tr from-black via-zinc-900 to-amber-950/60 flex flex-col items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.25)]">
+                    <span className="text-[7px] sm:text-[8px] font-bold tracking-widest text-amber-300">
+                      DOLBY
                     </span>
+                    <span className="text-[6px] text-zinc-400">ATMOS 4K</span>
                   </div>
                 </div>
+                <div className="mt-2 w-full">
+                  <h3 className="text-[10px] sm:text-xs font-bold text-white leading-tight truncate">
+                    Android TV
+                  </h3>
+                  <p className="text-[8.5px] sm:text-[10px] text-amber-200/80 font-medium mt-0.5 truncate">
+                    Dolby Atmos
+                  </p>
+                </div>
+                <div className="w-full mt-2 pt-1.5 border-t border-amber-500/20 flex flex-col items-center gap-1">
+                  <span className="inline-flex items-center gap-0.5 text-[8px] sm:text-[9.5px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-400/30 rounded-full px-2 py-0.5">
+                    ↓ TV Client
+                  </span>
+                  <span className="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">
+                    22.1 MB • v2.4.0
+                  </span>
+                </div>
+              </div>
 
-                {/* Title & Desc */}
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <span>{platform.nameFa}</span>
-                </h3>
-                <p className="text-xs text-cyan-400 font-mono mt-0.5">{platform.badge}</p>
-                <p className="text-xs text-gray-300 mt-3 leading-relaxed min-h-[48px]">
-                  {platform.descriptionFa}
-                </p>
-
-                {/* Footer Download CTA */}
-                <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-                  <div className="text-[11px] font-mono text-gray-400">
-                    حجم: <span className="text-gray-200">{platform.size}</span>
+              {/* Card 4: Windows 11 */}
+              <div
+                onClick={() => setSelectedDevice(DEVICES[3])}
+                className={`device-card-3d cursor-pointer rounded-[18px] p-2 sm:p-3 flex flex-col items-center text-center justify-between ${
+                  selectedDevice.id === 'windows' ? 'active-device ring-1 ring-amber-300/70' : ''
+                }`}
+              >
+                <div className="w-full h-20 sm:h-28 rounded-xl bg-gradient-to-b from-blue-950/40 to-black/90 border border-amber-500/20 flex items-center justify-center relative overflow-hidden p-1.5">
+                  <div className="w-16 h-11 sm:w-22 sm:h-14 rounded-t-md border border-sky-400/50 bg-gradient-to-br from-sky-500/40 via-blue-700/40 to-indigo-950 flex items-center justify-center shadow-[0_0_16px_rgba(56,189,248,0.3)]">
+                    <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+                      <span className="bg-sky-300/90" />
+                      <span className="bg-sky-300/90" />
+                      <span className="bg-sky-300/90" />
+                      <span className="bg-sky-300/90" />
+                    </div>
                   </div>
+                </div>
+                <div className="mt-2 w-full">
+                  <h3 className="text-[10px] sm:text-xs font-bold text-white leading-tight truncate">
+                    Windows 11
+                  </h3>
+                  <p className="text-[8.5px] sm:text-[10px] text-amber-200/80 font-medium mt-0.5 truncate">
+                    GPU Desktop
+                  </p>
+                </div>
+                <div className="w-full mt-2 pt-1.5 border-t border-amber-500/20 flex flex-col items-center gap-1">
+                  <span className="inline-flex items-center gap-0.5 text-[8px] sm:text-[9.5px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-400/30 rounded-full px-2 py-0.5">
+                    ↓ .EXE Setup
+                  </span>
+                  <span className="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">
+                    64.5 MB • v2.4.0
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-                  <button
-                    onClick={() => handleDownloadClick(platform)}
-                    className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all ${
-                      isCurrent
-                        ? 'bg-gradient-to-r from-cyan-400 to-indigo-500 text-black hover:opacity-90 shadow-md shadow-cyan-500/20'
-                        : 'bg-white/10 text-white hover:bg-cyan-500 hover:text-black'
-                    }`}
+        {/* 3. AUTONOMOUS BACKEND FEATURES (3D HEXAGONAL NEURAL NODES) */}
+        <section className="relative w-full mt-5">
+          {/* Floating Header Pill */}
+          <div className="relative z-20 flex justify-center -mb-3.5">
+            <div className="section-pill px-5 py-1.5 rounded-full">
+              <span className="text-[10.5px] sm:text-xs font-bold tracking-[0.16em] text-amber-200/95 uppercase">
+                AUTONOMOUS BACKEND FEATURES
+              </span>
+            </div>
+          </div>
+
+          {/* Spatial Frame Container */}
+          <div className="spatial-section-frame rounded-[26px] pt-6 pb-4 px-3 sm:px-5 relative overflow-hidden">
+            {/* Central Glowing Neural Core Connector */}
+            <div className="hidden sm:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-xl border border-amber-400/40 bg-amber-500/10 items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.4)] pointer-events-none">
+              <div
+                className="w-5 h-5 border-2 border-amber-300 rounded-sm animate-spin"
+                style={{ animationDuration: '10s' }}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4 relative z-10">
+              {/* Feature 1: AI Neural 4K Upscaling */}
+              <div className="device-card-3d rounded-2xl p-2.5 sm:p-3.5 flex items-center gap-2.5">
+                <div className="hex-badge w-10 h-10 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center border border-amber-300/50">
+                  <span className="text-[10px] sm:text-xs font-extrabold text-amber-200">
+                    4K
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-[11px] sm:text-sm font-bold text-white leading-tight">
+                    AI Neural
+                    <br />
+                    4K Upscaling
+                  </h4>
+                  <p className="text-[8.5px] sm:text-[11px] text-zinc-400 mt-0.5 truncate">
+                    Real-time HDR bitrate engine
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature 2: Zero-Latency AI Subtitle Sync */}
+              <div className="device-card-3d rounded-2xl p-2.5 sm:p-3.5 flex items-center gap-2.5">
+                <div className="hex-badge w-10 h-10 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center border border-amber-300/50">
+                  <span className="text-[10px] sm:text-xs font-extrabold text-amber-200">
+                    CC
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-[11px] sm:text-sm font-bold text-white leading-tight">
+                    Zero-Latency
+                    <br />
+                    AI Subtitle Sync
+                  </h4>
+                  <p className="text-[8.5px] sm:text-[11px] text-zinc-400 mt-0.5 truncate">
+                    Frame-accurate neural SRT
+                  </p>
+                </div>
+              </div>
+
+              {/* Feature 3: Autonomous Cloud Core */}
+              <div className="device-card-3d rounded-2xl p-2.5 sm:p-3.5 flex items-center gap-2.5">
+                <div className="hex-badge w-10 h-10 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center border border-amber-300/50">
+                  <svg
+                    className="w-5 h-5 text-amber-200"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
                   >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>{platform.directDownload ? 'دانلود مستقیم' : 'دریافت'}</span>
-                  </button>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"
+                    />
+                  </svg>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+                <div className="min-w-0">
+                  <h4 className="text-[11px] sm:text-sm font-bold text-white leading-tight">
+                    Autonomous
+                    <br />
+                    Cloud Core
+                  </h4>
+                  <p className="text-[8.5px] sm:text-[11px] text-zinc-400 mt-0.5 truncate">
+                    Self-healing edge distribution
+                  </p>
+                </div>
+              </div>
 
-      {/* CORE SUPERPOWERS / FEATURE SHOWCASE */}
-      <section className="relative z-10 py-16 bg-[#04060d]/80 border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/20 transition-all">
-              <Zap className="w-8 h-8 text-cyan-400 mb-3" />
-              <h4 className="text-base font-bold text-white">کیفیت 4K و 1080p واقعی</h4>
-              <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                استریم‌های واقعی با بیت‌ریت گیگابایتی، تفکیک کیفیت‌های 480p تا 4K و حفظ دقیقه در زمان تعویض کیفیت.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/20 transition-all">
-              <ShieldCheck className="w-8 h-8 text-emerald-400 mb-3" />
-              <h4 className="text-base font-bold text-white">ضد هک و بدون ردگیری</h4>
-              <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                معماری سرورلس استاتیک توزیع‌شده بر روی شبکه ابری Anycast کلودفلر، بدون دیتابیس آسیب‌پذیر و با SSL خودکار.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/20 transition-all">
-              <Sparkles className="w-8 h-8 text-indigo-400 mb-3" />
-              <h4 className="text-base font-bold text-white">زیرنویس هوشمند + دانلود SRT</h4>
-              <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                پشتیبانی از فرمت استاندارد WebVTT، همگام‌ساز تاخیر زیرنویس و امکان دانلود مستقیم فایل SRT برای هر اثر.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/20 transition-all">
-              <Radio className="w-8 h-8 text-sky-400 mb-3" />
-              <h4 className="text-base font-bold text-white">آپدیت خودکار بدون نصب مجدد</h4>
-              <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                سرویس‌ورکر هوشمند با قابلیت SkipWaiting و اعمال لحظه‌ای نسخه‌های جدید گیت‌هاب بدون نیاز به پاک کردن کش.
-              </p>
+              {/* Feature 4: Spatial Audio & Neural Sync */}
+              <div className="device-card-3d rounded-2xl p-2.5 sm:p-3.5 flex items-center gap-2.5">
+                <div className="hex-badge w-10 h-10 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center border border-amber-300/50">
+                  <svg
+                    className="w-5 h-5 text-amber-200"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"
+                    />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-[11px] sm:text-sm font-bold text-white leading-tight">
+                    Spatial Audio
+                    <br />
+                    &amp; Neural Sync
+                  </h4>
+                  <p className="text-[8.5px] sm:text-[11px] text-zinc-400 mt-0.5 truncate">
+                    Smart multi-room acoustics
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FOOTER */}
-      <footer className="relative z-10 py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-3">
-          <Film className="w-5 h-5 text-cyan-400" />
-          <span className="text-sm font-bold text-white">AIPETROS CINEMA • پتروس سینما</span>
-        </div>
-
-        <div className="flex items-center gap-4 text-xs text-gray-400">
-          <span>وضعیت سرورها: <strong className="text-emerald-400">۱۰۰٪ آنلاین و پایدار</strong></span>
-          <span>•</span>
-          <a
-            href="https://t.me/Aipetros"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1"
+        {/* 4. BOTTOM PRIMARY ACTION ROW (LAUNCH SPATIAL CINEMA + DOWNLOAD CLIENTS) */}
+        <section className="w-full mt-5 flex items-center gap-2.5 sm:gap-4">
+          <button
+            onClick={onEnterCinema}
+            className="gold-cta-btn flex-1 py-3.5 sm:py-4 px-5 rounded-full text-center font-serif font-extrabold text-xs sm:text-sm md:text-base tracking-wider uppercase cursor-pointer"
           >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>کانال تلگرام: @Aipetros</span>
-          </a>
-        </div>
+            LAUNCH SPATIAL CINEMA
+          </button>
+          <button
+            id="download-btn"
+            onClick={handleTriggerDownload}
+            className="spatial-section-frame py-3.5 sm:py-4 px-4 sm:px-6 rounded-full text-[10.5px] sm:text-xs font-bold tracking-wider text-amber-200/95 hover:border-amber-300 transition uppercase shrink-0 cursor-pointer"
+          >
+            {downloadStatus || `GET ${selectedDevice.name.split(' ')[0].toUpperCase()}`}
+          </button>
+        </section>
+      </main>
 
-        <p className="text-[11px] text-gray-500 font-mono">
-          © 2026 AIPETROS. All Rights Reserved.
-        </p>
-      </footer>
-
-      {/* INSTRUCTIONS MODAL (e.g. for iOS or APK guidance) */}
-      <AnimatePresence>
-        {downloadModalPlatform && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-[#0c1326] border border-cyan-500/40 rounded-2xl max-w-lg w-full p-6 text-right shadow-2xl"
-            >
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <downloadModalPlatform.icon className="w-5 h-5 text-cyan-400" />
-                  <h3 className="text-base font-bold text-white">{downloadModalPlatform.nameFa}</h3>
-                </div>
-                <button
-                  onClick={() => setDownloadModalPlatform(null)}
-                  className="text-gray-400 hover:text-white text-sm px-2 py-1"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="mt-4 space-y-3">
-                <p className="text-xs text-gray-300 leading-relaxed">
-                  {downloadModalPlatform.instructionsFa}
-                </p>
-
-                {downloadModalPlatform.directDownload && (
-                  <div className="p-3 bg-cyan-950/40 border border-cyan-500/20 rounded-xl text-xs text-cyan-300 flex items-center justify-between">
-                    <span>فایل آماده دریافت مستقیم:</span>
-                    <a
-                      href={downloadModalPlatform.downloadUrl}
-                      className="px-3 py-1.5 bg-cyan-500 text-black font-bold rounded-lg hover:bg-cyan-400 transition-colors flex items-center gap-1"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>دانلود فایل</span>
-                    </a>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-end gap-3">
-                <button
-                  onClick={() => {
-                    setDownloadModalPlatform(null);
-                    onEnterCinema();
-                  }}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-black font-bold text-xs"
-                >
-                  ورود مستقیم به سینما
-                </button>
-                <button
-                  onClick={() => setDownloadModalPlatform(null)}
-                  className="px-4 py-2 rounded-xl bg-white/10 text-white text-xs hover:bg-white/15"
-                >
-                  بستن
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* 5. FLOATING VISION-OS BOTTOM NAVIGATION DOCK */}
+      <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 w-[94%] max-w-[440px] spatial-section-frame rounded-full px-4 py-2 flex items-center justify-around">
+        <button
+          onClick={() => handleTabClick('universe')}
+          className="flex flex-col items-center gap-0.5 text-amber-300 cursor-pointer bg-transparent border-0"
+        >
+          <svg
+            className="w-5 h-5 drop-shadow-[0_0_8px_rgba(252,231,156,0.8)]"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+          </svg>
+          <span className="text-[9.5px] font-semibold">Universe</span>
+        </button>
+        <button
+          onClick={() => handleTabClick('discover')}
+          className="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition cursor-pointer bg-transparent border-0"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+          </svg>
+          <span className="text-[9.5px] font-medium">Discover</span>
+        </button>
+        <button
+          onClick={() => handleTabClick('search')}
+          className="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition cursor-pointer bg-transparent border-0"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <span className="text-[9.5px] font-medium">Search</span>
+        </button>
+        <button
+          onClick={() => handleTabClick('library')}
+          className="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition cursor-pointer bg-transparent border-0"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            viewBox="0 0 24 24"
+          >
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <line x1="7" y1="4" x2="7" y2="20" />
+            <line x1="17" y1="4" x2="17" y2="20" />
+          </svg>
+          <span className="text-[9.5px] font-medium">Library</span>
+        </button>
+        <button
+          onClick={() => handleTabClick('settings')}
+          className="flex flex-col items-center gap-0.5 text-zinc-400 hover:text-amber-200 transition cursor-pointer bg-transparent border-0"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          <span className="text-[9.5px] font-medium">Settings</span>
+        </button>
+      </nav>
     </div>
   );
 };

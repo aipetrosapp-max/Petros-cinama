@@ -871,6 +871,9 @@ function UniversePrototypeShell({
             }
             navigateTo('universe');
           }}
+          onNavigateTab={(tab) => {
+            navigateTo(tab as PrototypeRoute);
+          }}
         />
         <ToastBanner toast={toast} onDismiss={() => setToast(null)} />
       </MotionConfig>
