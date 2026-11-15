@@ -2,7 +2,7 @@
   "name": "ai petros — Petros Cinema",
   "short_name": "ai petros",
   "description": "Aipetros-stream: Private AI Noir Cinema & High-Bitrate Cross-Platform Streaming Discovery.",
-  "start_url": "./",
+  "start_url": "./app.html",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#060810",

@@ -145,11 +145,13 @@ function UniversePrototypeShell({
   const [route, setRoute] = useState<PrototypeRoute>(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash.toLowerCase();
-      if (hash.includes('cinema') || hash.includes('universe') || hash.includes('watch') || hash.includes('search')) {
-        return 'universe';
-      }
+      if (hash.includes('discover')) return 'discover';
+      if (hash.includes('search')) return 'search';
+      if (hash.includes('library') || hash.includes('archive')) return 'library';
+      if (hash.includes('settings')) return 'settings';
+      if (hash.includes('watch') || hash.includes('player')) return 'watch';
     }
-    return 'landing';
+    return 'universe';
   });
   const [uiState, setUiState] = useState<UiSimulationState>('normal');
   const [libraryTabRequest, setLibraryTabRequest] = useState<LibraryTab | undefined>(undefined);
