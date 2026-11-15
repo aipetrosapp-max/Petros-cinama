@@ -31,7 +31,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    streamUrl: 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps_1920x1080_8000k.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: -4, y: 1.5, z: -8 }
@@ -62,7 +62,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    streamUrl: 'https://media.w3.org/2010/05/sintel/trailer.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: 4, y: 1.5, z: -8 }
@@ -93,7 +93,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    streamUrl: 'https://vjs.zencdn.net/v/oceans.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: 0, y: 2, z: -10 }
@@ -124,7 +124,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    streamUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
     subtitles: [],
     chapters: [],
     spatialPos: { x: -6, y: 1.5, z: -6 }
@@ -155,7 +155,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     licenseVerified: true,
     consentVerified: true,
     sourceName: 'Petros Cinema VIP Master',
-    streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    streamUrl: 'https://upload.wikimedia.org/wikipedia/commons/transcoded/c/c0/Big_Buck_Bunny_4K.webm/Big_Buck_Bunny_4K.webm.480p.vp9.webm',
     subtitles: [],
     chapters: [],
     spatialPos: { x: 6, y: 1.5, z: -6 }

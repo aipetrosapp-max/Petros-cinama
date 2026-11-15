@@ -315,7 +315,7 @@ export function MediaCard({
       {/* Visual Frame — Press & Hold for kinetic atmosphere preview (Zero scale/zoom!) */}
       <div
         className="relative aspect-[16/10] w-full overflow-hidden bg-[#050508] select-none cursor-pointer"
-        onClick={() => onOpenDetail(item)}
+        onClick={() => onPlay(item)}
         onPointerDown={() => setIsHoldingPreview(true)}
         onPointerUp={() => setIsHoldingPreview(false)}
         onPointerCancel={() => setIsHoldingPreview(false)}
@@ -512,7 +512,7 @@ export function MediaCard({
         <div className="space-y-1.5">
           <button
             type="button"
-            onClick={() => onOpenDetail(item)}
+            onClick={() => onPlay(item)}
             className="text-start w-full text-sm sm:text-base font-cinzel font-bold tracking-wide text-[#F5F7FA] hover:text-[#D4AF37] transition-colors line-clamp-1 cursor-pointer"
           >
             {title}
@@ -542,7 +542,7 @@ export function MediaCard({
           </button>
           <button
             type="button"
-            onClick={() => onOpenDetail(item)}
+            onClick={() => onPlay(item)}
             className="text-[11px] font-cinzel font-semibold text-[#D4AF37] hover:underline cursor-pointer tracking-wider"
           >
             {t('Details & Dossier', 'شناسنامه و پخش')}

@@ -330,7 +330,7 @@ export function LivingHomeScreen({
               return (
                 <div
                   key={item.id}
-                  onClick={() => onOpenDetail(item)}
+                  onClick={() => onPlay(item)}
                   className="group relative w-38 sm:w-46 shrink-0 cursor-pointer select-none transition-transform duration-300 hover:scale-[1.03]"
                 >
                   <div className="relative">
