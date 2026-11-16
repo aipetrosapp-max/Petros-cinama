@@ -25,7 +25,7 @@ export class TelegramCatalogAgent extends AdkAgent {
     purgedDummyCount: 0,
     duplicateCount: 0,
     status: 'synced',
-    messageFa: 'مخزن تلگرام آماده بررسی است.'
+    messageFa: 'مخزن فیلم‌های سینما آماده بررسی است.'
   };
 
   // Custom user-defined legal & operational rules dictionary
@@ -157,7 +157,7 @@ export class TelegramCatalogAgent extends AdkAgent {
       purgedDummyCount: purifyRes.purgedCount,
       duplicateCount: 0,
       status: cleanCatalog.length > 0 ? 'synced' : 'degraded',
-      messageFa: `مخزن تلگرام پتروس سینما با موفقیت بررسی و پاک‌سازی شد (${cleanCatalog.length} عنوان فعال).`
+      messageFa: `مخزن ابری پتروس سینما با موفقیت بررسی و پاک‌سازی شد (${cleanCatalog.length} عنوان فعال).`
     };
 
     ctx.log('action', `App startup check complete: ${cleanCatalog.length} active cinema items loaded.`);

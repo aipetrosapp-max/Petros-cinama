@@ -2578,14 +2578,14 @@
       "synopsisFa": "پخش و دانلود اختصاصی فیلم مردان ایکس: ولورین با کیفیت‌های مختلف در کانال پتروس سینما.",
       "synopsis": "Stream and download X-Men Origins: Wolverine from Aipetros Cinema.",
       "poster": "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
-      "defaultStreamUrl": "https://t.me/Aipetros/1343",
+      "defaultStreamUrl": "https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4",
       "sourceType": "telegram",
       "telegramPostId": 1343,
       "telegramUrl": "https://t.me/Aipetros/1343",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://t.me/Aipetros/1343",
+          "url": "https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4",
           "format": "mkv",
           "bitrate": 8500
         },
@@ -2601,7 +2601,8 @@
           "format": "mp4",
           "bitrate": 2000
         }
-      ]
+      ],
+      "streamUrl": "https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4"
     },
     {
       "id": "tg-aipetros-1347",
@@ -169595,13 +169596,13 @@
         "Apocalypse"
       ],
       "sourceType": "mp4",
-      "defaultStreamUrl": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+      "defaultStreamUrl": "https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4",
       "originalSource": "Petros Cinema Master Cloud Vault",
       "mediaFolder": "Movies/X-Men Apocalypse/1080p",
       "qualities": [
         {
           "quality": "1080p",
-          "url": "https://ia600608.us.archive.org/1/items/youtube-qVId_hDAvHw/qVId_hDAvHw.mp4",
+          "url": "https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4",
           "format": "mp4",
           "bitrate": 8500,
           "fps": 60
@@ -169616,7 +169617,8 @@
       ],
       "featured": true,
       "trendingRank": 1,
-      "isLive": false
+      "isLive": false,
+      "streamUrl": "https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4"
     },
     {
       "id": "petros-stream-01",

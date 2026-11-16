@@ -128,7 +128,7 @@ export function WatchPartyShareModal({ isOpen, item, onClose }: WatchPartyShareM
                 className="h-11 rounded-xl bg-[#229ED9]/15 hover:bg-[#229ED9]/25 border border-[#229ED9]/40 text-[#229ED9] text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <Send className="w-4 h-4" />
-                <span>{t('Telegram Share', 'ارسال در تلگرام')}</span>
+                <span>{t('Instant Share', 'ارسال پیام')}</span>
               </a>
 
               <a

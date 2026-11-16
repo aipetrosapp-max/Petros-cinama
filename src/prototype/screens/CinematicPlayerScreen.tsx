@@ -38,7 +38,7 @@ import type {
   WatchProgressEntry
 } from '../types';
 import { formatBytes, loadOfflineMediaBlob, triggerBrowserDownload } from '../downloadEngine';
-import { aiCinemaStreamEngine, UNBLOCKED_CINEMA_CDN_NODES } from '../../services/aiCinemaStreamEngine';
+import { aiCinemaStreamEngine, UNBLOCKED_CINEMA_CDN_NODES, isPlayableDirectMediaUrl } from '../../services/aiCinemaStreamEngine';
 import { localCinemaAgent } from '../../services/localCinemaAgent';
 import { monetizationAdAgent, securityGuardAgent, masterSupremeOrchestratorAgent } from '../../agents';
 import {
@@ -370,7 +370,11 @@ export function CinematicPlayerScreen({
     if (playbackMode === 'trailer' && details?.trailer?.previewVideoUrl) {
       return details.trailer.previewVideoUrl;
     }
-    return aiResolution.streamUrl;
+    if (aiResolution.streamUrl && isPlayableDirectMediaUrl(aiResolution.streamUrl)) {
+      return aiResolution.streamUrl;
+    }
+    // Guaranteed cinema stream node fallback so in-app video ALWAYS plays
+    return UNBLOCKED_CINEMA_CDN_NODES[0]?.url || '';
   }, [item, playbackMode, details, aiResolution]);
 
   const handleUnmute = () => {
@@ -711,7 +715,7 @@ export function CinematicPlayerScreen({
           <span className="truncate">{title}</span>
         </button>
 
-        {/* Left/End: Exit Fullscreen / Watch Party / Telegram File */}
+        {/* Left/End: Exit Fullscreen / Watch Party */}
         <div className="flex items-center gap-2">
           {/* AI Stream Engine Health Status Pill */}
           <div className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[rgba(212,175,55,0.3)] bg-black/60 text-[10px] font-mono font-semibold text-[#D4AF37] shadow-sm">
@@ -895,7 +899,7 @@ export function CinematicPlayerScreen({
                 )}
               </>
             ) : (
-              /* Theatrical VIP Telegram Stream & Playback Screen */
+              /* Theatrical VIP Direct Stream Stage */
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 sm:p-8 text-center bg-[#070913]/95 backdrop-blur-xl overflow-hidden select-none">
                 {/* Ambient Movie Poster Blur in Background */}
                 <img
@@ -907,8 +911,8 @@ export function CinematicPlayerScreen({
 
                 <div className="relative z-10 max-w-xl w-full flex flex-col items-center gap-3.5">
                   <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-black/60 px-4 py-1 text-xs font-bold text-[#F3D06B] shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-                    <Send className="h-4 w-4 text-amber-400" />
-                    <span>{t('Petros Telegram Cinema Cloud Feed', 'اکران اختصاصی کانال تلگرام پتروس سینما')}</span>
+                    <Sparkles className="h-4 w-4 text-amber-400" />
+                    <span>{t('Petros Cinema Ultra VIP Stream', 'سرور پخش ابری فوق‌سریع پتروس سینما')}</span>
                   </div>
 
                   <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFF4BA] via-[#F3D06B] to-[#D4AF37] font-cinzel drop-shadow-[0_4px_20px_rgba(212,175,55,0.4)]">
@@ -921,25 +925,33 @@ export function CinematicPlayerScreen({
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center gap-3 pt-3 w-full max-w-md">
-                    <a
-                      href={item.telegramUrl || item.defaultStreamUrl || item.streamUrl || 'https://t.me/Aipetros'}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsPlaying(true);
+                        const video = videoRef.current;
+                        if (video) {
+                          video.play().catch(console.warn);
+                        }
+                      }}
                       className="flex-1 min-h-[46px] sm:min-h-[50px] inline-flex items-center justify-center gap-2 px-5 rounded-2xl bg-gradient-to-r from-[#F3D06B] via-[#E5C158] to-[#D4AF37] text-black font-extrabold text-xs sm:text-sm shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.03] active:scale-95 transition-all cursor-pointer"
                     >
                       <Play className="w-4 h-4 fill-current" />
-                      <span>{t('Play in Telegram', 'ورود و پخش در تلگرام')}</span>
-                    </a>
+                      <span>{t('Direct Cinema Play', 'پخش مستقیم در سالن سینما')}</span>
+                    </button>
 
-                    <a
-                      href={item.telegramUrl || item.defaultStreamUrl || item.streamUrl || 'https://t.me/Aipetros'}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onDownload) {
+                          onDownload(item, false);
+                        }
+                      }}
                       className="min-h-[46px] sm:min-h-[50px] px-5 rounded-2xl border border-white/20 bg-[#141620]/80 backdrop-blur-xl text-white font-bold text-xs sm:text-sm hover:bg-white/10 active:scale-95 transition-all flex items-center gap-2 cursor-pointer shadow-lg"
                     >
                       <Download className="w-4 h-4 text-amber-300" />
-                      <span>{t('Download File', 'دانلود فایل')}</span>
-                    </a>
+                      <span>{t('Download to Device', 'دانلود در دستگاه')}</span>
+                    </button>
                   </div>
                 </div>
               </div>

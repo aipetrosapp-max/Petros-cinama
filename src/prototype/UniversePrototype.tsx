@@ -297,7 +297,7 @@ function UniversePrototypeShell({
     // Autonomous Telegram Catalog Check & Purification at startup
     (async () => {
       try {
-        setSyncStatusText(lang === 'fa' ? 'ایجنت پتروس سینما در حال پاک‌سازی و همگام‌سازی مخزن با تلگرام...' : 'Checking & purifying cinema repository against Telegram...');
+        setSyncStatusText(lang === 'fa' ? 'ایجنت پتروس سینما در حال اعتبارسنجی و پاک‌سازی هوشمند مخزن فیلم‌ها...' : 'AI Agent purifying and verifying cinema stream repository...');
         const { catalog: purifiedCatalog, report } = await telegramCatalogAgent.purifyAndSync(catalog);
         if (isMounted && purifiedCatalog && purifiedCatalog.length > 0) {
           setCatalog(purifiedCatalog);

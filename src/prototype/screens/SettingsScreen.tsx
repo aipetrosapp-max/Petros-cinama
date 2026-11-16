@@ -319,15 +319,6 @@ export function SettingsScreen({
             <ExternalLink className="w-3.5 h-3.5" />
             <span>{t('View All Releases on GitHub', 'مشاهده تمام نسخه‌ها در گیت‌هاب')}</span>
           </a>
-          <a
-            href="https://t.me/Aipetros"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-amber-200 transition"
-          >
-            <span>✈️</span>
-            <span>{t('Telegram Channel: @Aipetros', 'کانال تلگرام: Aipetros@')}</span>
-          </a>
         </div>
       </section>
 

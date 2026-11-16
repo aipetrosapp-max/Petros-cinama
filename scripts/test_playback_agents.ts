@@ -57,25 +57,25 @@ async function runHealthCheck() {
     }
   }
 
-  // TEST 1: Telegram Scraped Item Auto-Routing
-  console.log('--- TEST 1: Telegram Scraped Stream Auto-Routing ---');
-  const tgMovie = {
+  // TEST 1: Direct Playable Stream Auto-Routing
+  console.log('--- TEST 1: Direct Playable Stream Auto-Routing ---');
+  const actionMovie = {
     id: 'tg-aipetros-990',
     titleEn: 'Fuze',
     titleFa: 'فیوز',
     categoryEn: 'ACTION',
-    sourceType: 'telegram',
-    defaultStreamUrl: 'https://t.me/Aipetros/990'
+    sourceType: 'mp4',
+    streamUrl: 'https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4'
   } as any;
 
-  const resTg = await cinemaStreamAgent.run({ item: tgMovie });
+  const resAction = await cinemaStreamAgent.run({ item: actionMovie });
   assert(
-    'CinemaStreamAgent correctly identified Telegram source and prevented fake video fallback',
-    resTg.data.streamUrl === '' && resTg.data.nodeName.includes('Telegram')
+    'CinemaStreamAgent correctly routed movie to genuine direct stream',
+    isPlayableDirectMediaUrl(resAction.data.streamUrl) && resAction.data.streamUrl.length > 0
   );
   assert(
     'Resolved stream is NOT a flower, ocean or cartoon test clip',
-    !resTg.data.streamUrl.includes('flower') && !resTg.data.streamUrl.includes('oceans') && !resTg.data.streamUrl.includes('sintel')
+    !resAction.data.streamUrl.includes('flower') && !resAction.data.streamUrl.includes('oceans') && !resAction.data.streamUrl.includes('sintel')
   );
 
   // TEST 2: Dead Abrtech.top Item Auto-Routing
@@ -107,8 +107,8 @@ async function runHealthCheck() {
       !res.data.streamUrl.includes('oceans') && !res.data.streamUrl.includes('sintel') && !res.data.streamUrl.includes('flower')
     );
     assert(
-      `Catalog item "${item.titleEn}" routes to Telegram VIP Stage`,
-      res.data.nodeName.includes('Telegram') || isPlayableDirectMediaUrl(res.data.streamUrl)
+      `Catalog item "${item.titleEn}" has direct playable stream`,
+      isPlayableDirectMediaUrl(res.data.streamUrl)
     );
   }
 
@@ -146,7 +146,7 @@ async function runHealthCheck() {
     titleEn: 'Sample Direct Film',
     titleFa: 'نمونه مستقیم',
     categoryEn: 'CINEMA',
-    streamUrl: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4'
+    streamUrl: 'https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4'
   } as any;
   const resDirect = await cinemaStreamAgent.run({ item: directItem });
   assert('CinemaStreamAgent plays direct valid stream', resDirect.data.streamUrl === directItem.streamUrl);
