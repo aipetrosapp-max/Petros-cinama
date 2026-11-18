@@ -35,6 +35,45 @@ export function SourcesTab() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [notes, setNotes] = useState('');
+  const [browserUrl, setBrowserUrl] = useState('');
+  const [launchingBrowser, setLaunchingBrowser] = useState(false);
+  const [cookieCount, setCookieCount] = useState<number | null>(null);
+
+  const launchInteractiveBrowser = async () => {
+    const target = browserUrl.trim() || url.trim();
+    if (!target) {
+      toast.push('info', 'آدرس سایت لازم است', 'ابتدا آدرس سایت (مثلاً https://digimoviez.com) را وارد کنید.');
+      return;
+    }
+    setLaunchingBrowser(true);
+    try {
+      const res = await adminApi.launchBrowser(target);
+      toast.push('success', 'مرورگر باز شد', res.messageFa);
+      if (!name) setName(new URL(target).hostname);
+    } catch (e) {
+      toast.push('error', 'اجرای مرورگر ناموفق', (e as Error).message);
+    } finally {
+      setLaunchingBrowser(false);
+    }
+  };
+
+  const fetchSessionCookies = async () => {
+    const target = browserUrl.trim() || url.trim();
+    if (!target) return;
+    try {
+      const host = new URL(target).hostname;
+      const res = await adminApi.checkBrowserSession(host);
+      if (res.ok && res.session) {
+        setCookieCount(res.session.count);
+        setNotes((prev) => (prev ? `${prev} | ` : '') + `کوکی VIP (${res.session?.count} عدد)`);
+        toast.push('success', 'کوکی‌های نشست استخراج شد', `${res.session.count} کوکی فعال شناسایی شد.`);
+      } else {
+        toast.push('info', 'در انتظار بستن مرورگر', 'پس از ورود در مرورگر باز شده، آن را ببندید سپس این دکمه را بزنید.');
+      }
+    } catch (e) {
+      toast.push('error', 'خطا', (e as Error).message);
+    }
+  };
   const [validation, setValidation] = useState<SourceValidationResult | null>(null);
   const [validating, setValidating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -104,6 +143,26 @@ export function SourcesTab() {
 
   return (
     <div className="space-y-4">
+      <Panel
+        title="🌐 مرورگر لاگین هوشمند سورس (Web Bot Login)"
+        subtitle="برای سایت‌هایی مانند دیجی‌موویز و سایت‌های VIP — مرورگر را باز کنید، در پنجره باز شده لاگین کنید، کوکی‌ها و توکن‌ها خودکار استخراج می‌شوند"
+      >
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+          <TextInput
+            value={browserUrl}
+            onChange={(e) => setBrowserUrl(e.target.value)}
+            placeholder="مثال: https://digimoviez.com یا آدرس صفحه ورود سایت فیلم"
+            dir="ltr"
+          />
+          <GoldButton onClick={launchInteractiveBrowser} loading={launchingBrowser}>
+            🌐 باز کردن مرورگر لاگین
+          </GoldButton>
+          <GoldButton variant="ghost" onClick={fetchSessionCookies}>
+            📥 استخراج خودکار کوکی‌ها {cookieCount ? `(${cookieCount})` : ''}
+          </GoldButton>
+        </div>
+      </Panel>
+
       <Panel
         title="سورس‌های استریم و دانلود"
         subtitle="اعتبارسنجی واقعی سورس با درخواست Range (۲۰۶) پیش از ثبت — سورس خراب یا بدون پشتیبانی بازه پذیرفته نمی‌شود"

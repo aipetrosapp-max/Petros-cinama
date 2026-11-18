@@ -14,6 +14,7 @@
 
 import express, { type Request, type Response, type NextFunction } from 'express';
 import crypto from 'crypto';
+import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import fsp from 'fs/promises';
@@ -713,6 +714,55 @@ adminRouter.post('/catalog/subtitle-file', requireAdminAuth, async (req, res) =>
     record,
     messageFa: 'فایل زیرنویس بارگذاری شد. با «اعمال سراسری» روی گیت‌هاب کامیت می‌شود.'
   });
+});
+
+adminRouter.post('/browser/launch', requireAdminAuth, async (req, res) => {
+  const targetUrl = String(req.body?.url || '').trim();
+  if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
+    res.status(400).json({ error: 'invalid_url', messageFa: 'آدرس اینترنتی نامعتبر است.' });
+    return;
+  }
+
+  const outDir = path.join(process.cwd(), 'data', 'browser_sessions');
+  await fsp.mkdir(outDir, { recursive: true });
+  const host = new URL(targetUrl).hostname.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const sessionPath = path.join(outDir, `${host}.json`);
+
+  try {
+    const python = process.platform === 'win32' ? 'python' : 'python3';
+    const scriptPath = path.join(process.cwd(), 'scripts', 'browser_login_agent.py');
+    const child = spawn(python, [scriptPath, targetUrl, sessionPath], {
+      detached: true,
+      stdio: 'ignore'
+    });
+    child.unref();
+
+    res.json({
+      ok: true,
+      sessionFile: `${host}.json`,
+      messageFa: 'مرورگر زنده باز شد. لطفاً در پنجره مرورگر لاگین کنید؛ کوکی‌ها خودکار استخراج می‌شوند.'
+    });
+  } catch (err: unknown) {
+    res.status(500).json({
+      error: 'browser_launch_failed',
+      messageFa: `خطا در اجرای مرورگر: ${(err as Error).message}`
+    });
+  }
+});
+
+adminRouter.get('/browser/session/:host', requireAdminAuth, async (req, res) => {
+  const host = String(req.params.host || '').replace(/[^a-zA-Z0-9.-]/g, '_');
+  const sessionPath = path.join(process.cwd(), 'data', 'browser_sessions', `${host}.json`);
+  if (!fs.existsSync(sessionPath)) {
+    res.status(404).json({ ok: false, messageFa: 'نشستی یافت نشد یا مرورگر هنوز بسته نشده است.' });
+    return;
+  }
+  try {
+    const data = JSON.parse(await fsp.readFile(sessionPath, 'utf-8'));
+    res.json({ ok: true, session: data });
+  } catch {
+    res.status(500).json({ error: 'read_failed', messageFa: 'خطا در خواندن فایل نشست.' });
+  }
 });
 
 adminRouter.get('/catalog/subtitle-files', requireAdminAuth, async (_req, res) => {

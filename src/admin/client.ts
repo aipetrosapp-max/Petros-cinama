@@ -344,5 +344,16 @@ export const adminApi = {
       created: TitleRecord | null;
       telegram: { ok: boolean; method?: string; messageFa: string } | null;
       messageFa: string;
-    }>('/catalog/from-link', { method: 'POST', body: payload })
+    }>('/catalog/from-link', { method: 'POST', body: payload }),
+
+  launchBrowser: (url: string) =>
+    request<{ ok: boolean; sessionFile: string; messageFa: string }>('/browser/launch', {
+      method: 'POST',
+      body: { url }
+    }),
+
+  checkBrowserSession: (host: string) =>
+    request<{ ok: boolean; session?: { url: string; cookie_header: string; count: number }; messageFa?: string }>(
+      `/browser/session/${encodeURIComponent(host)}`
+    )
 };
