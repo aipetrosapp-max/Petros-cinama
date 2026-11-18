@@ -1,4 +1,5 @@
 import type { PrototypeMediaItem } from '../prototype/types';
+import { loadCatalogCache, saveCatalogCache } from './catalogCache';
 
 /**
  * Dynamic URL & Stream Sync Service
@@ -34,6 +35,8 @@ export interface DynamicStreamItem {
   defaultStreamUrl: string;
   sourceType?: 'hls' | 'mp4' | 'embed' | 'direct' | 'telegram' | string;
   telegramUrl?: string;
+  /** stable upstream descriptor for the rolling cache gateway */
+  upstreamUrl?: string;
   telegramPostId?: number;
   poster?: string;
   featured?: boolean;
@@ -45,6 +48,10 @@ export interface DynamicStreamItem {
   seriesTitle?: string;
   mediaFolder?: string; // e.g. "Series/Breaking Bad/Season 01/1080p", "Movies/Interstellar/4K", "Telegram/LordMovie/Series/S01E05"
   originalSource?: string;
+  playbackStatus?: 'available' | 'requires_gateway' | 'unavailable' | 'maintenance';
+  playbackStatusReason?: string;
+  trailerUrl?: string;
+  subtitleUrl?: string;
 }
 
 export interface DynamicStreamsManifest {
@@ -57,8 +64,8 @@ export interface DynamicStreamsManifest {
   streams: DynamicStreamItem[];
 }
 
-const STORAGE_SYNC_KEY = 'aipetros_dynamic_streams_v1';
 const STORAGE_SYNC_META = 'aipetros_sync_metadata_v1';
+const FETCH_TIMEOUT_MS = 9000;
 const STORAGE_CUSTOM_URL_KEY = 'aipetros_github_sync_url_override';
 
 // Default public GitHub raw URL for the streaming source manifest
@@ -78,10 +85,11 @@ class DynamicStreamSyncService {
   private lastSyncedAt: string | null = null;
   private isSyncing = false;
   private syncIntervalMs = 5 * 60 * 1000; // 5 minutes periodic auto-check
+  private cacheReady: Promise<void>;
 
   constructor() {
     this.syncUrl = this.getStoredSyncUrl();
-    this.loadFromCache();
+    this.cacheReady = this.loadFromCache();
     
     // Auto sync on online event
     if (typeof window !== 'undefined') {
@@ -108,29 +116,30 @@ class DynamicStreamSyncService {
     this.setSyncUrl(DEFAULT_GITHUB_STREAMS_URL);
   }
 
-  private loadFromCache(): DynamicStreamItem[] {
-    if (typeof window === 'undefined') return [];
+  private async loadFromCache(): Promise<void> {
+    if (typeof window === 'undefined') return;
     try {
-      const cached = localStorage.getItem(STORAGE_SYNC_KEY);
-      const meta = localStorage.getItem(STORAGE_SYNC_META);
-      if (cached) {
-        this.currentStreams = JSON.parse(cached);
+      const cached = await loadCatalogCache<DynamicStreamItem>();
+      if (cached && cached.length > 0) {
+        this.currentStreams = cached;
       }
+      const meta = localStorage.getItem(STORAGE_SYNC_META);
       if (meta) {
         const metaObj = JSON.parse(meta);
         this.lastSyncedAt = metaObj.lastSyncedAt || null;
       }
     } catch {
-      // ignore parse error
+      // IndexedDB unavailable (private mode) — sync still works in memory.
     }
-    return this.currentStreams;
   }
 
   public getStreams(): DynamicStreamItem[] {
-    if (this.currentStreams.length === 0) {
-      this.loadFromCache();
-    }
     return this.currentStreams;
+  }
+
+  /** Await this before relying on the persistent cache. */
+  public async hydrate(): Promise<void> {
+    await this.cacheReady;
   }
 
   public getLastSyncedTime(): string | null {
@@ -151,6 +160,7 @@ class DynamicStreamSyncService {
 
     this.isSyncing = true;
     try {
+      await this.cacheReady;
       const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || './';
       const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
@@ -167,11 +177,14 @@ class DynamicStreamSyncService {
       let lastErr: any = null;
 
       for (const candidate of candidateUrls) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
         try {
           const targetUrl = candidate + (candidate.includes('?') ? '&' : '?') + `_t=${Date.now()}`;
           const res = await fetch(targetUrl, {
             cache: force ? 'no-cache' : 'default',
-            headers: { 'Accept': 'application/json' }
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
           });
           if (res.ok) {
             const parsed = await res.json();
@@ -183,6 +196,8 @@ class DynamicStreamSyncService {
           }
         } catch (e) {
           lastErr = e;
+        } finally {
+          clearTimeout(timer);
         }
       }
 
@@ -196,15 +211,20 @@ class DynamicStreamSyncService {
       this.currentStreams = [...userCustom, ...data.streams];
       this.lastSyncedAt = new Date().toISOString();
 
-      // Persist to local cache
+      // Full catalog lives in IndexedDB. localStorage keeps only a tiny pointer.
       if (typeof window !== 'undefined') {
-        localStorage.setItem(STORAGE_SYNC_KEY, JSON.stringify(this.currentStreams));
-        localStorage.setItem(STORAGE_SYNC_META, JSON.stringify({
-          lastSyncedAt: this.lastSyncedAt,
-          version: data.version || '2.4.0',
-          source: this.syncUrl,
-          count: this.currentStreams.length
-        }));
+        const persisted = await saveCatalogCache(this.currentStreams);
+        try {
+          localStorage.setItem(STORAGE_SYNC_META, JSON.stringify({
+            lastSyncedAt: this.lastSyncedAt,
+            version: data.version || '2.4.0',
+            source: this.syncUrl,
+            count: this.currentStreams.length,
+            persistedToIndexedDb: persisted
+          }));
+        } catch {
+          // A blocked localStorage must not abort the catalog update.
+        }
       }
 
       // Notify all active listeners
@@ -227,13 +247,17 @@ class DynamicStreamSyncService {
     this.currentStreams = streams;
     this.lastSyncedAt = new Date().toISOString();
     if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_SYNC_KEY, JSON.stringify(this.currentStreams));
-      localStorage.setItem(STORAGE_SYNC_META, JSON.stringify({
-        lastSyncedAt: this.lastSyncedAt,
-        version: '2.4.0',
-        source: 'Owner AI Ingestion Portal',
-        count: this.currentStreams.length
-      }));
+      void saveCatalogCache(this.currentStreams);
+      try {
+        localStorage.setItem(STORAGE_SYNC_META, JSON.stringify({
+          lastSyncedAt: this.lastSyncedAt,
+          version: '2.4.0',
+          source: 'Owner AI Ingestion Portal',
+          count: this.currentStreams.length
+        }));
+      } catch {
+        // ignore storage quota/metadata failure
+      }
     }
     this.notifyListeners();
   }
@@ -324,9 +348,9 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     clusterId: stream.category === 'cyber-noir' ? 'neon-futures' : 'noir-shadows',
     clusterLabelEn: 'Aipetros Cloud Stream',
     clusterLabelFa: 'استریم ابری پتروس',
-    durationSec: stream.durationSec || 600,
+    durationSec: Number(stream.durationSec) > 0 ? Number(stream.durationSec) : 0,
     quality: (stream.qualities && Array.isArray(stream.qualities) && stream.qualities.some(q => q.quality === '4K')) ? '4K HDR' : '1080p',
-    releaseYear: stream.year || 2026,
+    releaseYear: stream.year || 0,
     addedDaysAgo: 0,
     posterUrl: stream.posterUrl || (stream as any).poster || getFallbackPoster(stream.id),
     accentHex: '#F5B942',
@@ -359,21 +383,21 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     availabilityStatus: 'available',
     licenseVerified: true,
     consentVerified: true,
-    sourceName: 'Petros Cinema Telegram Stream',
-    streamUrl: (stream.sourceType === 'telegram' || stream.defaultStreamUrl?.includes('t.me') || stream.telegramUrl?.includes('t.me')) ? '' : stream.defaultStreamUrl,
+    sourceName: 'Petros Cinema Verified Source',
+    streamUrl: '',
     defaultStreamUrl: stream.defaultStreamUrl || stream.telegramUrl,
+    playableUrl: stream.defaultStreamUrl || stream.telegramUrl,
+    upstreamUrl: stream.upstreamUrl,
     telegramUrl: stream.telegramUrl || stream.defaultStreamUrl,
+    trailerUrl: stream.trailerUrl,
+    streamStatus: stream.playbackStatus || 'unavailable',
+    streamStatusReason: stream.playbackStatusReason,
+    subtitleUrl: stream.subtitleUrl,
     sourceType: stream.sourceType || (stream.defaultStreamUrl?.includes('t.me') ? 'telegram' : 'direct_mp4'),
     originalSource: stream.originalSource,
     qualities: stream.qualities || [],
-    subtitles: [
-      { startSec: 1, endSec: 8, en: stream.title, fa: stream.titleFa || stream.title },
-      { startSec: 9, endSec: 25, en: stream.synopsis, fa: stream.synopsisFa || stream.synopsis }
-    ],
-    chapters: [
-      { id: 'ch-1', timeSec: 0, labelEn: 'Opening Sequence', labelFa: 'آغاز' },
-      { id: 'ch-2', timeSec: Math.floor((stream.durationSec || 600) / 2), labelEn: 'Climax & AI Vision', labelFa: 'نقطه اوج' }
-    ],
+    subtitles: [],
+    chapters: [],
     spatialPos: { x: 0, y: 0, z: -100 }
   };
 }

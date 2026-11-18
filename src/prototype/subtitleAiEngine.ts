@@ -11,12 +11,17 @@ export interface SyncedSubtitleCue {
 
 export interface AiSubtitleSyncResult {
   filmId: string;
+  available: boolean;
+  status: 'available' | 'not_registered';
   matchedFilename: string;
   confidencePct: number;
   detectedFps: string;
   autoOffsetMs: number;
   matchedAt: string;
   cues: SyncedSubtitleCue[];
+  externalUrl?: string;
+  messageFa: string;
+  messageEn: string;
 }
 
 function formatTimestamp(sec: number, separator: ',' | '.'): string {
@@ -32,9 +37,12 @@ function formatTimestamp(sec: number, separator: ',' | '.'): string {
 }
 
 /**
- * Computes a deterministic file-specific cadence fingerprint and matches
- * timing cues directly against the film's exact runtime, IMDb metadata,
- * chapters, and acoustic tempo vector — zero external AI API dependencies.
+ * Returns only real, human-provided subtitle cues.
+ *
+ * The previous implementation generated placeholder dialogue such as
+ * "[Visual Cue #3]" from metadata. That is intentionally removed: if a title has
+ * no registered SRT/VTT cues, the result is `available: false` and the UI shows
+ * "official subtitles not registered".
  */
 export function generateAiSyncedSubtitles(
   item: PrototypeMediaItem,
@@ -42,100 +50,60 @@ export function generateAiSyncedSubtitles(
   resolutionLabel: string,
   langCode: string
 ): AiSubtitleSyncResult {
+  const base = {
+    filmId: item.id,
+    matchedAt: new Date().toISOString(),
+    autoOffsetMs: 0,
+    detectedFps: ''
+  };
+
+  const externalUrl = item.subtitleUrl?.trim() || '';
+  const realCues = Array.isArray(item.subtitles)
+    ? item.subtitles
+        .filter((s) => s && (s.fa?.trim() || s.en?.trim()))
+        .map((s, idx) => ({
+          id: `${item.id}-sub-${idx}`,
+          startSec: Math.max(0, Number(s.startSec) || 0),
+          endSec: Math.max(0.5, Number(s.endSec) || 0),
+          en: s.en || '',
+          fa: s.fa || ''
+        }))
+    : [];
+
+  if (!externalUrl && realCues.length === 0) {
+    return {
+      ...base,
+      available: false,
+      status: 'not_registered',
+      matchedFilename: '',
+      confidencePct: 0,
+      cues: [],
+      messageFa: 'زیرنویس رسمی برای این عنوان ثبت نشده است.',
+      messageEn: 'No official subtitle is registered for this title.'
+    };
+  }
+
   const cleanTitleSlug = item.titleEn
     .replace(/[^a-zA-Z0-9]+/g, '.')
     .replace(/^\.+|\.+$/g, '');
   const imdbTag = imdb?.imdbId ? `.${imdb.imdbId}` : '';
   const resTag = resolutionLabel ? `.${resolutionLabel.replace(/\s+/g, '')}` : '';
-  const matchedFilename = `${cleanTitleSlug}${imdbTag}${resTag}.AI-Synced.${langCode}.srt`;
-
-  const hashSeed = item.id.split('').reduce((acc, ch) => acc * 33 + ch.charCodeAt(0), 17);
-  const paceScore = item.vector?.pace ?? 0.5;
-  const detectedFps = paceScore > 0.65 ? '23.976 fps (NTSC Film)' : '24.000 fps (True Cinema)';
-  const autoOffsetMs = ((hashSeed % 9) - 4) * 35; // -140ms to +140ms auto calibration
-  const confidencePct = Number((98.1 + ((hashSeed % 17) / 10)).toFixed(1));
-
-  const duration = Math.max(60, item.durationSec);
-  const cues: SyncedSubtitleCue[] = [];
-
-  // 1. Opening slate matched to IMDb record
-  cues.push({
-    id: `${item.id}-ai-0`,
-    startSec: 1,
-    endSec: Math.min(8, duration * 0.08),
-    en: `${imdb?.matchedTitle || item.titleEn} (${imdb?.year || item.releaseYear}) — Dir. ${
-      imdb?.director || item.creatorEn || 'Petros Cinema'
-    }`,
-    fa: `${item.titleFa} (${imdb?.year || item.releaseYear}) — کارگردان: ${
-      item.creatorFa || imdb?.director || 'سینمای پتروس'
-    }`
-  });
-
-  // 2. Existing curated dialogue cues
-  item.subtitles.forEach((s, idx) => {
-    cues.push({
-      id: `${item.id}-ai-base-${idx}`,
-      startSec: s.startSec,
-      endSec: s.endSec,
-      en: s.en,
-      fa: s.fa
-    });
-  });
-
-  // 3. Chapter-locked scene transitions & thematic cues across the full timeline
-  const sortedChapters = [...item.chapters].sort((a, b) => a.timeSec - b.timeSec);
-  sortedChapters.forEach((ch, idx) => {
-    const start = Math.max(2, ch.timeSec);
-    const end = Math.min(duration - 2, start + 11);
-    if (end > start + 2) {
-      cues.push({
-        id: `${item.id}-ai-ch-${idx}`,
-        startSec: start,
-        endSec: end,
-        en: `[Scene ${idx + 1}: ${ch.labelEn}] — ${item.synopsisEn.split('.')[0]}.`,
-        fa: `[سکانس ${idx + 1}: ${ch.labelFa}] — ${(item.synopsisFa.split('؛')[0] || item.synopsisFa)}`
-      });
-    }
-  });
-
-  // 4. Mid-film & cast/mood atmospheric cues to guarantee dense timeline coverage
-  const sliceCount = 8;
-  const step = duration / (sliceCount + 1);
-  const castText = imdb?.cast?.slice(0, 2).join(' & ') || item.creatorEn || 'Lead Ensemble';
-
-  for (let i = 1; i <= sliceCount; i++) {
-    const tStart = Math.round(step * i);
-    const tEnd = Math.min(duration - 1, tStart + 10);
-    const alreadyCovered = cues.some(
-      (c) => (tStart >= c.startSec && tStart <= c.endSec) || Math.abs(c.startSec - tStart) < 7
-    );
-    if (!alreadyCovered && tEnd > tStart + 2) {
-      cues.push({
-        id: `${item.id}-ai-beat-${i}`,
-        startSec: tStart,
-        endSec: tEnd,
-        en:
-          i % 2 === 0
-            ? `[Ambient Audio · ${castText}] ${item.clusterLabelEn} — ${(item.synopsisEn.split('.')[0] || item.synopsisEn)}`
-            : `[Visual Cue #${i}] ${item.tags.slice(0, 3).join(' · ')} — ${item.categoryEn}`,
-        fa:
-          i % 2 === 0
-            ? `[فضاسازی صوتی · ${castText}] ${item.clusterLabelFa} — ${(item.synopsisFa.split('؛')[0] || item.synopsisFa)}`
-            : `[نشانه سکانس ${i}] ${item.categoryFa} — ${item.titleFa}`
-      });
-    }
-  }
-
-  cues.sort((a, b) => a.startSec - b.startSec);
+  const matchedFilename = `${cleanTitleSlug}${imdbTag}${resTag}.${langCode}.srt`;
 
   return {
-    filmId: item.id,
+    ...base,
+    available: true,
+    status: 'available',
     matchedFilename,
-    confidencePct: Math.min(99.8, confidencePct),
-    detectedFps,
-    autoOffsetMs,
-    matchedAt: new Date().toISOString(),
-    cues
+    confidencePct: 100,
+    cues: realCues,
+    externalUrl: externalUrl || undefined,
+    messageFa: externalUrl
+      ? 'زیرنویس رسمی از فایل VTT/SRT متصل شده است.'
+      : 'زیرنویس رسمی ثبت‌شده برای این عنوان بارگذاری شد.',
+    messageEn: externalUrl
+      ? 'Official VTT/SRT subtitle attached.'
+      : 'Registered official subtitle loaded for this title.'
   };
 }
 
@@ -172,6 +140,6 @@ export function buildWebVttContent(
         '.'
       )}\n${renderText(cue)}\n`;
     })
-    .join('\n');
+    .join('');
   return `WEBVTT\n\n${body}`;
 }

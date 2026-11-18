@@ -6,8 +6,8 @@ import sys
 from telethon import TelegramClient
 from telethon.errors import FloodWaitError
 
-API_ID = 76997
-API_HASH = '5fab41b477b0caf5a30648b86570b5b5'
+API_ID = int(os.environ.get("TG_API_ID", "0"))
+API_HASH = os.environ.get("TG_API_HASH", "")
 SOURCE_CHANNEL_ID = -1002852905135  # لرد مووی
 DEST_CHANNEL_ID = -1003885570365    # Aipetros
 STATE_FILE = "transfer_state.json"

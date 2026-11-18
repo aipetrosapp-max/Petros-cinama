@@ -236,8 +236,8 @@ export function SettingsScreen({
             </h3>
             <p className="text-[10px] text-[#A3AEC2]">
               {t(
-                'High-speed direct links for Android, Smart TV, Windows Desktop & GitHub Releases',
-                'دریافت مستقیم و به‌روزرسانی اپلیکیشن برای اندروید، تلویزیون هوشمند و ویندوز'
+                'Client builds are being finalized. The buttons below open the official release page; direct binaries are marked as coming soon.',
+                'نسخه‌های کلاینت در حال بیلد نهایی هستند. دکمه‌ها صفحه رسمی انتشار را باز می‌کنند و باینری مستقیم فعلاً «به‌زودی» است.'
               )}
             </p>
           </div>
@@ -246,7 +246,7 @@ export function SettingsScreen({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Android Mobile */}
           <a
-            href="https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/petros-cinema.apk"
+            href="https://github.com/aipetrosapp-max/Petros-cinama/releases"
             target="_blank"
             rel="noopener noreferrer"
             className="p-3.5 rounded-2xl bg-black/60 border border-amber-500/25 hover:border-amber-400 hover:bg-amber-500/10 transition-all flex items-center justify-between group cursor-pointer"
@@ -259,7 +259,7 @@ export function SettingsScreen({
                 <h4 className="text-xs font-bold text-white group-hover:text-amber-200 truncate">
                   {t('Android Mobile', 'اندروید موبایل')}
                 </h4>
-                <p className="text-[10px] text-zinc-400 font-mono">APK • v2.4.1</p>
+                <p className="text-[10px] text-zinc-400 font-mono">APK • v2.4.1 · به‌زودی</p>
               </div>
             </div>
             <span className="text-xs text-amber-400">↓</span>
@@ -267,7 +267,7 @@ export function SettingsScreen({
 
           {/* Android TV */}
           <a
-            href="https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/petros-tv-release.apk"
+            href="https://github.com/aipetrosapp-max/Petros-cinama/releases"
             target="_blank"
             rel="noopener noreferrer"
             className="p-3.5 rounded-2xl bg-black/60 border border-amber-500/25 hover:border-amber-400 hover:bg-amber-500/10 transition-all flex items-center justify-between group cursor-pointer"
@@ -280,7 +280,7 @@ export function SettingsScreen({
                 <h4 className="text-xs font-bold text-white group-hover:text-amber-200 truncate">
                   {t('Android TV', 'تلویزیون هوشمند')}
                 </h4>
-                <p className="text-[10px] text-zinc-400 font-mono">Dolby 4K • v2.4.1</p>
+                <p className="text-[10px] text-zinc-400 font-mono">Dolby 4K • v2.4.1 · به‌زودی</p>
               </div>
             </div>
             <span className="text-xs text-amber-400">↓</span>
@@ -288,7 +288,7 @@ export function SettingsScreen({
 
           {/* Windows 11 */}
           <a
-            href="https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/PetrosCinema-Setup.exe"
+            href="https://github.com/aipetrosapp-max/Petros-cinama/releases"
             target="_blank"
             rel="noopener noreferrer"
             className="p-3.5 rounded-2xl bg-black/60 border border-amber-500/25 hover:border-amber-400 hover:bg-amber-500/10 transition-all flex items-center justify-between group cursor-pointer"
@@ -301,7 +301,7 @@ export function SettingsScreen({
                 <h4 className="text-xs font-bold text-white group-hover:text-amber-200 truncate">
                   {t('Windows 11', 'ویندوز دسکتاپ')}
                 </h4>
-                <p className="text-[10px] text-zinc-400 font-mono">EXE • v2.4.1</p>
+                <p className="text-[10px] text-zinc-400 font-mono">EXE • v2.4.1 · به‌زودی</p>
               </div>
             </div>
             <span className="text-xs text-amber-400">↓</span>

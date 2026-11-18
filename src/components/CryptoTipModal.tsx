@@ -1,7 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check, Copy, Heart, Shield, X, QrCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { OFFICIAL_CRYPTO_WALLETS, type CryptoTipWallet } from '../services/cryptoAdNetwork';
+import { platformConfigSync } from '../services/platformConfigSync';
+
+/**
+ * Live wallets pushed by the Master Admin Panel (Zero-Client-Update). When no
+ * panel config has loaded yet, the built-in defaults are used.
+ */
+function effectiveWallets(): CryptoTipWallet[] {
+  const live = platformConfigSync.getWallets();
+  if (!live || live.length === 0) return OFFICIAL_CRYPTO_WALLETS;
+  return live.map((w) => ({
+    symbol: w.network,
+    name: w.label || w.network,
+    address: w.address,
+    networkName: w.network
+  }));
+}
 
 interface CryptoTipModalProps {
   isOpen: boolean;
@@ -14,8 +30,19 @@ export const CryptoTipModal: React.FC<CryptoTipModalProps> = ({
   onClose,
   lang = 'fa'
 }) => {
-  const [selectedWallet, setSelectedWallet] = useState<CryptoTipWallet>(OFFICIAL_CRYPTO_WALLETS[0]);
+  const [wallets, setWallets] = useState<CryptoTipWallet[]>(() => effectiveWallets());
+  const [selectedWallet, setSelectedWallet] = useState<CryptoTipWallet>(wallets[0]);
   const [copied, setCopied] = useState(false);
+
+  useEffect(
+    () =>
+      platformConfigSync.subscribe(() => {
+        const next = effectiveWallets();
+        setWallets(next);
+        setSelectedWallet((prev) => next.find((w) => w.symbol === prev.symbol) || next[0]);
+      }),
+    []
+  );
 
   const handleCopy = (address: string) => {
     navigator.clipboard.writeText(address);
@@ -68,7 +95,7 @@ export const CryptoTipModal: React.FC<CryptoTipModalProps> = ({
 
           {/* Wallet Selector Tabs */}
           <div className="my-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {OFFICIAL_CRYPTO_WALLETS.map((w) => {
+            {wallets.map((w) => {
               const active = selectedWallet.symbol === w.symbol;
               return (
                 <button

@@ -889,7 +889,7 @@ export function DiscoveryUniverseScreen({
                           <span className="mx-1.5">•</span>
                           <span>{t(activeItem.categoryEn, activeItem.categoryFa)}</span>
                           <span className="mx-1.5">•</span>
-                          <span dir="ltr">{Math.floor((activeItem.durationSec || 6000) / 60)} {t('min', 'دقیقه')}</span>
+                          <span dir="ltr">{activeItem.durationSec > 0 ? `${Math.floor(activeItem.durationSec / 60)} ${t('min', 'دقیقه')}` : '—'}</span>
                         </p>
                       </div>
                     </div>

@@ -4,8 +4,8 @@ import json
 import re
 from telethon import TelegramClient
 
-API_ID = 76997
-API_HASH = '5fab41b477b0caf5a30648b86570b5b5'
+API_ID = int(os.environ.get("TG_API_ID", "0"))
+API_HASH = os.environ.get("TG_API_HASH", "")
 SOURCE_CHANNEL_ID = -1002852905135  # لرد مووی
 
 async def extract_movies_from_channel(limit=100):

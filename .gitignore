@@ -17,3 +17,19 @@ telegram_session.txt
 telethon_auth.json
 transfer_state.json
 
+config.json
+config_telethon.json
+state_bot.json
+
+# Rolling stream cache
+cache/
+
+# Local auth / runtime artifacts (never commit)
+gateway_auth_pending.json
+data/admin-salt.bin
+scripts/gemini_conversation_memory.json
+scripts/growth_real_metrics.json
+scripts/growth_swarm_state.json
+growth-engine/**/auth_state*.json
+state.json
+run_local_server.bat

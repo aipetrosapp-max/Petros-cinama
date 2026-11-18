@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="theme-color" content="#06060a" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Petros Cinema Master Admin Panel | پنل مدیریت اختصاصی</title>
+    <meta
+      name="description"
+      content="پنل مدیریت اختصاصی Petros Cinema — کنترل آرشیو مدیا، استریم ابری، کیف‌پول و اعمال سراسری زنده روی گیت‌هاب."
+    />
+
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #06060a;
+      }
+      body {
+        font-family: 'Vazirmatn', system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      /* Custom scrollbars in the cinematic dark theme */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0a10;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #d4af37, #8a6f1f);
+        border-radius: 999px;
+        border: 2px solid #0a0a10;
+      }
+      ::selection {
+        background: rgba(212, 175, 55, 0.28);
+        color: #fdf6dd;
+      }
+      /* Hidden number spinners inside the admin forms */
+      input[type='number']::-webkit-outer-spin-button,
+      input[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type='number'] {
+        -moz-appearance: textfield;
+      }
+    </style>
+  </head>
+  <body class="bg-[#06060a] text-zinc-200 antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/admin/main.tsx"></script>
+  </body>
+</html>

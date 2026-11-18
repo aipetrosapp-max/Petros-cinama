@@ -43,6 +43,7 @@ import {
 } from './localVault';
 import {
   deleteOfflineMediaBlob,
+  downloadRealMedia,
   formatBytes,
   generateDownloadableMediaClip,
   loadOfflineMediaBlob,
@@ -67,6 +68,8 @@ import { LibraryScreen } from './screens/LibraryScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { AipetrosLandingScreen } from './screens/AipetrosLandingScreen';
 import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
+import { platformConfigSync, isFeatureEnabled } from '../services/platformConfigSync';
+import { isItemPlayable } from '../services/streamSourceResolver';
 import { telegramCatalogAgent } from '../agents/telegramCatalogAgent';
 import { autoUpdateService } from '../services/autoUpdateService';
 import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
@@ -279,18 +282,16 @@ function UniversePrototypeShell({
   useEffect(() => {
     let isMounted = true;
     dynamicStreamSync.startPeriodicSync();
+    // Zero-client-update: live feature switches & wallets from the Master Admin Panel.
+    platformConfigSync.start();
 
     const unsubscribe = dynamicStreamSync.subscribe((dynamicStreams, meta) => {
       if (!isMounted) return;
       setLastSyncTime(meta.lastSyncedAt);
       if (dynamicStreams && dynamicStreams.length > 0) {
-        const validConverted = dynamicStreams
-          .filter((s) => Boolean(
-            (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http')) ||
-            (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http')))
-          ))
-          .map(convertDynamicStreamToMediaItem);
-        setCatalog(validConverted);
+        // Keep every catalog title visible. Playability is decided per-title by
+        // the stream resolver, which shows a maintenance state when unavailable.
+        setCatalog(dynamicStreams.map(convertDynamicStreamToMediaItem));
       }
     });
 
@@ -319,6 +320,7 @@ function UniversePrototypeShell({
       isMounted = false;
       unsubscribe();
       dynamicStreamSync.stopPeriodicSync();
+      platformConfigSync.stop();
     };
   }, [lang]);
 
@@ -340,7 +342,7 @@ function UniversePrototypeShell({
       if (route === 'watch') {
         // Exiting player triggers non-intrusive crypto ad strictly after watching 4 videos
         const res = aiAdOptimizationAgent.recordVideoPlayback();
-        if (res.shouldTriggerAd && res.adUnit) {
+        if (res.shouldTriggerAd && res.adUnit && isFeatureEnabled('cryptoAdBannerEnabled', true)) {
           setCurrentAd(res.adUnit);
           setIsAdModalOpen(true);
         }
@@ -356,18 +358,24 @@ function UniversePrototypeShell({
     return unreg;
   }, [isAdModalOpen, isTourOpen, selectedDetailItem, route, previousRouteBeforeWatch, navigateTo]);
 
-  // If localStorage was empty on boot, recover from IndexedDB backup if available
+  // Recover the full snapshot from IndexedDB. The catalog is no longer stored in
+  // localStorage (quota safety), so even when a light snapshot exists we still
+  // hydrate the catalog/downloads from IndexedDB.
   useEffect(() => {
-    if (initialVault) return;
     let active = true;
     void loadVaultFromIndexedDb().then((idbSnap) => {
       if (!active || !idbSnap) return;
+      if (idbSnap.catalog && idbSnap.catalog.length > 0) {
+        setCatalog(idbSnap.catalog);
+      }
+      setDownloadsMap(sanitizeLoadedDownloads(idbSnap.downloads));
+
+      if (initialVault) return;
       setLang(idbSnap.lang);
       setOnboardingDone(Boolean(idbSnap.onboardingDone || idbSnap.user?.ageVerified));
       if (idbSnap.onboardingDone || idbSnap.user?.ageVerified) {
         setRoute('universe');
       }
-      setCatalog(idbSnap.catalog);
       setUser(idbSnap.user);
       setUserVector(idbSnap.userVector);
       setProgressMap(idbSnap.progressMap);
@@ -376,7 +384,6 @@ function UniversePrototypeShell({
       setRecentIds(idbSnap.recentIds);
       setFeedbackMap(idbSnap.feedbackMap);
       setCollections(idbSnap.collections);
-      setDownloadsMap(sanitizeLoadedDownloads(idbSnap.downloads));
       setSearchFilters(idbSnap.searchFilters);
     });
     return () => {
@@ -512,12 +519,7 @@ function UniversePrototypeShell({
       const itemTitle = t(item.titleEn, item.titleFa);
       const effectiveQuality = selectedQuality?.resolution || item.quality;
 
-      const hasDownloadUrl = Boolean(
-        (item.streamUrl && item.streamUrl.startsWith('http')) ||
-        (item.defaultStreamUrl && item.defaultStreamUrl.startsWith('http')) ||
-        (item.qualities && item.qualities.some((q) => q.url && q.url.startsWith('http'))) ||
-        item.id === 'petros-stream-xmen-apocalypse'
-      );
+      const hasDownloadUrl = isItemPlayable(item);
 
       if (!hasDownloadUrl) {
         showToast(
@@ -564,18 +566,34 @@ function UniversePrototypeShell({
       }));
 
       let lastPct = 8;
-      const result = await generateDownloadableMediaClip(item, (pct) => {
-        if (pct - lastPct < 10 && pct < 100) return;
-        lastPct = pct;
-        setDownloadsMap((prev) => {
-          const cur = prev[item.id];
-          if (!cur || cur.status !== 'downloading') return prev;
-          return {
-            ...prev,
-            [item.id]: { ...cur, progressPct: pct }
-          };
+      let result: { blob: Blob; filename: string; mimeType: string };
+      try {
+        result = await downloadRealMedia(item, (pct) => {
+          if (pct - lastPct < 10 && pct < 100) return;
+          lastPct = pct;
+          setDownloadsMap((prev) => {
+            const cur = prev[item.id];
+            if (!cur || cur.status !== 'downloading') return prev;
+            return {
+              ...prev,
+              [item.id]: { ...cur, progressPct: pct }
+            };
+          });
         });
-      });
+      } catch (downloadError) {
+        setDownloadsMap((prev) => {
+          const next = { ...prev };
+          delete next[item.id];
+          return next;
+        });
+        const err = downloadError as { messageFa?: string; message?: string };
+        showToast(
+          lang === 'fa'
+            ? err.messageFa || 'دانلود ممکن نشد؛ منبع معتبری برای این عنوان موجود نیست.'
+            : err.message || 'Download failed: no verified source is available for this title.'
+        );
+        return;
+      }
 
       await saveOfflineMediaBlob(item.id, result.blob);
 
@@ -1130,7 +1148,7 @@ function UniversePrototypeShell({
                     onOpenLanguagePicker={() => setLangPickerOpen(true)}
                     onBack={() => {
                       const res = aiAdOptimizationAgent.recordVideoPlayback();
-                      if (res.shouldTriggerAd && res.adUnit) {
+                      if (res.shouldTriggerAd && res.adUnit && isFeatureEnabled('cryptoAdBannerEnabled', true)) {
                         setCurrentAd(res.adUnit);
                         setIsAdModalOpen(true);
                       }

@@ -5,6 +5,7 @@ Interactive StringSession Generator for Telethon
 Run this script ONCE on your local computer to generate your TG_STRING_SESSION.
 """
 
+import os
 import sys
 
 try:
@@ -20,15 +21,19 @@ def main():
     print("🔐 Telegram StringSession Generator (راهنمای ساخت نشست تلگرام)")
     print("=" * 70)
 
-    # Pre-configured from your Telegram developer credentials
-    default_api_id = 76997
-    default_api_hash = "5fab41b477b0caf5a30648b86570b5b5"
+    # Credentials MUST come from the environment. Never commit api_id/api_hash.
+    api_id_raw = os.environ.get("TG_API_ID", "").strip()
+    api_hash = os.environ.get("TG_API_HASH", "").strip()
+    if not api_id_raw or not api_hash:
+        print("❌ TG_API_ID and TG_API_HASH must be set in the environment.")
+        sys.exit(1)
+    try:
+        api_id = int(api_id_raw)
+    except ValueError:
+        print("❌ TG_API_ID must be numeric.")
+        sys.exit(1)
 
-    print(f"✅ api_id از پیش تنظیم شد: {default_api_id}")
-    print(f"✅ api_hash از پیش تنظیم شد: {default_api_hash}\n")
-
-    api_id = default_api_id
-    api_hash = default_api_hash
+    print("api_id and api_hash loaded from environment.")
 
     print("⏳ در حال اتصال به سرورهای تلگرام...")
     print("👇 لطفاً شماره موبایل خود را همراه با کد کشور وارد کنید (مثلاً: +989123456789):")

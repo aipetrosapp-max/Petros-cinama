@@ -23,7 +23,8 @@ export interface CryptoAdUnit {
 }
 
 export interface CryptoTipWallet {
-  symbol: 'BTC' | 'USDT-TRC20' | 'ETH' | 'TON';
+  /** panel configs may add networks (e.g. USDT-ERC20, LTC) beyond the built-ins */
+  symbol: string;
   name: string;
   address: string;
   qrCodeUrl?: string;

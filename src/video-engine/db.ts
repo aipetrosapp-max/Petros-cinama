@@ -76,7 +76,7 @@ export function writeDatabase(db: VideoCatalogDatabase): void {
  */
 const OWNER_PASSWORD_HASH = process.env.VELORA_OWNER_HASH || 
   // Default master salt/hash for initial deployment; owner can override with VELORA_OWNER_PASSWORD
-  crypto.createHash('sha256').update(process.env.VELORA_OWNER_PASSWORD || 'velora-owner-master-2026').digest('hex');
+  crypto.createHash('sha256').update(process.env.VELORA_OWNER_PASSWORD || '').digest('hex');
 
 export function verifyOwnerPassword(passwordAttempt: string): boolean {
   if (!passwordAttempt) return false;

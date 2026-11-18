@@ -33,9 +33,9 @@ const DEVICES: DeviceOption[] = [
     name: 'Android Mobile',
     sub: 'Native 4K APK',
     badge: 'Native 4K APK',
-    badgeBtn: '↓ Direct APK',
-    size: '18.4 MB • v2.4.1',
-    downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/petros-cinema.apk',
+    badgeBtn: 'Coming soon',
+    size: 'Coming soon',
+    downloadUrl: '',
     actionType: 'apk',
   },
   {
@@ -43,9 +43,9 @@ const DEVICES: DeviceOption[] = [
     name: 'Android TV',
     sub: 'Dolby Atmos',
     badge: 'Dolby Atmos',
-    badgeBtn: '↓ TV Client',
-    size: '22.1 MB • v2.4.1',
-    downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/petros-tv-release.apk',
+    badgeBtn: 'Coming soon',
+    size: 'Coming soon',
+    downloadUrl: '',
     actionType: 'tv',
   },
   {
@@ -53,9 +53,9 @@ const DEVICES: DeviceOption[] = [
     name: 'Windows 11',
     sub: 'GPU Desktop',
     badge: 'GPU Desktop',
-    badgeBtn: '↓ .EXE Setup',
-    size: '64.5 MB • v2.4.1',
-    downloadUrl: 'https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/PetrosCinema-Setup.exe',
+    badgeBtn: 'Coming soon',
+    size: 'Coming soon',
+    downloadUrl: '',
     actionType: 'exe',
   },
 ];
@@ -213,6 +213,12 @@ export const AipetrosLandingScreen: React.FC<AipetrosLandingProps> = ({
   }, []);
 
   const handleTriggerDownload = () => {
+    if (selectedDevice.actionType !== 'pwa' && !selectedDevice.downloadUrl) {
+      setDownloadStatus('COMING SOON — BUILD IN PROGRESS');
+      setTimeout(() => setDownloadStatus(''), 2600);
+      return;
+    }
+
     setDownloadStatus('INITIALIZING STREAM...');
 
     if (selectedDevice.actionType === 'pwa') {
@@ -226,6 +232,7 @@ export const AipetrosLandingScreen: React.FC<AipetrosLandingProps> = ({
         onEnterCinema();
       }
     } else {
+      if (!selectedDevice.downloadUrl) return;
       // Trigger direct download
       const link = document.createElement('a');
       link.href = selectedDevice.downloadUrl;

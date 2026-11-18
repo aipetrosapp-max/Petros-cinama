@@ -38,6 +38,7 @@ import {
   type BackendStreamQuality
 } from '../filmDetailsClient';
 import { useT } from '../i18n';
+import { isFeatureEnabled } from '../../services/platformConfigSync';
 import { AdaptiveModal, Button, formatDuration, cleanCinemaTitle } from '../components/UiPrimitives';
 import { FilmScreeningDossier } from '../components/FilmScreeningDossier';
 
@@ -266,7 +267,7 @@ export function ContentDetailModal({
 
               <div className="overflow-hidden rounded-xl border border-[rgba(212,175,55,0.4)] bg-[#050508] aspect-[16/10] md:aspect-[4/3] relative shadow-inner">
                 <img src={item.posterUrl} alt={title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                {imdb && (
+                {imdb && imdb.imdbRating > 0 && (
                   <div className="absolute top-3 start-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#F5B942] px-3 py-1 text-xs font-bold text-[#050508] shadow-[0_0_12px_rgba(212,175,55,0.6)]">
                     <span className="font-mono">IMDb</span>
                     <Star className="h-3.5 w-3.5 fill-current" />
@@ -342,6 +343,8 @@ export function ContentDetailModal({
               </button>
 
               <div className="grid grid-cols-3 gap-2">
+                {isFeatureEnabled('offlineDownloadEnabled', true) ? (
+                <>
                 <button
                   type="button"
                   disabled={isDownloading}
@@ -375,6 +378,17 @@ export function ContentDetailModal({
                   <HardDriveDownload className="h-3.5 w-3.5 text-[#D4AF37]" />
                   <span>{t('Save to Device', 'دانلود فایل')}</span>
                 </button>
+                </>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="col-span-2 h-9 inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-[#050508]/60 text-zinc-500 text-xs font-semibold cursor-not-allowed"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    <span>{t('Offline download disabled', 'دانلود آفلاین غیرفعال است')}</span>
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -441,7 +455,7 @@ export function ContentDetailModal({
                   {t('FILM INFORMATION DOSSIER', 'شناسنامه رسمی سینمایی اثر')}
                 </h3>
               </div>
-              {imdb && (
+              {imdb && imdb.imdbId && imdb.imdbUrl && (
                 <a
                   href={imdb.imdbUrl}
                   target="_blank"
@@ -466,11 +480,13 @@ export function ContentDetailModal({
                   <div className="rounded-xl border border-[rgba(212,175,55,0.2)] bg-[#050508] p-3 text-center">
                     <p className="text-[10px] text-[#8E9BB3] font-mono uppercase">{t('IMDb Rating', 'امتیاز')}</p>
                     <p dir="ltr" className="text-sm font-bold text-[#D4AF37] font-mono-tabular mt-0.5">
-                      ★ {imdb.imdbRating} / 10
+                      {imdb.imdbRating > 0 ? `★ ${imdb.imdbRating} / 10` : '—'}
                     </p>
-                    <p dir="ltr" className="text-[9px] text-[#A3AEC2]">
-                      {imdb.votesCount.toLocaleString()} {t('votes', 'رای')}
-                    </p>
+                    {imdb.votesCount > 0 && (
+                      <p dir="ltr" className="text-[9px] text-[#A3AEC2]">
+                        {imdb.votesCount.toLocaleString()} {t('votes', 'رای')}
+                      </p>
+                    )}
                   </div>
                   <div className="rounded-xl border border-[rgba(212,175,55,0.2)] bg-[#050508] p-3 text-center">
                     <p className="text-[10px] text-[#8E9BB3] font-mono uppercase">{t('Timeline', 'زمان و سال')}</p>

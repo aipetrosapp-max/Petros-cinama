@@ -1,0 +1,12 @@
+{
+  "bot_token": "",
+  "channel_id": -1000000000000,
+  "source_channels": [],
+  "destination_channel": -1000000000000,
+  "destination_channel_link": "",
+  "telegram_channel_username": "Aipetros",
+  "server_side_copy": true,
+  "enrich_with_imdb": true,
+  "delay_between_uploads_sec": 2,
+  "max_videos_per_run": 50
+}

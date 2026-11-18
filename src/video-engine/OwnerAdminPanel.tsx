@@ -33,6 +33,10 @@ import {
 import { AuthorizedVideoPlayer } from './AuthorizedVideoPlayer';
 import { convertPageUrlToEmbedUrl, generateSampleVideosForDomain } from './urlHelper';
 
+const OWNER_PANEL_PASSWORD = String(
+  (import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_OWNER_PIN || ''
+).trim();
+
 interface OwnerAdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -98,8 +102,8 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
   onClose,
   onCatalogUpdated
 }) => {
-  const [token, setToken] = useState<string>(() => localStorage.getItem('velora_owner_token') || 'session-owner-unlocked');
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [token, setToken] = useState<string>(() => localStorage.getItem('velora_owner_token') || '');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [authError, setAuthError] = useState<string>('');
   const [isSubmittingAuth, setIsSubmittingAuth] = useState<boolean>(false);
@@ -143,9 +147,10 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
   const [previewVideo, setPreviewVideo] = useState<VideoRecord | null>(null);
   const [editingVideo, setEditingVideo] = useState<VideoRecord | null>(null);
 
-  // Verify Owner Session Token (Always Unlocked by Owner Request)
+  // Verify Owner Session Token. A token must come from a successful login;
+  // there is no client-side bypass.
   useEffect(() => {
-    setIsAuthenticated(true);
+    setIsAuthenticated(Boolean(token));
   }, [token]);
 
   // Load Admin Data (Hybrid API + Local Storage fallback)
@@ -212,7 +217,7 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
         setIsAuthenticated(true);
         setPasswordInput('');
         setStatusMessage({ type: 'success', text: 'با موفقیت وارد پنل مدیریت مدیر شدید.' });
-      } else if (entered === 'velora-owner-master-2026') {
+      } else if (OWNER_PANEL_PASSWORD && entered === OWNER_PANEL_PASSWORD) {
         const localToken = 'session-owner-local-' + Date.now();
         setToken(localToken);
         localStorage.setItem('velora_owner_token', localToken);
@@ -223,7 +228,7 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
         setAuthError(data.error || 'رمز عبور اشتباه است.');
       }
     } catch {
-      if (entered === 'velora-owner-master-2026') {
+      if (OWNER_PANEL_PASSWORD && entered === OWNER_PANEL_PASSWORD) {
         const localToken = 'session-owner-local-' + Date.now();
         setToken(localToken);
         localStorage.setItem('velora_owner_token', localToken);
@@ -231,7 +236,7 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
         setPasswordInput('');
         setStatusMessage({ type: 'success', text: 'دسترسی مدیریت با کلید اصلی تایید شد.' });
       } else {
-        setAuthError('خطا در احراز هویت. رمز عبور پیش‌فرض: velora-owner-master-2026');
+        setAuthError('خطا در احراز هویت. رمز مالک در محیط تنظیم نشده است.');
       }
     } finally {
       setIsSubmittingAuth(false);
@@ -596,7 +601,7 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
                   type="password"
                   value={passwordInput}
                   onChange={e => setPasswordInput(e.target.value)}
-                  placeholder="رمز عبور مدیر (پیش‌فرض: velora-owner-master-2026)"
+                  placeholder="رمز عبور مدیر (از VITE_OWNER_PIN)"
                   className="w-full px-4 py-3.5 rounded-xl bg-black/60 border border-white/15 text-white text-xs placeholder:text-white/30 focus:outline-none focus:border-rose-500/60 text-right font-mono"
                   required
                 />
@@ -625,7 +630,7 @@ export const OwnerAdminPanel: React.FC<OwnerAdminPanelProps> = ({
               </form>
 
               <div className="pt-2 text-[11px] text-white/40">
-                رمز عبور پیش‌فرض مدیر: <code className="text-amber-300 font-mono">velora-owner-master-2026</code>
+                رمز مدیر باید در متغیر محیطی <code className="text-amber-300 font-mono">VELORA_OWNER_PASSWORD</code> تنظیم شود.
               </div>
             </div>
           </div>

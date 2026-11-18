@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "manifestVersion": "mwldjw74",
+  "features": {
+    "donationEnabled": true,
+    "cryptoPaymentEnabled": true,
+    "cryptoAdBannerEnabled": true,
+    "watchPartyEnabled": false,
+    "offlineDownloadEnabled": true,
+    "telegramGatewayEnabled": true,
+    "aiSubtitleSyncEnabled": true,
+    "maintenanceMode": false
+  },
+  "wallets": [
+    {
+      "id": "wallet-mwl5xbve-e76c5b7c",
+      "network": "USDT-TRC20",
+      "address": "TTestAddress123",
+      "label": "tron",
+      "enabled": true,
+      "decimals": 6,
+      "createdAt": "2026-11-17T20:46:27.674Z",
+      "updatedAt": "2026-11-17T20:46:27.674Z"
+    },
+    {
+      "id": "wallet-mwl6252d-62466bf0",
+      "network": "USDT-TRC20",
+      "address": "TTestAddress123",
+      "label": "tron",
+      "enabled": true,
+      "decimals": 6,
+      "createdAt": "2026-11-17T20:50:12.133Z",
+      "updatedAt": "2026-11-17T20:50:12.133Z"
+    },
+    {
+      "id": "wallet-mwl64vq0-a4fa531f",
+      "network": "USDT-TRC20",
+      "address": "TTestAddress123",
+      "label": "tron",
+      "enabled": true,
+      "decimals": 6,
+      "createdAt": "2026-11-17T20:52:19.992Z",
+      "updatedAt": "2026-11-17T20:52:19.992Z"
+    },
+    {
+      "id": "wallet-mwldclut-630c1026",
+      "network": "USDT-TRC20",
+      "address": "TTestAddress123",
+      "label": "tron",
+      "enabled": true,
+      "decimals": 6,
+      "createdAt": "2026-11-18T00:14:17.765Z",
+      "updatedAt": "2026-11-18T00:14:17.765Z"
+    },
+    {
+      "id": "wallet-mwldjw4x-8ed2b521",
+      "network": "USDT-TRC20",
+      "address": "TTestAddress123",
+      "label": "tron",
+      "enabled": true,
+      "decimals": 6,
+      "createdAt": "2026-11-18T00:19:57.681Z",
+      "updatedAt": "2026-11-18T00:19:57.681Z"
+    }
+  ],
+  "tokens": [],
+  "sources": [],
+  "updatedAt": "2026-11-18T00:19:57.884Z",
+  "subtitleFiles": []
+}

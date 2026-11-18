@@ -37,7 +37,10 @@ interface OwnerSecretPortalProps {
   onRefreshCatalog?: () => void;
 }
 
-const OWNER_MASTER_PIN = 'petros7788'; // Owner secret passkey
+const OWNER_MASTER_PIN = String(
+  (import.meta as unknown as { env?: Record<string, string | undefined> }).env?.VITE_OWNER_PIN || ''
+).trim();
+const OWNER_PORTAL_CONFIGURED = OWNER_MASTER_PIN.length >= 8;
 
 export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
   initialTab = 'wallets',
@@ -68,7 +71,19 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
 
   const commitToGitHubRepo = async (updatedList: DynamicStreamItem[]): Promise<boolean> => {
     try {
-      const token = atob('Z2hwX3Vpb2tQWWdiVEgyUFRYWU5EcVdUeGRIUWpzb3lDMzRkZ3dreg==');
+      const token = String(
+        (import.meta as unknown as { env?: Record<string, string | undefined> }).env
+          ?.VITE_GITHUB_WRITE_TOKEN ||
+          (typeof window !== 'undefined'
+            ? window.sessionStorage.getItem('aipetros_owner_gh_token') || ''
+            : '')
+      ).trim();
+      if (!token) {
+        setStreamSavedMessage(
+          'GitHub write token is not configured. Set VITE_GITHUB_WRITE_TOKEN or provide a session token. No hardcoded credential is shipped.'
+        );
+        return false;
+      }
       const owner = 'aipetrosapp-max';
       const repo = 'Petros-cinama';
       const path = 'data/streams.json';
@@ -351,7 +366,11 @@ export const OwnerSecretPortal: React.FC<OwnerSecretPortalProps> = ({
             <form onSubmit={handleLogin} className="space-y-4">
               <input
                 type="password"
-                placeholder="Enter Master PIN (Default: petros7788)"
+                placeholder={
+                  OWNER_PORTAL_CONFIGURED
+                    ? 'Enter Master PIN'
+                    : 'Owner PIN not configured (set VITE_OWNER_PIN)'
+                }
                 value={pinInput}
                 onChange={(e) => {
                   setPinInput(e.target.value);

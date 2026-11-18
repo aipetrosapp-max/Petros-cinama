@@ -9,7 +9,7 @@
 
 import { AdkAgent, type AdkContext } from './adkTypes';
 import type { PrototypeMediaItem } from '../prototype/types';
-import { UNBLOCKED_CINEMA_CDN_NODES } from '../services/aiCinemaStreamEngine';
+import { getStreamAvailability } from '../services/streamSourceResolver';
 
 export interface CatalogItemAuditResult {
   id: string;
@@ -56,34 +56,18 @@ export class CatalogHealthAgent extends AdkAgent {
       execute: (params: { item: PrototypeMediaItem }, context: AdkContext): CatalogItemAuditResult => {
         const item = params.item;
         const issues: string[] = [];
-        let isStreamValid = true;
         let isPosterValid = true;
-        let healed = false;
 
-        const isTelegramItem = Boolean(
-          item.sourceType === 'telegram' ||
-          item.id?.startsWith('tg-') ||
-          item.defaultStreamUrl?.includes('t.me') ||
-          item.telegramUrl ||
-          item.streamUrl?.includes('t.me')
-        );
-
-        const streamUrl = (item.streamUrl || item.defaultStreamUrl || '').toLowerCase();
-        if (isTelegramItem) {
-          isStreamValid = true;
-        } else if (!streamUrl) {
-          isStreamValid = false;
-          issues.push('Missing stream URL');
-        } else if (
-          streamUrl.includes('flower.mp4') ||
-          streamUrl.includes('bigbuckbunny') ||
-          streamUrl.includes('commondatastorage.googleapis.com') ||
-          streamUrl.includes('archive.org') ||
-          streamUrl.includes('oceans.mp4')
-        ) {
-          isStreamValid = false;
-          issues.push('Unrelated test video or blocked origin detected');
+        const availability = getStreamAvailability(item);
+        const isStreamValid = availability.status === 'available';
+        if (!isStreamValid) {
+          issues.push(
+            availability.status === 'requires_gateway'
+              ? 'Telegram source requires the configured range gateway'
+              : 'No verified direct media source'
+          );
         }
+        const healed = false;
 
         if (!item.posterUrl || !item.posterUrl.startsWith('http')) {
           isPosterValid = false;
@@ -93,21 +77,13 @@ export class CatalogHealthAgent extends AdkAgent {
         const isMetadataComplete = Boolean(item.titleEn || item.titleFa);
         if (!isMetadataComplete) issues.push('Incomplete metadata fields');
 
-        // Auto-heal if stream is invalid: do NOT force test clips or oceans.mp4!
         if (!isStreamValid) {
-          if (item.defaultStreamUrl?.includes('t.me') || isTelegramItem) {
-            item.streamUrl = '';
-            item.sourceType = 'telegram';
-            isStreamValid = true;
-            healed = true;
-          } else {
-            // Keep streamUrl clean and mark for review without injecting fake videos
-            item.streamUrl = '';
-            item.sourceType = 'telegram';
-            isStreamValid = true;
-            healed = true;
-            context.log('action', `Purified corrupted test stream in "${item.titleEn || item.titleFa}" -> Safe VIP Stage`);
-          }
+          // Never mutate the item to point at another title. The player will show
+          // a maintenance/retry state based on the resolver result.
+          context.log(
+            'warn',
+            `"${item.titleEn || item.titleFa}" has no verified playable source; left unchanged.`
+          );
         }
 
         return {

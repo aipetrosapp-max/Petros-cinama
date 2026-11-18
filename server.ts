@@ -5,6 +5,11 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { videoApiRouter } from './src/video-engine/api.ts';
+import { adminRouter, publicConfigRouter } from './src/admin/api.ts';
+import {
+  handleCacheStream,
+  startCacheGarbageCollector
+} from './src/services/streamCacheGateway.ts';
 import {
   buildAiPromptSuggestions,
   scoreAndOrderFallbackFilms
@@ -76,6 +81,108 @@ async function startServer() {
     })
   );
 
+  // Same-origin media proxy for downloads. Some CDNs (archive.org edge nodes,
+  // company3) do not send Access-Control-Allow-Origin, so a browser fetch cannot
+  // read their bytes. This allow-listed proxy solves that without exposing an
+  // open SSRF endpoint.
+  app.get('/api/media/proxy', async (req, res) => {
+    const target = String(req.query.url || '');
+    let parsed: URL;
+    try {
+      parsed = new URL(target);
+    } catch {
+      res.status(400).json({ error: 'invalid_url' });
+      return;
+    }
+    const host = parsed.hostname.toLowerCase();
+    const gatewayHost = (() => {
+      try {
+        return new URL(process.env.VITE_STREAM_GATEWAY_URL || '').hostname.toLowerCase();
+      } catch {
+        return '';
+      }
+    })();
+    const allowlist = (process.env.MEDIA_PROXY_ALLOWED_HOSTS || '')
+      .split(',')
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean);
+    const allowed =
+      host === 'archive.org' ||
+      host.endsWith('.archive.org') ||
+      host.endsWith('company3.com') ||
+      host === gatewayHost ||
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      allowlist.includes(host);
+    if (!allowed) {
+      res.status(403).json({ error: 'host_not_allowed' });
+      return;
+    }
+
+    try {
+      const upstream = await fetch(parsed.toString(), {
+        headers: {
+          ...(req.headers.range ? { Range: String(req.headers.range) } : {}),
+          Accept: 'video/*,application/octet-stream',
+          'User-Agent': 'PetrosCinema-MediaProxy/1.0'
+        },
+        redirect: 'follow'
+      });
+      res.status(upstream.status);
+      for (const header of ['content-type', 'content-length', 'content-range', 'accept-ranges', 'last-modified']) {
+        const value = upstream.headers.get(header);
+        if (value) res.setHeader(header, value);
+      }
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+      res.setHeader('Cache-Control', 'private, max-age=0, no-store');
+      if (!upstream.body) {
+        res.end();
+        return;
+      }
+      const reader = upstream.body.getReader();
+      res.on('close', () => {
+        reader.cancel().catch(() => {});
+      });
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) res.write(Buffer.from(value));
+      }
+      res.end();
+    } catch (error) {
+      if (!res.headersSent) {
+        res.status(502).json({ error: 'upstream_fetch_failed', detail: String(error).slice(0, 180) });
+      } else {
+        res.end();
+      }
+    }
+  });
+
+  // Rolling Cache Stream Gateway: single same-origin playback route with
+  // byte-range support and an 8-hour rolling disk cache.
+  const cacheRoute = (req: ExpressRequest, res: ExpressResponse) => {
+    void handleCacheStream(req as never, res as never);
+  };
+  app.get('/api/stream/cache/:streamId', cacheRoute);
+  app.head('/api/stream/cache/:streamId', cacheRoute);
+  app.options('/api/stream/cache/:streamId', (_req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Range, Accept');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    res.setHeader(
+      'Access-Control-Expose-Headers',
+      'Content-Range, Accept-Ranges, Content-Length, Content-Type, X-Petros-Cache'
+    );
+    res.status(204).end();
+  });
+  startCacheGarbageCollector();
+
+  // Petros Cinema Master Admin Panel API (session-protected)
+  app.use('/api/admin', adminRouter);
+  // Public config consumed by every client (feature flags, wallets)
+  app.use('/api/public', publicConfigRouter);
+
   // Mount Velora Owner-Controlled Video Catalog Engine Subsystem
   app.use('/api/velora', videoApiRouter);
 
@@ -98,6 +205,56 @@ async function startServer() {
   app.get('/api/catalog', (_req, res) => {
     const customItems = readJsonFile<unknown[]>(CUSTOM_CATALOG_FILE, []);
     res.json({ items: Array.isArray(customItems) ? customItems : [] });
+  });
+
+  // Master Admin API for Global Catalog Management
+  const ADMIN_KEY = process.env.ADMIN_KEY || 'Ped12345@';
+
+  app.get('/api/admin/streams', (req, res) => {
+    const auth = req.headers['authorization'] || req.query.key;
+    if (auth !== ADMIN_KEY && auth !== `Bearer ${ADMIN_KEY}`) {
+      return res.status(401).json({ error: 'unauthorized' });
+    }
+    const streamsPath = path.join(__dirname, 'data', 'streams.json');
+    const data = readJsonFile<{ streams: unknown[] }>(streamsPath, { streams: [] });
+    res.json(data);
+  });
+
+  app.post('/api/admin/streams/save', (req, res) => {
+    const auth = req.headers['authorization'] || req.body?.key;
+    if (auth !== ADMIN_KEY && auth !== `Bearer ${ADMIN_KEY}`) {
+      return res.status(401).json({ error: 'unauthorized' });
+    }
+    const updatedStreams = req.body?.streams;
+    if (!Array.isArray(updatedStreams)) {
+      return res.status(400).json({ error: 'invalid_streams_array' });
+    }
+
+    const payload = {
+      version: '2.5.0',
+      updatedAt: new Date().toISOString(),
+      streams: updatedStreams
+    };
+
+    // Broadcast and write to all active storage locations simultaneously
+    const targets = [
+      path.join(__dirname, 'data', 'streams.json'),
+      path.join(__dirname, 'public', 'streams.json'),
+      path.join(__dirname, 'public', 'data', 'streams.json'),
+      path.join(__dirname, 'dist', 'streams.json'),
+      path.join(__dirname, 'dist', 'data', 'streams.json')
+    ];
+
+    targets.forEach(p => {
+      try {
+        fs.mkdirSync(path.dirname(p), { recursive: true });
+        fs.writeFileSync(p, JSON.stringify(payload, null, 2), 'utf-8');
+      } catch (e) {
+        // ignore
+      }
+    });
+
+    res.json({ status: 'ok', count: updatedStreams.length, savedAt: payload.updatedAt });
   });
 
   app.post('/api/catalog', (req, res) => {
@@ -730,7 +887,15 @@ async function startServer() {
   } else {
     const distPath = path.join(__dirname, 'dist');
     app.use(express.static(distPath));
-    app.use((_req, res) => {
+    app.get('/admin', (_req, res) => {
+      res.sendFile(path.join(distPath, 'admin.html'));
+    });
+    app.use((req, res) => {
+      // dedicated SPA entry points keep their own HTML shells
+      if (req.path.startsWith('/admin')) {
+        res.sendFile(path.join(distPath, 'admin.html'));
+        return;
+      }
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }

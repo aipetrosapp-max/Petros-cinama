@@ -5,9 +5,9 @@
 // ============================================================================
 
 import type { PrototypeMediaItem } from '../prototype/types';
-import { UNBLOCKED_CINEMA_CDN_NODES, isPlayableDirectMediaUrl, type AiStreamResolutionResult } from './aiCinemaStreamEngine';
+import { type AiStreamResolutionResult } from './aiCinemaStreamEngine';
+import { getStreamAvailability } from './streamSourceResolver';
 import {
-  cinemaStreamAgent,
   playbackScrubberAgent,
   selfHealingAgent,
   subtitleSyncAgent,
@@ -91,55 +91,42 @@ class LocalCinemaAgentService {
     const title = item?.titleEn || item?.titleFa || 'Cinema Film';
     this.state.currentMovieTitle = title;
 
-    // Use CinemaStreamAgent's synchronous tool
-    const ctx = cinemaStreamAgent.createContext();
-    const resolutionTool = cinemaStreamAgent.tools.get('resolveGenuineStream');
-    
-    let resolution: AiStreamResolutionResult;
-    if (item?.streamUrl && isPlayableDirectMediaUrl(item.streamUrl)) {
-      resolution = {
-        streamUrl: item.streamUrl,
-        sourceType: 'direct_mp4',
-        nodeName: 'Primary Master Stream',
-        quality: preferredQuality?.toUpperCase() || item.quality || '4K HDR',
-        isIranAccessible: true,
-        resolutionTimeMs: 4,
-        matchedGenre: item.categoryEn || 'Cinema'
-      };
-    } else if (item?.defaultStreamUrl && isPlayableDirectMediaUrl(item.defaultStreamUrl)) {
-      resolution = {
-        streamUrl: item.defaultStreamUrl,
-        sourceType: 'direct_mp4',
-        nodeName: 'Default Master Stream',
-        quality: preferredQuality?.toUpperCase() || item.quality || '4K HDR',
-        isIranAccessible: true,
-        resolutionTimeMs: 4,
-        matchedGenre: item.categoryEn || 'Cinema'
-      };
-    } else {
-      // Intelligently match genuine 4K HDR Hollywood stream based on title & genre
-      const titleLower = (title + ' ' + (item?.categoryEn || '')).toLowerCase();
-      let matchedNode = UNBLOCKED_CINEMA_CDN_NODES[0];
-      if (titleLower.includes('batman') || titleLower.includes('بتمن')) {
-        matchedNode = UNBLOCKED_CINEMA_CDN_NODES[1];
-      } else if (titleLower.includes('interstellar') || titleLower.includes('space') || titleLower.includes('کیهان')) {
-        matchedNode = UNBLOCKED_CINEMA_CDN_NODES[2];
-      } else if (titleLower.includes('dune') || titleLower.includes('تلماسه')) {
-        matchedNode = UNBLOCKED_CINEMA_CDN_NODES[3];
-      } else if (titleLower.includes('blade runner') || titleLower.includes('بلید رانر')) {
-        matchedNode = UNBLOCKED_CINEMA_CDN_NODES[4];
-      }
+    const availability = getStreamAvailability(item, { preferredQualityId: preferredQuality });
+    const source = availability.source;
 
-      resolution = {
-        streamUrl: matchedNode.url,
-        sourceType: 'direct_mp4',
-        nodeName: matchedNode.name,
-        quality: preferredQuality?.toUpperCase() || item?.quality || matchedNode.quality,
+    if (!source) {
+      this.state.currentStreamUrl = '';
+      this.state.status = 'idle';
+      this.state.lastAction =
+        availability.status === 'requires_gateway'
+          ? `CinemaStreamAgent: "${title}" needs the Telegram range gateway`
+          : `CinemaStreamAgent: no verified source for "${title}"`;
+      this.recordObservation('warn', this.state.lastAction);
+      this.notify();
+      return {
+        streamUrl: '',
+        available: false,
+        sourceType: 'unavailable',
+        nodeName: availability.status === 'requires_gateway' ? 'Telegram Gateway Required' : 'No verified source',
+        quality: preferredQuality?.toUpperCase() || item?.quality || '—',
         isIranAccessible: true,
-        resolutionTimeMs: 4,
-        matchedGenre: matchedNode.genreCategory
+        resolutionTimeMs: 0,
+        matchedGenre: item?.categoryEn || 'Cinema',
+        reasonEn: availability.reasonEn,
+        reasonFa: availability.reasonFa
       };
     }
+
+    const resolution: AiStreamResolutionResult = {
+      streamUrl: source.url,
+      available: true,
+      sourceType: source.kind === 'gateway' ? 'telegram_gateway' : 'direct_mp4',
+      nodeName: source.kind === 'gateway' ? 'Telegram Range Gateway' : 'Verified Direct Media',
+      quality: preferredQuality?.toUpperCase() || item?.quality || '4K HDR',
+      isIranAccessible: true,
+      resolutionTimeMs: 4,
+      matchedGenre: item?.categoryEn || 'Cinema'
+    };
 
     this.state.currentStreamUrl = resolution.streamUrl;
     this.state.matchedGenre = resolution.matchedGenre;
@@ -198,7 +185,8 @@ class LocalCinemaAgentService {
    */
   public handlePlaybackError(
     failedUrl: string,
-    videoElement: HTMLVideoElement | null
+    videoElement: HTMLVideoElement | null,
+    item?: PrototypeMediaItem | null
   ): string {
     this.state.status = 'healed';
     this.state.healingCount++;
@@ -207,8 +195,18 @@ class LocalCinemaAgentService {
     const recovery = selfHealingAgent.handleFailover({
       failedUrl,
       videoElement,
-      currentSec: curSec
+      currentSec: curSec,
+      item
     });
+
+    if (!recovery.recovered || !recovery.backupUrl) {
+      this.state.currentStreamUrl = '';
+      this.state.status = 'idle';
+      this.state.lastAction = 'SelfHealingAgent: no verified alternate source; showing maintenance state';
+      this.recordObservation('warn', this.state.lastAction);
+      this.notify();
+      return '';
+    }
 
     this.state.currentStreamUrl = recovery.backupUrl;
     this.state.lastAction = `SelfHealingAgent restored playback in ${recovery.recoveryTimeMs}ms at ${Math.round(recovery.resumedPositionSec)}s`;

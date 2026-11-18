@@ -316,9 +316,7 @@ async def main():
             try:
                 with open("telegram_session.txt", "r", encoding="utf-8") as sf:
                     session_str = sf.read().strip()
-                api_id_env = "76997"
-                api_hash = "5fab41b477b0caf5a30648b86570b5b5"
-                print("ℹ️ Loaded Telegram credentials from local session store.")
+                print("ℹ️ Loaded Telegram session from local store; API credentials must still come from env.")
             except Exception as e:
                 print(f"⚠️ Failed to read telegram_session.txt: {e}")
 

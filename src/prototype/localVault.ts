@@ -1,3 +1,4 @@
+import { saveVaultSnapshotCache, loadVaultSnapshotCache, clearVaultSnapshotCache } from '../services/catalogCache';
 import type {
   FeedbackRecord,
   LanguageCode,
@@ -30,7 +31,7 @@ export interface InAppVaultSnapshot {
   collections: UserCollection[];
   downloads?: Record<string, OfflineDownloadRecord>;
   searchFilters: SearchFilterState;
-  catalog: PrototypeMediaItem[];
+  catalog?: PrototypeMediaItem[];
 }
 
 export function loadVaultSnapshot(): InAppVaultSnapshot | null {
@@ -69,29 +70,29 @@ function openVaultIdb(): Promise<IDBDatabase | null> {
   });
 }
 
+export function createLocalVaultPayload(snapshot: InAppVaultSnapshot): Omit<InAppVaultSnapshot, 'catalog'> {
+  const { catalog, ...lightSnapshot } = snapshot;
+  return lightSnapshot;
+}
+
 export async function saveVaultSnapshot(snapshot: InAppVaultSnapshot): Promise<void> {
-  const serialized = JSON.stringify(snapshot);
+  // Keep localStorage small: the 5+ MB catalog is stored in IndexedDB only.
+  // This prevents the catalog from exhausting the localStorage quota.
   try {
-    window.localStorage.setItem(VAULT_STORAGE_KEY, serialized);
+    window.localStorage.setItem(VAULT_STORAGE_KEY, JSON.stringify(createLocalVaultPayload(snapshot)));
   } catch {
     // Quota or private mode fallback still proceeds to IndexedDB below
   }
 
-  const db = await openVaultIdb();
-  if (!db) return;
-  try {
-    await new Promise<void>((resolve) => {
-      const tx = db.transaction(IDB_STORE, 'readwrite');
-      tx.objectStore(IDB_STORE).put(snapshot, IDB_RECORD_KEY);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => resolve();
-    });
-  } finally {
-    db.close();
-  }
+  await saveVaultSnapshotCache(snapshot);
 }
 
 export async function loadVaultFromIndexedDb(): Promise<InAppVaultSnapshot | null> {
+  const cached = await loadVaultSnapshotCache<InAppVaultSnapshot>();
+  if (cached && cached.version === 1 && cached.user && cached.userVector) {
+    return cached;
+  }
+
   const db = await openVaultIdb();
   if (!db) return null;
   try {
@@ -119,6 +120,7 @@ export async function clearVaultSnapshot(): Promise<void> {
   } catch {
     // ignore
   }
+  await clearVaultSnapshotCache();
   const db = await openVaultIdb();
   if (!db) return;
   try {

@@ -149,7 +149,13 @@ export async function fetchBackendFilmDetails(
   const cached = clientDetailsCache.get(item.id);
   if (cached) return cached;
 
+  // Synthetic seed titles have no IMDb/TMDB record. Querying an external
+  // database by their generic names returns unrelated real films, which is how
+  // "Cosmic Neon Odyssey" acquired a French comedy cast. Keep them local-only.
+  const isSynthetic = /^petros-stream-/.test(item.id) || /petros ai/i.test(item.creatorEn || '');
+
   try {
+    if (isSynthetic) throw new Error('synthetic_catalog_entry');
     const params = new URLSearchParams({
       title: item.titleEn,
       creator: item.creatorEn || '',
@@ -176,26 +182,29 @@ export async function fetchBackendFilmDetails(
     filmId: item.id,
     fetchedAt: new Date().toISOString(),
     imdb: {
-      imdbId: 'tt1057455',
-      imdbUrl: 'https://www.imdb.com/title/tt1057455/',
+      imdbId: '',
+      imdbUrl: '',
       sourceStatus: 'imdb-indexed',
       matchedTitle: item.titleEn,
       originalTitle: item.titleEn,
       year: item.releaseYear,
       typeLabel: 'Feature Film',
       timelineLabel: `${item.releaseYear} Feature`,
-      imdbRating: 8.3,
-      votesCount: 14200,
+      imdbRating: (() => {
+        const match = String((item as unknown as { rating?: string }).rating || '').match(/\d+(?:\.\d+)?/);
+        return match ? Number(match[0]) : 0;
+      })(),
+      votesCount: 0,
       imdbRank: null,
-      contentRating: '18+ / TV-MA',
-      runtimeMinutes: Math.max(3, Math.round(item.durationSec / 60)),
-      director: item.creatorEn || 'Independent Collective',
-      cast: item.creatorEn ? [item.creatorEn] : ['Featured Cast'],
-      genres: [item.categoryEn, ...item.tags.slice(0, 2)],
-      country: 'International',
-      spokenLanguages: ['English'],
+      contentRating: '',
+      runtimeMinutes: item.durationSec > 0 ? Math.max(1, Math.round(item.durationSec / 60)) : 0,
+      director: item.creatorEn || '',
+      cast: !isSynthetic && item.creatorEn ? [item.creatorEn] : [],
+      genres: [item.categoryEn, ...item.tags.slice(0, 2)].filter(Boolean),
+      country: '',
+      spokenLanguages: [],
       plotSummary: item.synopsisEn,
-      imdbReferenceNote: `Catalog metadata aligned with IMDb (${item.releaseYear})`,
+      imdbReferenceNote: 'Local catalog metadata. No verified IMDb/TMDB record is linked.',
       imdbPosterUrl: null
     },
     qualities: buildFallbackBackendQualities(item),

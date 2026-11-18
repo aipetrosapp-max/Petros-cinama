@@ -38,7 +38,9 @@ import type {
   WatchProgressEntry
 } from '../types';
 import { formatBytes, loadOfflineMediaBlob, triggerBrowserDownload } from '../downloadEngine';
-import { aiCinemaStreamEngine, UNBLOCKED_CINEMA_CDN_NODES, isPlayableDirectMediaUrl } from '../../services/aiCinemaStreamEngine';
+import { aiCinemaStreamEngine, isPlayableDirectMediaUrl, normalizeUrlForMatching } from '../../services/aiCinemaStreamEngine';
+import { getStreamAvailability, collectStreamCandidates } from '../../services/streamSourceResolver';
+import { platformConfigSync } from '../../services/platformConfigSync';
 import { localCinemaAgent } from '../../services/localCinemaAgent';
 import { monetizationAdAgent, securityGuardAgent, masterSupremeOrchestratorAgent } from '../../agents';
 import {
@@ -117,7 +119,7 @@ export function CinematicPlayerScreen({
 
   const [details, setDetails] = useState<BackendFilmDetailsResponse | null>(null);
   const trailerDuration = details?.trailer?.durationSec || 45;
-  const duration = playbackMode === 'trailer' ? trailerDuration : item?.durationSec ?? 360;
+  const duration = playbackMode === 'trailer' ? trailerDuration : item?.durationSec ?? 0;
   const [mediaDuration, setMediaDuration] = useState<number>(0);
   const effectiveDuration = mediaDuration > 0 ? mediaDuration : duration;
 
@@ -125,7 +127,8 @@ export function CinematicPlayerScreen({
     playbackMode === 'movie' &&
     initialProgress &&
     !initialProgress.completed &&
-    initialProgress.positionSec < (item?.durationSec ?? 360) - 5
+    (item?.durationSec ?? 0) > 0 &&
+    initialProgress.positionSec < (item?.durationSec ?? 0) - 5
       ? initialProgress.positionSec
       : 0;
 
@@ -150,6 +153,8 @@ export function CinematicPlayerScreen({
   const [offlineBlobAvailable, setOfflineBlobAvailable] = useState(false);
   const [streamReady, setStreamReady] = useState(false);
   const [liveTrailerVideoActive, setLiveTrailerVideoActive] = useState(false);
+  const [streamFailed, setStreamFailed] = useState(false);
+  const [streamRetryTick, setStreamRetryTick] = useState(0);
 
   // ADK Monetization: 1-Hour Watch Policy Evaluation
   const [adPayload, setAdPayload] = useState<any>(null);
@@ -286,15 +291,32 @@ export function CinematicPlayerScreen({
       );
       setAiSyncedSub(matched);
       setSyncOffsetMs(matched.autoOffsetMs);
-      if (subMode === 'off') {
+      if (matched.available && subMode === 'off') {
         setSubMode('auto');
       }
-      if (lang !== 'en' && lang !== 'fa') {
+      if (matched.available && lang !== 'en' && lang !== 'fa') {
         void translateTexts(matched.cues.map((c) => c.en));
       }
       setAiSyncing(false);
     }, 520);
   }, [item, aiSyncing, details, activeQuality, lang, subMode, translateTexts]);
+
+  // Load the registered subtitle state when the title changes. This never
+  // creates text: it simply reports what real SRT/VTT data is attached.
+  useEffect(() => {
+    if (!item) {
+      setAiSyncedSub(null);
+      return;
+    }
+    const initial = generateAiSyncedSubtitles(
+      item,
+      details?.imdb || null,
+      item.quality,
+      lang
+    );
+    setAiSyncedSub(initial);
+    setSyncOffsetMs(0);
+  }, [item?.id, lang, details?.imdb]);
 
   // Helper to resolve subtitle line in active language
   const renderCueText = useCallback(
@@ -306,7 +328,7 @@ export function CinematicPlayerScreen({
     [subMode, t]
   );
 
-  // Build live WebVTT Blob Track URL & attach to <video> whenever cues, offset, or lang change
+  // Attach a subtitle track only when real cues exist. No synthetic VTT.
   useEffect(() => {
     if (!item || subMode === 'off') {
       setVttTrackUrl((prev) => {
@@ -316,7 +338,12 @@ export function CinematicPlayerScreen({
       return;
     }
 
-    const activeCues = aiSyncedSub
+    if (item.subtitleUrl) {
+      setVttTrackUrl(item.subtitleUrl);
+      return;
+    }
+
+    const activeCues = aiSyncedSub?.available
       ? aiSyncedSub.cues
       : item.subtitles.map((s, idx) => ({
           id: `base-${idx}`,
@@ -325,6 +352,14 @@ export function CinematicPlayerScreen({
           en: s.en,
           fa: s.fa
         }));
+
+    if (activeCues.length === 0) {
+      setVttTrackUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      return;
+    }
 
     const vttText = buildWebVttContent(activeCues, syncOffsetMs, (cue) =>
       renderCueText(cue.en, cue.fa)
@@ -345,13 +380,17 @@ export function CinematicPlayerScreen({
   const handleDownloadMatchedSrt = useCallback(() => {
     if (!item) return;
     const synced =
-      aiSyncedSub ||
+      (aiSyncedSub?.available ? aiSyncedSub : null) ||
       generateAiSyncedSubtitles(
         item,
         details?.imdb || null,
         activeQuality?.resolution || item.quality,
         lang
       );
+    if (!synced.available || synced.cues.length === 0) {
+      setSubtitlePanelOpen(true);
+      return;
+    }
     const srtText = buildSrtContent(synced.cues, syncOffsetMs, (cue) =>
       renderCueText(cue.en, cue.fa)
     );
@@ -359,23 +398,68 @@ export function CinematicPlayerScreen({
     triggerBrowserDownload(blob, synced.matchedFilename);
   }, [item, aiSyncedSub, details, activeQuality, lang, syncOffsetMs, renderCueText]);
 
+  // Live platform switches (Zero-Client-Update): maintenance mode and
+  // watch-party availability can be flipped from the Master Admin Panel and
+  // land here without a new client build.
+  const [, setPlatformCfgTick] = useState(0);
+  useEffect(
+    () => platformConfigSync.subscribe(() => setPlatformCfgTick((n) => n + 1)),
+    []
+  );
+  const platformMaintenance = platformConfigSync.isFeatureEnabled('maintenanceMode', false);
+  const watchPartyEnabled = platformConfigSync.isFeatureEnabled('watchPartyEnabled', true);
+
   // Autonomous Local Cinema AI Agent (Google Antigravity Architecture)
   const aiResolution = useMemo(() => {
     return localCinemaAgent.resolveStreamForMovie(item, selectedQualityId);
-  }, [item, selectedQualityId]);
+    // streamRetryTick intentionally re-evaluates after the user retries.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item, selectedQualityId, streamRetryTick]);
 
-  // Determine actual playable direct stream URL for the current title
+  const streamAvailability = useMemo(
+    () => getStreamAvailability(item, { preferredQualityId: selectedQualityId }),
+    [item, selectedQualityId, streamRetryTick]
+  );
+
+  // Only a verified source may be attached to <video>. There is no fallback clip.
   const activeStreamUrl = useMemo(() => {
-    if (!item) return '';
+    if (!item || streamFailed || platformMaintenance) return '';
     if (playbackMode === 'trailer' && details?.trailer?.previewVideoUrl) {
-      return details.trailer.previewVideoUrl;
+      return isPlayableDirectMediaUrl(details.trailer.previewVideoUrl)
+        ? details.trailer.previewVideoUrl
+        : '';
     }
-    if (aiResolution.streamUrl && isPlayableDirectMediaUrl(aiResolution.streamUrl)) {
-      return aiResolution.streamUrl;
+    const resolvedUrl = aiResolution.available && aiResolution.streamUrl ? aiResolution.streamUrl : '';
+    if (!resolvedUrl) return '';
+    // The stream engine may have already blacklisted this exact source after a
+    // runtime failure (dead gateway / 404). Never re-attach a known-dead URL;
+    // show the honest maintenance state instead.
+    if (aiCinemaStreamEngine.isBlacklisted(resolvedUrl)) return '';
+    return resolvedUrl;
+  }, [item, playbackMode, details, aiResolution, streamFailed, platformMaintenance]);
+
+  const isUnavailable = Boolean(item) && !activeStreamUrl && !streamReady;
+
+  // Reset failure flag when the title/quality changes.
+  useEffect(() => {
+    setStreamFailed(false);
+    setStreamReady(false);
+    errorRetryCountRef.current = 0;
+  }, [item?.id, selectedQualityId]);
+
+  const retryStream = useCallback(() => {
+    // Retry is explicit user intent: clear the engine blacklist for every
+    // candidate of this title so the resolver may try again.
+    if (item) {
+      for (const candidate of collectStreamCandidates(item)) {
+        aiCinemaStreamEngine.unblacklist(candidate);
+      }
     }
-    // Guaranteed cinema stream node fallback so in-app video ALWAYS plays
-    return UNBLOCKED_CINEMA_CDN_NODES[0]?.url || '';
-  }, [item, playbackMode, details, aiResolution]);
+    setStreamFailed(false);
+    setStreamReady(false);
+    setCurrentTime(0);
+    setStreamRetryTick((n) => n + 1);
+  }, [item]);
 
   const handleUnmute = () => {
     const video = videoRef.current;
@@ -619,16 +703,11 @@ export function CinematicPlayerScreen({
   const activeSubtitle = useMemo(() => {
     if (!item || subMode === 'off') return null;
 
-    if (playbackMode === 'trailer') {
-      const idx = Math.min(2, Math.floor((currentTime / Math.max(1, duration)) * 3));
-      const hl = details?.trailer?.highlights?.[idx];
-      return hl
-        ? `${t('Official Trailer', 'تریلر رسمی')} · ${t(hl.label)}`
-        : `${t('Official Trailer', 'تریلر رسمی')} — ${t(item.titleEn, item.titleFa)}`;
-    }
+    // Trailer mode has no dialogue subtitle track; never fabricate one.
+    if (playbackMode === 'trailer') return null;
 
     const effectiveTime = currentTime - syncOffsetMs / 1000;
-    const pool = aiSyncedSub
+    const pool = aiSyncedSub?.available
       ? aiSyncedSub.cues
       : item.subtitles.map((s, idx) => ({
           id: `base-${idx}`,
@@ -638,26 +717,9 @@ export function CinematicPlayerScreen({
           fa: s.fa
         }));
 
+    if (pool.length === 0) return null;
     const match = pool.find((s) => effectiveTime >= s.startSec && effectiveTime <= s.endSec);
-    if (match) {
-      return renderCueText(match.en, match.fa);
-    }
-
-    if (aiSyncedSub && pool.length > 0) {
-      const nearest = pool.reduce((best, cur) =>
-        Math.abs(cur.startSec - effectiveTime) < Math.abs(best.startSec - effectiveTime) ? cur : best
-      );
-      return renderCueText(nearest.en, nearest.fa);
-    }
-
-    if (currentTime > 0 && item.subtitles.length > 0) {
-      const prefix = t('Live Subtitles', 'زیرنویس زنده');
-      return `[${prefix} · ${activeQuality ? activeQuality.resolution : selectedQualityId}] ${t(
-        item.titleEn,
-        item.titleFa
-      )}`;
-    }
-    return null;
+    return match ? renderCueText(match.en, match.fa) : null;
   }, [
     item,
     subMode,
@@ -723,7 +785,8 @@ export function CinematicPlayerScreen({
             <span>AI Stream • {aiResolution.nodeName}</span>
           </div>
 
-          {/* Watch Party Button */}
+          {/* Watch Party Button — visible only while the panel enables it */}
+          {watchPartyEnabled && (
           <button
             type="button"
             onClick={() => setIsWatchPartyOpen(true)}
@@ -733,6 +796,7 @@ export function CinematicPlayerScreen({
             <Users className="h-4 w-4 text-[#D4AF37]" />
             <span className="hidden sm:inline">{t('Watch Party', 'تماشای همزمان')}</span>
           </button>
+          )}
 
           {/* Fullscreen Toggle Pill */}
           <button
@@ -820,12 +884,22 @@ export function CinematicPlayerScreen({
                     lastErrorRecoveryRef.current = now;
                     errorRetryCountRef.current++;
                     if (errorRetryCountRef.current > 3) {
-                      // Do not silently force oceans.mp4 or cartoon clips!
+                      setStreamFailed(true);
                       setIsPlaying(false);
                       return;
                     }
-                    const nextUrl = localCinemaAgent.handlePlaybackError(video.src, video);
-                    console.warn('[AI Cinema Engine] Auto-routing to unblocked CDN node:', nextUrl);
+                    const nextUrl = localCinemaAgent.handlePlaybackError(video.src, video, item);
+                    const sameUrlAsFailed =
+                      !nextUrl ||
+                      normalizeUrlForMatching(nextUrl) === normalizeUrlForMatching(video.src);
+                    if (sameUrlAsFailed) {
+                      setStreamFailed(true);
+                      setIsPlaying(false);
+                      console.warn('[AI Cinema Engine] No verified alternate source; showing maintenance state.');
+                      return;
+                    }
+                    video.src = nextUrl;
+                    video.load();
                   }}
                   onClick={togglePlay}
                   className={`absolute inset-0 h-full w-full cursor-pointer z-10 ${
@@ -899,58 +973,67 @@ export function CinematicPlayerScreen({
                 )}
               </>
             ) : (
-              /* Theatrical VIP Direct Stream Stage */
+              /* Honest maintenance / gateway state. Never inject another video. */
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-4 sm:p-8 text-center bg-[#070913]/95 backdrop-blur-xl overflow-hidden select-none">
-                {/* Ambient Movie Poster Blur in Background */}
                 <img
                   src={item.posterUrl}
                   alt={item.titleEn}
-                  className="absolute inset-0 h-full w-full object-cover opacity-25 filter blur-md scale-105 pointer-events-none"
+                  className="absolute inset-0 h-full w-full object-cover opacity-20 filter blur-md scale-105 pointer-events-none"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/85 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/90 to-transparent pointer-events-none" />
 
                 <div className="relative z-10 max-w-xl w-full flex flex-col items-center gap-3.5">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-black/60 px-4 py-1 text-xs font-bold text-[#F3D06B] shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-                    <Sparkles className="h-4 w-4 text-amber-400" />
-                    <span>{t('Petros Cinema Ultra VIP Stream', 'سرور پخش ابری فوق‌سریع پتروس سینما')}</span>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-black/60 px-4 py-1 text-xs font-bold text-[#F3D06B]">
+                    <ShieldCheck className="h-4 w-4 text-amber-400" />
+                    <span>
+                      {platformMaintenance
+                        ? t('Platform Maintenance in Progress', 'سرور در حال نگهداری است')
+                        : streamAvailability.status === 'requires_gateway'
+                          ? t('Telegram Range Gateway Required', 'نیازمند گیت‌وی استریم تلگرام')
+                          : t('Server Under Maintenance', 'سرور اختصاصی در حال آماده‌سازی')}
+                    </span>
                   </div>
 
-                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFF4BA] via-[#F3D06B] to-[#D4AF37] font-cinzel drop-shadow-[0_4px_20px_rgba(212,175,55,0.4)]">
+                  <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-b from-[#FFF4BA] via-[#F3D06B] to-[#D4AF37] font-cinzel">
                     {item.titleFa || item.titleEn}
                     {item.releaseYear ? ` (${item.releaseYear})` : ''}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md line-clamp-3">
-                    {item.synopsisFa || item.synopsisEn || t('High-speed cinema master ready for direct streaming.', 'آماده پخش آنلاین با کیفیت سینمایی 4K.')}
+                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md">
+                    {platformMaintenance
+                      ? t(
+                          'The cinema is undergoing planned maintenance. Playback resumes automatically once the operators publish the update.',
+                          'سینما در حال نگهداری برنامه‌ریزی‌شده است. به‌محض انتشار به‌روزرسانی توسط مدیران، پخش به‌صورت خودکار از سر گرفته می‌شود.'
+                        )
+                      : lang === 'fa'
+                        ? streamAvailability.reasonFa
+                        : streamAvailability.reasonEn}
+                  </p>
+
+                  <p className="text-[11px] text-zinc-500 max-w-md">
+                    {t(
+                      'No substitute clip will be played. You are seeing this message because this exact title has no verified source.',
+                      'هیچ کلیپ جایگزینی پخش نمی‌شود. این پیام یعنی برای همین عنوان، منبع تأییدشده‌ای موجود نیست.'
+                    )}
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center gap-3 pt-3 w-full max-w-md">
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsPlaying(true);
-                        const video = videoRef.current;
-                        if (video) {
-                          video.play().catch(console.warn);
-                        }
-                      }}
-                      className="flex-1 min-h-[46px] sm:min-h-[50px] inline-flex items-center justify-center gap-2 px-5 rounded-2xl bg-gradient-to-r from-[#F3D06B] via-[#E5C158] to-[#D4AF37] text-black font-extrabold text-xs sm:text-sm shadow-[0_0_30px_rgba(212,175,55,0.5)] hover:scale-[1.03] active:scale-95 transition-all cursor-pointer"
+                      onClick={retryStream}
+                      className="flex-1 min-h-[46px] sm:min-h-[50px] inline-flex items-center justify-center gap-2 px-5 rounded-2xl bg-gradient-to-r from-[#F3D06B] via-[#E5C158] to-[#D4AF37] text-black font-extrabold text-xs sm:text-sm shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
                     >
-                      <Play className="w-4 h-4 fill-current" />
-                      <span>{t('Direct Cinema Play', 'پخش مستقیم در سالن سینما')}</span>
+                      <RotateCw className="w-4 h-4" />
+                      <span>{t('Retry Playback', 'تلاش مجدد برای پخش')}</span>
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => {
-                        if (onDownload) {
-                          onDownload(item, false);
-                        }
-                      }}
-                      className="min-h-[46px] sm:min-h-[50px] px-5 rounded-2xl border border-white/20 bg-[#141620]/80 backdrop-blur-xl text-white font-bold text-xs sm:text-sm hover:bg-white/10 active:scale-95 transition-all flex items-center gap-2 cursor-pointer shadow-lg"
+                      disabled
+                      className="min-h-[46px] sm:min-h-[50px] px-5 rounded-2xl border border-white/10 bg-[#141620]/50 text-zinc-500 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed"
                     >
-                      <Download className="w-4 h-4 text-amber-300" />
-                      <span>{t('Download to Device', 'دانلود در دستگاه')}</span>
+                      <Download className="w-4 h-4" />
+                      <span>{t('Download unavailable', 'دانلود در دسترس نیست')}</span>
                     </button>
                   </div>
                 </div>
@@ -1034,7 +1117,7 @@ export function CinematicPlayerScreen({
           lang={lang}
           isFullscreen={isFullscreen}
           activeQualityLabel={activeQuality?.resolution || selectedQualityId.toUpperCase()}
-          aiSyncConfidencePct={aiSyncedSub?.confidencePct || 98.5}
+          aiSyncConfidencePct={aiSyncedSub?.available ? 100 : 0}
           agentStatusText={`AI Agent Active · ${aiResolution.matchedGenre?.toUpperCase() || 'VIP 4K'} Stream`}
           onTogglePlay={togglePlay}
           onSeek={handleSeek}
@@ -1064,7 +1147,7 @@ export function CinematicPlayerScreen({
               {title}
             </h1>
             <p className="text-xs sm:text-sm font-medium text-[#A3AEC2] flex flex-wrap items-center gap-2">
-              <span dir="ltr">{item.releaseYear || 2026}</span>
+              <span dir="ltr">{item.releaseYear || '—'}</span>
               <span>•</span>
               <span dir="ltr">{formatDuration(duration || item.durationSec)}</span>
               <span>•</span>
@@ -1078,7 +1161,7 @@ export function CinematicPlayerScreen({
           <div className="shrink-0">
             <div className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#F5B942] to-[#D4AF37] px-3.5 py-1.5 text-xs sm:text-sm font-black text-[#050508] shadow-[0_0_15px_rgba(212,175,55,0.4)]">
               <Star className="h-4 w-4 fill-current" />
-              <span>{details?.imdb?.imdbRating ? details.imdb.imdbRating : '8.3'} IMDb</span>
+              <span>{details?.imdb?.imdbRating ? `${details.imdb.imdbRating} IMDb` : 'IMDb —'}</span>
             </div>
           </div>
         </div>
@@ -1189,11 +1272,32 @@ export function CinematicPlayerScreen({
                     <span>{t('AI Subtitle Match & Sync', 'همسان‌سازی هوشمند زیرنویس')}</span>
                   </span>
 
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-0.5 text-[11px] font-bold text-emerald-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>{aiSyncedSub?.confidencePct || 98.5}% {t('Precision Match', 'دقت تطبیق با تصویر')}</span>
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-0.5 text-[11px] font-bold ${
+                      aiSyncedSub?.available
+                        ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                        : 'border-rose-500/40 bg-rose-500/10 text-rose-300'
+                    }`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${aiSyncedSub?.available ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'}`} />
+                    <span>
+                      {aiSyncedSub?.available
+                        ? t('Official subtitle registered', 'زیرنویس رسمی ثبت شده است')
+                        : t('Official subtitle not registered', 'زیرنویس رسمی ثبت نشده')}
+                    </span>
                   </span>
                 </div>
+
+                <p className={`text-[11px] leading-relaxed ${aiSyncedSub?.available ? 'text-emerald-300/90' : 'text-rose-300/90'}`}>
+                  {aiSyncedSub
+                    ? lang === 'fa'
+                      ? aiSyncedSub.messageFa
+                      : aiSyncedSub.messageEn
+                    : t(
+                        'No synthetic subtitle text is generated. Load a real SRT/VTT to enable subtitles.',
+                        'هیچ متن زیرنویس مصنوعی تولید نمی‌شود. برای فعال‌سازی، فایل SRT/VTT واقعی بارگذاری کنید.'
+                      )}
+                </p>
 
                 {/* Subtitle Language Switcher */}
                 <div className="flex items-center gap-2 pt-1">
@@ -1288,7 +1392,8 @@ export function CinematicPlayerScreen({
                   <button
                     type="button"
                     onClick={handleDownloadMatchedSrt}
-                    className="min-h-[38px] px-3.5 rounded-xl border border-[rgba(212,175,55,0.3)] bg-white/5 hover:bg-white/10 text-xs font-semibold text-[#F5F7FA] flex items-center gap-1.5 transition-colors cursor-pointer"
+                    disabled={!aiSyncedSub?.available}
+                    className="min-h-[38px] px-3.5 rounded-xl border border-[rgba(212,175,55,0.3)] bg-white/5 hover:bg-white/10 text-xs font-semibold text-[#F5F7FA] flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <FileText className="h-3.5 w-3.5 text-[#D4AF37]" />
                     <span>{t('Download .SRT', 'دانلود فایل (.srt)')}</span>

@@ -1,95 +1,59 @@
 // ============================================================================
-// AI PETROS CINEMA // AUTONOMOUS AI STREAMING & PLAYBACK ENGINE
-// هوش مصنوعی اختصاصی مسئول کشف، بهینه‌سازی و کنترل خودکار فیلم‌ها در سراسر جهان و ایران
-// مبتنی بر معماری Google Antigravity Agent: کشف هوشمند، حذف محتوای نامربوط و بازگردانی خودکار
+// AI PETROS CINEMA // STREAM RESOLUTION ENGINE
+// Only verified direct media or the explicitly configured Telegram gateway can
+// reach the player. There is NO automatic trailer/test-clip fallback.
 // ============================================================================
 
 import type { PrototypeMediaItem } from '../prototype/types';
+import { isPlayableDirectMediaUrl } from './mediaUrlValidator';
+import {
+  collectStreamCandidates,
+  getConfiguredGatewayBase,
+  getStreamAvailability,
+  resolvePlayableSource,
+  type ResolvedStreamSource
+} from './streamSourceResolver';
+
+export { isPlayableDirectMediaUrl } from './mediaUrlValidator';
+
+/**
+ * URL identity for blacklisting: browsers hand <video>.src back as an absolute
+ * URL while catalog candidates are relative paths (e.g. /api/stream/cache/x).
+ * Compare same-origin URLs by path+query so a dead cache route is recognised
+ * no matter which form it arrives in.
+ */
+export function normalizeUrlForMatching(rawUrl: string): string {
+  try {
+    const parsed = new URL(rawUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+    if (typeof window !== 'undefined' && parsed.origin === window.location.origin) {
+      return parsed.pathname + parsed.search;
+    }
+    return parsed.href;
+  } catch {
+    return rawUrl;
+  }
+}
 
 export interface AiStreamResolutionResult {
   streamUrl: string;
-  sourceType: 'direct_mp4' | 'hls' | 'ai_cdn_mirror';
+  available: boolean;
+  sourceType: 'direct_mp4' | 'hls' | 'ai_cdn_mirror' | 'telegram_gateway' | 'unavailable';
   nodeName: string;
   quality: string;
   isIranAccessible: boolean;
   resolutionTimeMs: number;
   matchedGenre: string;
+  reasonEn?: string;
+  reasonFa?: string;
 }
-
-/**
- * Strict validator for real, playable HTML5 video streams.
- * Rejects Telegram page links (t.me), dead hostnames (abrtech.top), Google 403 endpoints, and flower/test videos.
- */
-export function isPlayableDirectMediaUrl(url?: string | null): boolean {
-  if (!url || typeof url !== 'string') return false;
-  const u = url.toLowerCase().trim();
-  if (!u.startsWith('http://') && !u.startsWith('https://')) return false;
-  if (u.includes('t.me/') || u.includes('telegram') || u.includes('telegram.org')) return false;
-  if (u.includes('abrtech.top')) return false;
-  if (u.includes('commondatastorage.googleapis.com')) return false;
-  if (u.includes('storage.googleapis.com')) return false;
-  if (u.includes('flower.mp4')) return false;
-  if (u.includes('view_from_a_blue_moon')) return false; // Eliminates the opening flower bud clip
-  if (u.includes('bigbuckbunny') || u.includes('bbb_')) return false;
-  if (u.includes('oceans.mp4')) return false;
-  if (u.includes('friday.mp4')) return false;
-  return true;
-}
-
-// 100% Genuine, Verified, High-Bitrate Cinematic CDN Nodes (CORS-open, Unblocked globally & in Iran)
-// All nodes verified to return HTTP 206 Partial Content video/mp4 without geoblocking
-export const UNBLOCKED_CINEMA_CDN_NODES = [
-  {
-    id: 'cinema-company3-xmen',
-    name: 'Petros Cinema 4K Studio Master (Company3 High-Speed Node)',
-    url: 'https://videos.company3.com/2016/06/X-Men-Apocalypse-Final-Trailer-HD-20th-Century-FOX.mp4',
-    type: 'direct_mp4' as const,
-    quality: '4K HDR Cinema',
-    genreCategory: 'action'
-  },
-  {
-    id: 'cinema-batman-uhd',
-    name: 'The Batman 4K UHD Master (VIP Cinema Node)',
-    url: 'https://archive.org/download/the-batman-2022-main-trailer-4k-prores/VGC921_trl_2_online_sb_txt_uhd_scp_bt1886_stereo_2398fps_20211011.mp4',
-    type: 'direct_mp4' as const,
-    quality: '4K UHD ProRes',
-    genreCategory: 'action'
-  },
-  {
-    id: 'cinema-space-interstellar',
-    name: 'Interstellar 4K 5.1 Deep Space Master',
-    url: 'https://archive.org/download/interstellar-trailer-3/Interstellar_OfficialTrailer3_4K_51_prores.mp4',
-    type: 'direct_mp4' as const,
-    quality: '4K HDR Spatial 5.1',
-    genreCategory: 'space'
-  },
-  {
-    id: 'cinema-epic-dune',
-    name: 'Dune Arrakis Epic 4K Master',
-    url: 'https://archive.org/download/dune-2021-trailer/DUNE%202021%20%28trailer%29.mp4',
-    type: 'direct_mp4' as const,
-    quality: '1080p 60FPS',
-    genreCategory: 'epic'
-  },
-  {
-    id: 'cinema-cyber-bladerunner',
-    name: 'Blade Runner 2049 Neon Cyber Master',
-    url: 'https://archive.org/download/film-blade-runner-2049-vf-2017/Blade%20Runner%202049%20%282017%29.ia.mp4',
-    type: 'direct_mp4' as const,
-    quality: 'Full HD Master',
-    genreCategory: 'cyber'
-  }
-];
 
 class AiCinemaStreamEngineService {
   private failedUrls: Set<string> = new Set();
-  private streamIndex = 0;
   private totalStreamsHandled = 0;
 
   /**
-   * Intelligently resolves the optimal playable stream for any movie.
-   * Matches real cinematic content based on movie title, genre, and category.
-   * Completely rejects unrelated videos, test clips, and blocked cloud URLs.
+   * Resolve exactly one genuine source for this item.
+   * Returns available=false and streamUrl='' when nothing can be played.
    */
   public resolvePlayableStream(
     item: PrototypeMediaItem | null | undefined,
@@ -101,94 +65,108 @@ class AiCinemaStreamEngineService {
     if (!item) {
       return {
         streamUrl: '',
-        sourceType: 'ai_cdn_mirror',
-        nodeName: 'Petros Cinema VIP Hall',
-        quality: '4K Cinema Pristine',
+        available: false,
+        sourceType: 'unavailable',
+        nodeName: 'No title selected',
+        quality: '—',
         isIranAccessible: true,
-        resolutionTimeMs: Math.round(performance.now() - startTime),
-        matchedGenre: 'cinema'
+        resolutionTimeMs: 0,
+        matchedGenre: 'cinema',
+        reasonEn: 'No title selected.',
+        reasonFa: 'عنوانی انتخاب نشده است.'
       };
     }
 
-    // 1. Check if item has a valid direct stream URL, excluding any blocked domains or test clips
-    const candidateUrls: string[] = [];
-    if (selectedQualityId && item.qualities) {
-      const qMatch = item.qualities.find(
-        (q) => (q as any).id === selectedQualityId || q.quality.toLowerCase() === selectedQualityId?.toLowerCase()
-      );
-      if (qMatch?.url) candidateUrls.push(qMatch.url);
-    }
-    if (item.qualities) {
-      for (const q of item.qualities) {
-        if (q.url) candidateUrls.push(q.url);
-      }
-    }
-    if (item.streamUrl) candidateUrls.push(item.streamUrl);
-    if (item.defaultStreamUrl) candidateUrls.push(item.defaultStreamUrl);
+    const availability = getStreamAvailability(item, { preferredQualityId: selectedQualityId });
+    const source = availability.source;
 
-    for (const url of candidateUrls) {
-      if (!isPlayableDirectMediaUrl(url)) continue;
-      if (this.failedUrls.has(url)) continue;
-
-      // Found a genuine verified direct stream
+    if (!source) {
       return {
-        streamUrl: url,
-        sourceType: 'direct_mp4',
-        nodeName: 'Primary Cinematic Master Stream',
-        quality: selectedQualityId?.toUpperCase() || item.quality || '4K HDR',
-        isIranAccessible: true,
+        streamUrl: '',
+        available: false,
+        sourceType: 'unavailable',
+        nodeName: availability.status === 'requires_gateway' ? 'Telegram Gateway Required' : 'No verified source',
+        quality: selectedQualityId?.toUpperCase() || item.quality || '—',
+        isIranAccessible: false,
         resolutionTimeMs: Math.round(performance.now() - startTime),
-        matchedGenre: item.categoryEn || 'Cinema'
+        matchedGenre: item.categoryEn || 'Cinema',
+        reasonEn: availability.reasonEn,
+        reasonFa: availability.reasonFa
       };
     }
-
-    // 2. Movie titles without a direct MP4 file:
-    // Route to genuine verified 4K Hollywood cinema master based on title & genre
-    const titleLower = ((item.titleEn || '') + ' ' + (item.titleFa || '') + ' ' + (item.categoryEn || '')).toLowerCase();
-    let matchedNode = UNBLOCKED_CINEMA_CDN_NODES[0];
-    if (titleLower.includes('batman') || titleLower.includes('بتمن')) {
-      matchedNode = UNBLOCKED_CINEMA_CDN_NODES[1];
-    } else if (titleLower.includes('interstellar') || titleLower.includes('space') || titleLower.includes('کیهان')) {
-      matchedNode = UNBLOCKED_CINEMA_CDN_NODES[2];
-    } else if (titleLower.includes('dune') || titleLower.includes('تلماسه')) {
-      matchedNode = UNBLOCKED_CINEMA_CDN_NODES[3];
-    } else if (titleLower.includes('blade runner') || titleLower.includes('بلید رانر')) {
-      matchedNode = UNBLOCKED_CINEMA_CDN_NODES[4];
-    }
-
-    const elapsedMs = Math.round(performance.now() - startTime);
 
     return {
-      streamUrl: matchedNode.url,
-      sourceType: 'direct_mp4',
-      nodeName: matchedNode.name,
-      quality: selectedQualityId?.toUpperCase() || item.quality || matchedNode.quality,
-      isIranAccessible: true,
-      resolutionTimeMs: elapsedMs,
-      matchedGenre: matchedNode.genreCategory
+      streamUrl: source.url,
+      available: true,
+      sourceType: source.kind === 'gateway' ? 'telegram_gateway' : 'direct_mp4',
+      nodeName: source.kind === 'gateway' ? 'Telegram Range Gateway' : 'Verified Direct Media',
+      quality: selectedQualityId?.toUpperCase() || item.quality || '4K HDR',
+      isIranAccessible: source.kind === 'gateway',
+      resolutionTimeMs: Math.round(performance.now() - startTime),
+      matchedGenre: item.categoryEn || 'Cinema'
     };
   }
 
   /**
-   * Reports a stream node failure, blacklists the URL, and acquires an immediate healthy failover URL.
+   * Blacklist a failing URL. Returns the next *verified* source belonging to the
+   * same title, never an unrelated fallback clip. Empty string means the player
+   * must show the maintenance state.
    */
-  public reportPlaybackFailure(failedUrl: string): string {
+  public reportPlaybackFailure(failedUrl: string, item?: PrototypeMediaItem | null): string {
     if (failedUrl) {
-      this.failedUrls.add(failedUrl);
-      console.warn(`[AI Cinema Stream Engine] Blacklisted failing node: ${failedUrl}. Active blacklisted count: ${this.failedUrls.size}`);
+      this.failedUrls.add(normalizeUrlForMatching(failedUrl));
+      console.warn(
+        `[AI Cinema Stream Engine] Blacklisted failing node: ${failedUrl}. Active blacklisted count: ${this.failedUrls.size}`
+      );
     }
+    if (!item) return '';
 
-    // Failover to an alternative healthy genuine cinema stream node
-    const nextNode = UNBLOCKED_CINEMA_CDN_NODES.find(n => !this.failedUrls.has(n.url)) || UNBLOCKED_CINEMA_CDN_NODES[0];
-    return nextNode.url;
+    // Try each candidate belonging to this exact title. Never jump to another
+    // title's trailer. A candidate may resolve to a direct URL or a gateway URL.
+    for (const candidate of collectStreamCandidates(item)) {
+      const single = {
+        ...item,
+        playableUrl: candidate,
+        streamUrl: '',
+        defaultStreamUrl: '',
+        qualities: []
+      };
+      const source = resolvePlayableSource(single);
+      if (source && !this.failedUrls.has(normalizeUrlForMatching(source.url))) {
+        return source.url;
+      }
+    }
+    return '';
+  }
+
+  public blacklist(url: string): void {
+    if (url) this.failedUrls.add(normalizeUrlForMatching(url));
+  }
+
+  public isBlacklisted(url: string): boolean {
+    return this.failedUrls.has(normalizeUrlForMatching(url));
+  }
+
+  /** Remove a URL from the blacklist (used by the player's Retry control). */
+  public unblacklist(url: string): void {
+    this.failedUrls.delete(normalizeUrlForMatching(url));
+  }
+
+  public getConfiguredGateway(): string {
+    return getConfiguredGatewayBase();
   }
 
   public getStats() {
     return {
       totalStreamsHandled: this.totalStreamsHandled,
       blacklistedNodesCount: this.failedUrls.size,
-      availableNodes: UNBLOCKED_CINEMA_CDN_NODES.length
+      availableNodes: 0
     };
+  }
+
+  /** Exposed for diagnostics/tests only. */
+  public static describeSource(source: ResolvedStreamSource | null): string {
+    return source ? `${source.kind}:${source.host}` : 'none';
   }
 }
 

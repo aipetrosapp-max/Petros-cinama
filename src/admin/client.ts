@@ -1,0 +1,305 @@
+/**
+ * PETROS CINEMA — MASTER ADMIN PANEL
+ * Client side of the admin API.
+ *
+ * Security note: the session token is kept in a module-scoped variable only
+ * (in-memory). It is never written to localStorage / sessionStorage, so a
+ * page refresh requires a new login and XSS cannot persist the session.
+ */
+
+import type {
+  AdminConfig,
+  TitleRecord,
+  SeasonRecord,
+  EpisodeRecord,
+  WalletRecord,
+  SourceRecord,
+  FeatureFlags,
+  MediaCategory,
+  SubtitleFileRecord
+} from './types.ts';
+
+let sessionToken = '';
+let sessionExpiresAt = 0;
+
+export class AdminApiError extends Error {
+  public status: number;
+  public code: string;
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
+
+export function setSessionToken(token: string, expiresAt?: string): void {
+  sessionToken = token || '';
+  sessionExpiresAt = expiresAt ? new Date(expiresAt).getTime() : Date.now() + 3_600_000;
+}
+
+export function clearSessionToken(): void {
+  sessionToken = '';
+  sessionExpiresAt = 0;
+}
+
+export function hasSession(): boolean {
+  return Boolean(sessionToken) && Date.now() < sessionExpiresAt;
+}
+
+export function getSessionExpiry(): number {
+  return sessionExpiresAt;
+}
+
+interface AdminRequestInit {
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  headers?: Record<string, string>;
+  body?: unknown;
+}
+
+async function request<T>(path: string, init: AdminRequestInit = {}): Promise<T> {
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    ...((init.headers as Record<string, string>) || {})
+  };
+  if (init.body !== undefined) headers['Content-Type'] = 'application/json';
+  if (sessionToken) headers['x-admin-token'] = sessionToken;
+
+  const response = await fetch(`/api/admin${path}`, {
+    ...init,
+    headers,
+    body: init.body === undefined ? undefined : JSON.stringify(init.body)
+  });
+
+  const text = await response.text();
+  let payload: unknown = null;
+  try {
+    payload = text ? JSON.parse(text) : null;
+  } catch {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    const data = (payload || {}) as { error?: string; messageFa?: string };
+    throw new AdminApiError(
+      response.status,
+      data.error || 'request_failed',
+      data.messageFa || `درخواست با خطا مواجه شد (HTTP ${response.status}).`
+    );
+  }
+  return payload as T;
+}
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface DashboardSummary {
+  totals: {
+    titles: number;
+    published: number;
+    drafts: number;
+    byCategory: Record<MediaCategory, number>;
+    seasons: number;
+    episodes: number;
+    qualities: number;
+    subtitles: number;
+    wallets: number;
+    sources: number;
+  };
+  catalogVersion: string;
+  catalogUpdatedAt: string;
+  manifestVersion: string;
+  features: FeatureFlags;
+  withStream: number;
+  withoutStream: number;
+}
+
+export interface GithubStatusResponse {
+  configured: boolean;
+  owner?: string;
+  repo?: string;
+  branch?: string;
+  tokenPresent: boolean;
+  lastCommitSha?: string;
+  lastCommitUrl?: string;
+  lastCommitAt?: string;
+  catalogSha?: string;
+  configSha?: string;
+  error?: string;
+  catalogPath?: string;
+  configPath?: string;
+}
+
+export interface PublishResult {
+  ok: boolean;
+  manifestVersion: string;
+  files: string[];
+  counts: {
+    titles: number;
+    seasons: number;
+    episodes: number;
+    qualities: number;
+    subtitles: number;
+  };
+  messageFa: string;
+  commit?: {
+    ok: boolean;
+    commitSha?: string;
+    htmlUrl?: string;
+    message: string;
+  };
+}
+
+export interface SourceValidationResult {
+  ok: boolean;
+  kind: string | null;
+  status?: number;
+  contentType?: string;
+  contentLength?: number;
+  acceptsRanges?: boolean;
+  messageFa: string;
+}
+
+// ---------------------------------------------------------------------------
+// API
+// ---------------------------------------------------------------------------
+
+export const adminApi = {
+  authStatus: () =>
+    request<{ passwordConfigured: boolean; minimumLength: number; sessionTtlMinutes: number }>(
+      '/auth/status'
+    ),
+
+  login: (password: string) =>
+    request<{ token: string; expiresAt: string; messageFa: string }>('/auth/login', {
+      method: 'POST',
+      body: { password }
+    }),
+
+  logout: () => request<{ ok: boolean; messageFa: string }>('/auth/logout', { method: 'POST' }),
+
+  session: () =>
+    request<{ valid: boolean; expiresAt: string | null }>('/auth/session'),
+
+  dashboard: () => request<DashboardSummary>('/dashboard'),
+
+  catalog: () =>
+    request<{ version: string; updatedAt: string; titles: TitleRecord[] }>('/catalog'),
+
+  createTitle: (title: Partial<TitleRecord>) =>
+    request<{ ok: boolean; title: TitleRecord; messageFa: string }>('/catalog/title', {
+      method: 'POST',
+      body: title
+    }),
+
+  updateTitle: (id: string, title: Partial<TitleRecord>) =>
+    request<{ ok: boolean; title: TitleRecord; messageFa: string }>(`/catalog/title/${id}`, {
+      method: 'PUT',
+      body: title
+    }),
+
+  deleteTitle: (id: string) =>
+    request<{ ok: boolean; messageFa: string }>(`/catalog/title/${id}`, { method: 'DELETE' }),
+
+  addSeason: (id: string, season: Partial<SeasonRecord>) =>
+    request<{ ok: boolean; season: SeasonRecord; messageFa: string }>(
+      `/catalog/title/${id}/season`,
+      { method: 'POST', body: season }
+    ),
+
+  addEpisode: (id: string, episode: Partial<EpisodeRecord>) =>
+    request<{ ok: boolean; episode: EpisodeRecord; messageFa: string }>(
+      `/catalog/title/${id}/episode`,
+      { method: 'POST', body: episode }
+    ),
+
+  deleteEpisode: (id: string, episodeId: string) =>
+    request<{ ok: boolean; messageFa: string }>(`/catalog/title/${id}/episode/${episodeId}`, {
+      method: 'DELETE'
+    }),
+
+  validateSource: (url: string) =>
+    request<SourceValidationResult>('/sources/validate', { method: 'POST', body: { url } }),
+
+  sources: () => request<{ sources: SourceRecord[] }>('/sources'),
+
+  addSource: (source: Partial<SourceRecord>) =>
+    request<{ ok: boolean; source: SourceRecord; messageFa: string }>('/sources', {
+      method: 'POST',
+      body: source
+    }),
+
+  deleteSource: (id: string) =>
+    request<{ ok: boolean; messageFa: string }>(`/sources/${id}`, { method: 'DELETE' }),
+
+  vault: () => request<AdminConfig>('/vault'),
+
+  saveWallet: (wallet: Partial<WalletRecord> & { id?: string }) =>
+    request<{ ok: boolean; config: AdminConfig; messageFa: string }>(
+      `/vault/wallet/${wallet.id || 'new'}`,
+      { method: 'PUT', body: wallet }
+    ),
+
+  deleteWallet: (id: string) =>
+    request<{ ok: boolean; config: AdminConfig; messageFa: string }>(`/vault/wallet/${id}`, {
+      method: 'DELETE'
+    }),
+
+  saveFeatures: (features: FeatureFlags) =>
+    request<{ ok: boolean; features: FeatureFlags; messageFa: string }>('/vault/features', {
+      method: 'PUT',
+      body: features
+    }),
+
+  saveToken: (key: string, value: string) =>
+    request<{ ok: boolean; config: AdminConfig; messageFa: string }>(`/vault/token/${key}`, {
+      method: 'POST',
+      body: { value }
+    }),
+
+  syncStatus: () => request<GithubStatusResponse>('/sync/status'),
+
+  remoteCatalog: () =>
+    request<{ sha: string; version: string; updatedAt: string; count: number }>(
+      '/sync/remote-catalog'
+    ),
+
+  publish: (message?: string) =>
+    request<PublishResult>('/sync/publish', {
+      method: 'POST',
+      body: { message: message || '' }
+    }),
+
+  preview: () =>
+    request<{ bytes: number; titles: number; preview: string }>('/sync/preview'),
+
+  uploadSubtitleFile: (filename: string, contentBase64: string) =>
+    request<{ ok: boolean; record: SubtitleFileRecord; messageFa: string }>(
+      '/catalog/subtitle-file',
+      { method: 'POST', body: { filename, contentBase64 } }
+    ),
+
+  subtitleFiles: () =>
+    request<{ subtitleFiles: SubtitleFileRecord[] }>('/catalog/subtitle-files'),
+
+  deleteSubtitleFile: (filename: string) =>
+    request<{ ok: boolean; messageFa: string }>(
+      `/catalog/subtitle-file/${encodeURIComponent(filename)}`,
+      { method: 'DELETE' }
+    ),
+
+  addFromLink: (payload: {
+    url: string;
+    title?: string;
+    titleFa?: string;
+    category?: MediaCategory;
+    quality?: string;
+    postToTelegram?: boolean;
+  }) =>
+    request<{
+      duplicate: boolean;
+      created: TitleRecord | null;
+      telegram: { ok: boolean; method?: string; messageFa: string } | null;
+      messageFa: string;
+    }>('/catalog/from-link', { method: 'POST', body: payload })
+};

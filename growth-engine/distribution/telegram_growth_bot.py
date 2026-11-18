@@ -14,7 +14,9 @@ import urllib.request
 import urllib.parse
 from typing import Dict, Any, List
 
-BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN") or "7901007421:AAGyE6e07h8a9v4aC-qT598d1p8q1x6q9o"
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+if not BOT_TOKEN:
+    raise SystemExit("TELEGRAM_BOT_TOKEN is required")
 CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID") or "@petroscinema"
 BASE_URL = "https://aipetrosapp-max.github.io/Petros-cinama"
 STREAMS_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data", "streams.json"))

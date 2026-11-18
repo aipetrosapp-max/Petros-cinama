@@ -1,4 +1,5 @@
 import type { OfflineDownloadRecord, PrototypeMediaItem } from './types';
+import { resolvePlayableSource } from '../services/streamSourceResolver';
 
 const OFFLINE_DB_NAME = 'AiPetrosOfflineMediaDB';
 const OFFLINE_BLOB_STORE = 'mediaBlobs';
@@ -73,117 +74,246 @@ export async function deleteOfflineMediaBlob(contentId: string): Promise<void> {
   }
 }
 
+export class DownloadUnavailableError extends Error {
+  code: 'no_source' | 'network' | 'not_media' | 'aborted';
+  titleFa: string;
+  titleEn: string;
+
+  constructor(
+    code: DownloadUnavailableError['code'],
+    titleFa: string,
+    titleEn: string,
+    messageEn: string,
+    messageFa: string
+  ) {
+    super(messageEn);
+    this.name = 'DownloadUnavailableError';
+    this.code = code;
+    this.titleFa = titleFa;
+    this.titleEn = titleEn;
+    this.messageFa = messageFa;
+  }
+
+  messageFa: string;
+}
+
+function extensionFor(mimeType: string, url: string): string {
+  const type = mimeType.toLowerCase();
+  if (type.includes('webm')) return 'webm';
+  if (type.includes('mp4')) return 'mp4';
+  if (type.includes('matroska')) return 'mkv';
+  if (type.includes('mpegurl') || url.toLowerCase().includes('.m3u8')) return 'm3u8';
+  if (url.toLowerCase().includes('.webm')) return 'webm';
+  if (url.toLowerCase().includes('.mkv')) return 'mkv';
+  return 'mp4';
+}
+
 /**
- * Generates a real playable video clip (.webm via Canvas + MediaRecorder when supported,
- * otherwise a clean HTML5 offline cinema package / poster image) so downloads work
- * both for In-App Offline Playback and for direct Save-to-Device file download.
+ * Downloads the actual media bytes for a title.
+ *
+ * There is no canvas/MediaRecorder synthesis anymore. If the title has no
+ * verified direct source (or the configured Telegram gateway), this throws a
+ * transparent DownloadUnavailableError.
  */
+export async function downloadRealMedia(
+  item: PrototypeMediaItem,
+  onProgress: (pct: number) => void,
+  signal?: AbortSignal
+): Promise<{ blob: Blob; filename: string; mimeType: string }> {
+  const source = resolvePlayableSource(item);
+  if (!source) {
+    throw new DownloadUnavailableError(
+      'no_source',
+      item.titleFa,
+      item.titleEn,
+      'This title has no verified direct download source. No substitute file was created.',
+      'این عنوان منبع دانلود مستقیم تأییدشده ندارد. هیچ فایل جایگزینی ساخته نشد.'
+    );
+  }
+
+  const mediaUrl = source.url;
+  onProgress(5);
+
+  async function fetchWithProxy(): Promise<Response> {
+    const headers = { Accept: 'video/*,application/octet-stream' };
+    let directError: unknown = null;
+    const host = (() => {
+      try {
+        return new URL(mediaUrl).hostname.toLowerCase();
+      } catch {
+        return '';
+      }
+    })();
+    // These CDNs are known to omit Access-Control-Allow-Origin on their media
+    // edge nodes, so start with the same-origin allow-listed proxy.
+    const proxyFirst = host.endsWith('archive.org') || host.endsWith('company3.com');
+
+    const tryDirect = async (): Promise<Response | null> => {
+      try {
+        const direct = await fetch(mediaUrl, { method: 'GET', headers, signal });
+        if (direct.ok && !(direct.headers.get('content-type') || '').includes('text/html')) {
+          return direct;
+        }
+      } catch (error) {
+        directError = error;
+      }
+      return null;
+    };
+
+    const tryProxy = async (): Promise<Response | null> => {
+      try {
+        const proxy = await fetch(`/api/media/proxy?url=${encodeURIComponent(mediaUrl)}`, {
+          method: 'GET',
+          headers,
+          signal
+        });
+        if (proxy.ok && !(proxy.headers.get('content-type') || '').includes('text/html')) {
+          return proxy;
+        }
+      } catch (error) {
+        directError = error;
+      }
+      return null;
+    };
+
+    if (proxyFirst) {
+      const viaProxy = await tryProxy();
+      if (viaProxy) return viaProxy;
+      const direct = await tryDirect();
+      if (direct) return direct;
+    } else {
+      const direct = await tryDirect();
+      if (direct) return direct;
+      const viaProxy = await tryProxy();
+      if (viaProxy) return viaProxy;
+    }
+
+    if (signal?.aborted) {
+      throw new DownloadUnavailableError(
+        'aborted',
+        item.titleFa,
+        item.titleEn,
+        'Download cancelled.',
+        'دانلود لغو شد.'
+      );
+    }
+    throw new DownloadUnavailableError(
+      'network',
+      item.titleFa,
+      item.titleEn,
+      `Could not fetch the media file (CORS/network). The CDN does not allow browser reads and no same-origin proxy is available: ${String(directError).slice(0, 120)}`,
+      `دریافت فایل ممکن نشد (CORS یا شبکه). سرور CDN اجازه خواندن به مرورگر نمی‌دهد و پروکسی هم‌دامنه در دسترس نیست: ${String(directError).slice(0, 120)}`
+    );
+  }
+
+  let response: Response;
+  try {
+    response = await fetchWithProxy();
+  } catch (error) {
+    if (error instanceof DownloadUnavailableError) throw error;
+    throw new DownloadUnavailableError(
+      'network',
+      item.titleFa,
+      item.titleEn,
+      `Could not fetch the media file: ${String(error).slice(0, 120)}`,
+      `دریافت فایل ممکن نشد: ${String(error).slice(0, 120)}`
+    );
+  }
+
+  if (!response.ok) {
+    throw new DownloadUnavailableError(
+      'network',
+      item.titleFa,
+      item.titleEn,
+      `Media server returned HTTP ${response.status}.`,
+      `سرور مدیا پاسخ HTTP ${response.status} داد.`
+    );
+  }
+
+  const contentType = (response.headers.get('content-type') || '').toLowerCase();
+  if (contentType.includes('text/html') || contentType.includes('application/json')) {
+    throw new DownloadUnavailableError(
+      'not_media',
+      item.titleFa,
+      item.titleEn,
+      `The source returned ${contentType}, not a media file.`,
+      `منبع، فایل مدیا برنگرداند (${contentType}).`
+    );
+  }
+
+  const totalHeader = Number(response.headers.get('content-length') || 0);
+  const reader = response.body?.getReader();
+  if (!reader) {
+    const blob = await response.blob();
+    if (blob.size === 0) {
+      throw new DownloadUnavailableError(
+        'not_media',
+        item.titleFa,
+        item.titleEn,
+        'The media server returned an empty file.',
+        'سرور مدیا فایل خالی برگرداند.'
+      );
+    }
+    onProgress(100);
+    const mimeType = blob.type || contentType || 'video/mp4';
+    return {
+      blob,
+      filename: `${item.id}.${extensionFor(mimeType, mediaUrl)}`,
+      mimeType
+    };
+  }
+
+  const chunks: BlobPart[] = [];
+  let received = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      chunks.push(value as unknown as BlobPart);
+      received += value.byteLength;
+      if (totalHeader > 0) {
+        const pct = Math.min(98, 5 + Math.round((received / totalHeader) * 93));
+        onProgress(pct);
+      }
+    }
+  }
+
+  if (received === 0) {
+    throw new DownloadUnavailableError(
+      'not_media',
+      item.titleFa,
+      item.titleEn,
+      'The media server returned no bytes.',
+      'سرور مدیا هیچ بایتی برنگرداند.'
+    );
+  }
+
+  const mimeType = contentType || 'video/mp4';
+  if (mimeType.includes('matroska')) {
+    throw new DownloadUnavailableError(
+      'not_media',
+      item.titleFa,
+      item.titleEn,
+      'This source is an MKV container that the browser cannot reliably play. A direct MP4 source is required.',
+      'این منبع از فرمت MKV است که مرورگر نمی‌تواند مطمئن پخش کند. منبع MP4 مستقیم لازم است.'
+    );
+  }
+
+  onProgress(100);
+  const blob = new Blob(chunks, { type: mimeType });
+  return {
+    blob,
+    filename: `${item.id}.${extensionFor(mimeType, mediaUrl)}`,
+    mimeType
+  };
+}
+
+/** Backward-compatible alias used by existing screens. */
 export async function generateDownloadableMediaClip(
   item: PrototypeMediaItem,
   onProgress: (pct: number) => void
 ): Promise<{ blob: Blob; filename: string; mimeType: string }> {
-  onProgress(15);
-  const slug = item.titleEn
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '') || item.id;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = 960;
-  canvas.height = 540;
-  const ctx = canvas.getContext('2d');
-
-  // Load poster image so the generated video clip renders the actual artwork with atmospheric motion
-  const img = await new Promise<HTMLImageElement | null>((resolve) => {
-    const im = new Image();
-    im.crossOrigin = 'anonymous';
-    im.onload = () => resolve(im);
-    im.onerror = () => resolve(null);
-    im.src = item.posterUrl;
-  });
-
-  onProgress(35);
-
-  const supportsRecorder =
-    typeof MediaRecorder !== 'undefined' &&
-    typeof (canvas as HTMLCanvasElement & { captureStream?: (fps?: number) => MediaStream }).captureStream ===
-      'function';
-
-  if (ctx && supportsRecorder) {
-    const mimeCandidate = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-      ? 'video/webm;codecs=vp9'
-      : MediaRecorder.isTypeSupported('video/webm')
-      ? 'video/webm'
-      : '';
-
-    if (mimeCandidate) {
-      const stream = (
-        canvas as HTMLCanvasElement & { captureStream: (fps?: number) => MediaStream }
-      ).captureStream(24);
-      const chunks: BlobPart[] = [];
-      const recorder = new MediaRecorder(stream, { mimeType: mimeCandidate });
-      recorder.ondataavailable = (ev) => {
-        if (ev.data && ev.data.size > 0) chunks.push(ev.data);
-      };
-
-      const recordingPromise = new Promise<Blob>((resolve) => {
-        recorder.onstop = () => {
-          resolve(new Blob(chunks, { type: 'video/webm' }));
-        };
-      });
-
-      recorder.start(250);
-      const totalFrames = 48; // ~2 seconds high-clarity playable offline clip
-      for (let f = 0; f < totalFrames; f += 1) {
-        ctx.fillStyle = '#06070C';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        if (img) {
-          const driftX = Math.sin(f * 0.08) * 10;
-          ctx.globalAlpha = 0.92;
-          ctx.drawImage(img, driftX - 12, -8, canvas.width + 24, canvas.height + 16);
-          ctx.globalAlpha = 1;
-        }
-        const grad = ctx.createLinearGradient(0, canvas.height * 0.5, 0, canvas.height);
-        grad.addColorStop(0, 'rgba(6,7,12,0)');
-        grad.addColorStop(1, 'rgba(6,7,12,0.88)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#F5B942';
-        ctx.font = 'bold 26px "Cinzel", "Lalezar", serif';
-        ctx.fillText(item.titleEn, 36, canvas.height - 54);
-        ctx.fillStyle = '#A3AEC2';
-        ctx.font = '16px "Courier Prime", monospace';
-        ctx.fillText(`${item.quality} · Offline Clip`, 36, canvas.height - 26);
-
-        onProgress(35 + Math.round(((f + 1) / totalFrames) * 55));
-        await new Promise((r) => window.setTimeout(r, 38));
-      }
-
-      recorder.stop();
-      stream.getTracks().forEach((t) => t.stop());
-      const blob = await recordingPromise;
-      onProgress(100);
-      return { blob, filename: `${slug}.webm`, mimeType: 'video/webm' };
-    }
-  }
-
-  // Fallback if headless/limited browser has no MediaRecorder: fetch poster asset as real image/jpeg blob
-  onProgress(70);
-  try {
-    const resp = await fetch(item.posterUrl);
-    const blob = await resp.blob();
-    onProgress(100);
-    return { blob, filename: `${slug}.jpg`, mimeType: blob.type || 'image/jpeg' };
-  } catch {
-    const jsonBlob = new Blob([JSON.stringify(item, null, 2)], { type: 'application/json' });
-    onProgress(100);
-    return { jsonBlob, blob: jsonBlob, filename: `${slug}-offline.json`, mimeType: 'application/json' } as unknown as {
-      blob: Blob;
-      filename: string;
-      mimeType: string;
-    };
-  }
+  return downloadRealMedia(item, onProgress);
 }
 
 export function triggerBrowserDownload(blob: Blob, filename: string): void {
@@ -198,9 +328,8 @@ export function triggerBrowserDownload(blob: Blob, filename: string): void {
 }
 
 export function formatBytes(bytes: number): string {
+  if (!bytes) return '0 B';
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
-
-export type { OfflineDownloadRecord };

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>پنل مدیریت محتوای پتروس سینما | Petros Cinema Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090e;
+      --card: #111520;
+      --border: #232a3b;
+      --gold: #d4af37;
+      --gold-hover: #f5b942;
+      --text: #f0f3f8;
+      --muted: #8b96a8;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Vazirmatn', sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 24px; }
+    
+    /* Login Overlay */
+    #login-overlay {
+      position: fixed; inset: 0; background: rgba(7, 9, 14, 0.96); backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .login-box {
+      background: var(--card); border: 1px solid var(--border); padding: 40px; border-radius: 20px;
+      width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .login-box h2 { color: var(--gold); margin-bottom: 8px; font-weight: 900; }
+    .login-box p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+    
+    input, select, textarea {
+      width: 100%; background: #0c0f17; border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; color: #fff; font-size: 14px; margin-bottom: 16px; outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+    
+    button {
+      cursor: pointer; border: none; border-radius: 10px; font-weight: 700; padding: 12px 20px;
+      transition: all 0.2s; font-size: 14px;
+    }
+    .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-hover)); color: #000; width: 100%; }
+    .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212,175,55,0.4); }
+    .btn-action { background: #1c2233; color: var(--text); border: 1px solid var(--border); }
+    .btn-action:hover { background: #262e45; }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+    .btn-success { background: var(--success); color: #fff; }
+    
+    /* Header */
+    header {
+      display: flex; justify-content: space-between; align-items: center; padding-bottom: 24px;
+      border-bottom: 1px solid var(--border); margin-bottom: 28px;
+    }
+    .logo-area h1 { font-size: 22px; color: var(--gold); font-weight: 900; }
+    .logo-area span { font-size: 12px; color: var(--muted); }
+    
+    .stats-bar { display: flex; gap: 16px; margin-bottom: 28px; }
+    .stat-card {
+      flex: 1; background: var(--card); border: 1px solid var(--border); padding: 18px 24px;
+      border-radius: 14px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .stat-val { font-size: 28px; font-weight: 900; color: var(--gold); font-family: monospace; }
+    .stat-lbl { font-size: 13px; color: var(--muted); }
+    
+    /* Toolbar */
+    .toolbar { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+    .toolbar input { flex: 2; margin-bottom: 0; }
+    .toolbar select { flex: 1; margin-bottom: 0; }
+    .toolbar button { flex: 1; }
+    
+    /* Table & Cards */
+    .media-table {
+      width: 100%; border-collapse: collapse; background: var(--card); border-radius: 14px;
+      overflow: hidden; border: 1px solid var(--border);
+    }
+    .media-table th, .media-table td {
+      padding: 16px 20px; text-align: right; border-bottom: 1px solid var(--border); font-size: 14px;
+    }
+    .media-table th { background: #0c0f17; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .media-table tr:hover { background: rgba(255,255,255,0.02); }
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+      background: rgba(212,175,55,0.12); color: var(--gold); border: 1px solid rgba(212,175,55,0.3);
+    }
+    .badge-series { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+    .badge-anime { background: rgba(236, 72, 153, 0.15); color: #f472b6; border-color: rgba(236, 72, 153, 0.3); }
+    
+    /* Modal */
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px;
+    }
+    .modal-content {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px; width: 100%;
+      max-width: 680px; max-height: 90vh; overflow-y: auto; padding: 32px;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-header h3 { color: var(--gold); font-size: 18px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .full-width { grid-column: span 2; }
+    
+    .toast {
+      position: fixed; bottom: 24px; start: 24px; background: var(--card); border: 1px solid var(--border);
+      padding: 14px 24px; border-radius: 12px; font-size: 13px; font-weight: 600; z-index: 99999;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Password Protected Login Modal -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <h2>🔐 ورود به پنل اختصاصی مدیریت</h2>
+      <p>مدیریت فیلم، سریال، انیمه و استریم‌های پتروس سینما</p>
+      <input type="password" id="admin-pass-input" placeholder="رمز عبور مدیر ارشد..." autofocus>
+      <button class="btn-gold" onclick="authenticate()">ورود به پنل</button>
+      <p id="login-err" style="color:var(--danger); margin-top:14px; font-size:12px; display:none;">رمز عبور نادرست است!</p>
+    </div>
+  </div>
+
+  <!-- Main Admin Interface -->
+  <header>
+    <div class="logo-area">
+      <h1>🎬 پتروس سینما — پنل مدیریت محتوا و استریم</h1>
+      <span>ویرایش فوری کاتالوگ با قابلیت اعمال آنی روی تمامی سرورها</span>
+    </div>
+    <div>
+      <button class="btn-gold" onclick="openAddModal()" style="width:auto; padding:12px 24px;">➕ افزودن فیلم / سریال جدید</button>
+    </div>
+  </header>
+
+  <!-- Statistics -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div>
+        <div class="stat-lbl">کل عناوین فعال</div>
+        <div class="stat-val" id="total-count">0</div>
+      </div>
+      <div>🎬</div>
+    </div>
+    <div class="stat-card">
+      <div>
+        <div class="stat-lbl">استریم‌های تلگرام</div>
+        <div class="stat-val" id="tg-count">0</div>
+      </div>
+      <div>⚡</div>
+    </div>
+    <div class="stat-card">
+      <div>
+        <div class="stat-lbl">وضعیت همگام‌سازی</div>
+        <div class="stat-val" style="font-size:16px; color:var(--success);">۱۰۰٪ ابری آنی</div>
+      </div>
+      <div>🌐</div>
+    </div>
+  </div>
+
+  <!-- Search & Filter Toolbar -->
+  <div class="toolbar">
+    <input type="text" id="search-input" placeholder="🔍 جستجو بر اساس نام فیلم، سریال، انیمه یا آیدی..." oninput="filterMedia()">
+    <select id="category-filter" onchange="filterMedia()">
+      <option value="all">همه دسته‌بندی‌ها</option>
+      <option value="movie">سینمایی (Movie)</option>
+      <option value="series">سریال (Series)</option>
+      <option value="anime">انیمه (Anime)</option>
+    </select>
+    <button class="btn-action" onclick="saveAllToServer()" style="background:var(--success); color:#fff; border:none;">💾 ذخیره و اعمال آنی روی سرور</button>
+  </div>
+
+  <!-- Content Table -->
+  <table class="media-table">
+    <thead>
+      <tr>
+        <th style="width: 60px;">پوستر</th>
+        <th>عنوان اثر</th>
+        <th>دسته‌بندی</th>
+        <th>فصل / قسمت</th>
+        <th>کیفیت‌ها</th>
+        <th>آدرس استریم / آیدی تلگرام</th>
+        <th>عملیات</th>
+      </tr>
+    </thead>
+    <tbody id="media-tbody">
+      <tr><td colspan="7" style="text-align:center; padding:40px; color:var(--muted);">در حال دریافت اطلاعات از سرور...</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Add / Edit Modal -->
+  <div class="modal" id="media-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">افزودن اثر جدید به پتروس سینما</h3>
+        <button class="btn-action" onclick="closeModal()" style="padding:6px 12px;">✕</button>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label>عنوان فارسی</label>
+          <input type="text" id="m-titleFa" placeholder="مثلاً: بلید رانر ۲۰۴۹">
+        </div>
+        <div>
+          <label>عنوان انگلیسی</label>
+          <input type="text" id="m-titleEn" placeholder="مثلاً: Blade Runner 2049">
+        </div>
+        <div>
+          <label>نوع محتوا</label>
+          <select id="m-category">
+            <option value="movie">سینمایی (Movie)</option>
+            <option value="series">سریال (Series)</option>
+            <option value="anime">انیمه (Anime)</option>
+          </select>
+        </div>
+        <div>
+          <label>سال ساخت / امتیاز</label>
+          <input type="text" id="m-year-rating" placeholder="2026 • 8.5">
+        </div>
+        <div>
+          <label>فصل (مخصوص سریال/انیمه)</label>
+          <input type="number" id="m-season" placeholder="1">
+        </div>
+        <div>
+          <label>قسمت (اپیزود)</label>
+          <input type="number" id="m-episode" placeholder="1">
+        </div>
+        <div class="full-width">
+          <label>لینک پوستر تصویر</label>
+          <input type="text" id="m-poster" placeholder="https://images.unsplash.com/...">
+        </div>
+        <div class="full-width">
+          <label>آدرس استریم مستقیم یا پیام تلگرام</label>
+          <input type="text" id="m-streamUrl" placeholder="http://127.0.0.1:8089/stream/2008 یا لینک مستقیم MP4">
+        </div>
+        <div class="full-width">
+          <label>کیفیت‌های در دسترس (با کاما جدا کنید)</label>
+          <input type="text" id="m-qualities" placeholder="4K, 1080p, 720p">
+        </div>
+        <div class="full-width">
+          <label>خلاصه داستان</label>
+          <textarea id="m-synopsis" rows="3" placeholder="توضیحات و خلاصه داستان اثر..."></textarea>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+        <button class="btn-action" onclick="closeModal()">انصراف</button>
+        <button class="btn-gold" onclick="saveMediaItem()" style="width:auto; padding:12px 30px;">تأیید و ذخیره</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">پیام ذخیره‌سازی</div>
+
+  <script>
+    let MASTER_KEY = '';
+    let allStreams = [];
+    let editingId = null;
+
+    // Check saved session
+    window.onload = () => {
+      const saved = sessionStorage.getItem('aipetros_admin_token');
+      if (saved) {
+        MASTER_KEY = saved;
+        document.getElementById('login-overlay').style.display = 'none';
+        loadStreams();
+      }
+    };
+
+    function authenticate() {
+      const pass = document.getElementById('admin-pass-input').value.trim();
+      if (!pass) return;
+
+      // Verify with backend
+      fetch(`/api/admin/streams?key=${encodeURIComponent(pass)}`)
+        .then(res => {
+          if (res.ok) {
+            MASTER_KEY = pass;
+            sessionStorage.setItem('aipetros_admin_token', pass);
+            document.getElementById('login-overlay').style.display = 'none';
+            loadStreams();
+          } else {
+            document.getElementById('login-err').style.display = 'block';
+          }
+        })
+        .catch(() => {
+          document.getElementById('login-err').style.display = 'block';
+        });
+    }
+
+    async function loadStreams() {
+      try {
+        const res = await fetch(`/api/admin/streams?key=${encodeURIComponent(MASTER_KEY)}`);
+        const data = await res.json();
+        allStreams = data.streams || [];
+        updateStats();
+        renderTable(allStreams);
+      } catch (e) {
+        showToast('خطا در دریافت اطلاعات سرور: ' + e, true);
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('total-count').textContent = allStreams.length;
+      const tg = allStreams.filter(s => s.id && s.id.startsWith('tg-')).length;
+      document.getElementById('tg-count').textContent = tg;
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById('media-tbody');
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--muted);">هیچ اثری یافت نشد.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = list.map((item, idx) => {
+        const title = item.titleFa || item.title || item.titleEn || 'بدون عنوان';
+        const poster = item.poster || item.posterUrl || 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=100';
+        const cat = item.category || 'movie';
+        const catBadge = cat === 'series' ? '<span class="badge badge-series">سریال</span>' :
+                         cat === 'anime' ? '<span class="badge badge-anime">انیمه</span>' :
+                         '<span class="badge">سینمایی</span>';
+        const epInfo = (item.season ? `فصل ${item.season}` : '') + (item.episode ? ` • قسمت ${item.episode}` : (item.season ? '' : '—'));
+        const streamUrl = item.defaultStreamUrl || item.playableUrl || item.streamUrl || '—';
+        const qualities = item.qualities ? item.qualities.map(q => q.quality || q).join(', ') : '4K HDR';
+
+        return `
+          <tr>
+            <td><img src="${poster}" style="width:40px; height:56px; object-fit:cover; border-radius:6px; border:1px solid var(--border);"></td>
+            <td>
+              <div style="font-weight:700;">${title}</div>
+              <div style="font-size:11px; color:var(--muted);">${item.titleEn || ''}</div>
+            </td>
+            <td>${catBadge}</td>
+            <td style="font-size:12px; color:var(--gold);">${epInfo}</td>
+            <td style="font-size:12px;">${qualities}</td>
+            <td style="font-size:11px; font-family:monospace; color:var(--muted); max-width:260px; overflow:hidden; text-overflow:ellipsis; direction:ltr; text-align:left;">${streamUrl}</td>
+            <td>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-action" onclick="openEditModal('${item.id}')" style="padding:6px 12px; font-size:12px;">ویرایش</button>
+                <button class="btn-danger" onclick="deleteItem('${item.id}')" style="padding:6px 12px; font-size:12px;">حذف</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterMedia() {
+      const q = document.getElementById('search-input').value.toLowerCase().trim();
+      const cat = document.getElementById('category-filter').value;
+
+      let filtered = allStreams;
+      if (cat !== 'all') {
+        filtered = filtered.filter(s => s.category === cat);
+      }
+      if (q) {
+        filtered = filtered.filter(s => 
+          (s.titleFa && s.titleFa.toLowerCase().includes(q)) ||
+          (s.title && s.title.toLowerCase().includes(q)) ||
+          (s.titleEn && s.titleEn.toLowerCase().includes(q)) ||
+          (s.id && s.id.toLowerCase().includes(q))
+        );
+      }
+      renderTable(filtered);
+    }
+
+    function openAddModal() {
+      editingId = null;
+      document.getElementById('modal-title').textContent = 'افزودن فیلم، سریال یا انیمه جدید';
+      document.getElementById('m-titleFa').value = '';
+      document.getElementById('m-titleEn').value = '';
+      document.getElementById('m-category').value = 'movie';
+      document.getElementById('m-year-rating').value = '2026 • 8.5';
+      document.getElementById('m-season').value = '';
+      document.getElementById('m-episode').value = '';
+      document.getElementById('m-poster').value = '';
+      document.getElementById('m-streamUrl').value = '';
+      document.getElementById('m-qualities').value = '4K, 1080p, 720p';
+      document.getElementById('m-synopsis').value = '';
+      document.getElementById('media-modal').style.display = 'flex';
+    }
+
+    function openEditModal(id) {
+      editingId = id;
+      const item = allStreams.find(s => s.id === id);
+      if (!item) return;
+
+      document.getElementById('modal-title').textContent = 'ویرایش: ' + (item.titleFa || item.title);
+      document.getElementById('m-titleFa').value = item.titleFa || item.title || '';
+      document.getElementById('m-titleEn').value = item.titleEn || '';
+      document.getElementById('m-category').value = item.category || 'movie';
+      document.getElementById('m-year-rating').value = (item.year || 2026) + ' • ' + (item.rating || '8.5');
+      document.getElementById('m-season').value = item.season || '';
+      document.getElementById('m-episode').value = item.episode || '';
+      document.getElementById('m-poster').value = item.poster || item.posterUrl || '';
+      document.getElementById('m-streamUrl').value = item.defaultStreamUrl || item.playableUrl || '';
+      document.getElementById('m-qualities').value = item.qualities ? item.qualities.map(q => q.quality || q).join(', ') : '4K, 1080p';
+      document.getElementById('m-synopsis').value = item.synopsisFa || item.synopsis || '';
+      document.getElementById('media-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('media-modal').style.display = 'none';
+    }
+
+    function saveMediaItem() {
+      const titleFa = document.getElementById('m-titleFa').value.trim();
+      const titleEn = document.getElementById('m-titleEn').value.trim() || titleFa;
+      const category = document.getElementById('m-category').value;
+      const streamUrl = document.getElementById('m-streamUrl').value.trim();
+      const poster = document.getElementById('m-poster').value.trim() || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800';
+      const synopsis = document.getElementById('m-synopsis').value.trim();
+      const season = document.getElementById('m-season').value ? parseInt(document.getElementById('m-season').value) : undefined;
+      const episode = document.getElementById('m-episode').value ? parseInt(document.getElementById('m-episode').value) : undefined;
+
+      if (!titleFa || !streamUrl) {
+        alert('لطفاً عنوان و آدرس استریم را وارد کنید.');
+        return;
+      }
+
+      const qList = document.getElementById('m-qualities').value.split(',').map(q => q.trim()).filter(Boolean);
+      const qualities = qList.map(q => ({ quality: q, url: streamUrl, format: 'mp4' }));
+
+      if (editingId) {
+        const idx = allStreams.findIndex(s => s.id === editingId);
+        if (idx !== -1) {
+          allStreams[idx] = {
+            ...allStreams[idx],
+            title: titleFa,
+            titleFa,
+            titleEn,
+            category,
+            defaultStreamUrl: streamUrl,
+            playableUrl: streamUrl,
+            poster,
+            posterUrl: poster,
+            synopsis,
+            synopsisFa: synopsis,
+            season,
+            episode,
+            qualities
+          };
+        }
+      } else {
+        const newId = 'custom-' + Date.now();
+        allStreams.unshift({
+          id: newId,
+          title: titleFa,
+          titleFa,
+          titleEn,
+          category,
+          year: 2026,
+          rating: '8.5',
+          defaultStreamUrl: streamUrl,
+          playableUrl: streamUrl,
+          poster,
+          posterUrl: poster,
+          synopsis,
+          synopsisFa: synopsis,
+          season,
+          episode,
+          qualities,
+          playbackStatus: 'available'
+        });
+      }
+
+      closeModal();
+      updateStats();
+      filterMedia();
+      saveAllToServer();
+    }
+
+    function deleteItem(id) {
+      if (!confirm('آیا از حذف این اثر از کل سرورها و پلتفرم اطمینان دارید؟')) return;
+      allStreams = allStreams.filter(s => s.id !== id);
+      updateStats();
+      filterMedia();
+      saveAllToServer();
+    }
+
+    async function saveAllToServer() {
+      showToast('در حال ارسال تغییرات به سرور...');
+      try {
+        const res = await fetch('/api/admin/streams/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: MASTER_KEY, streams: allStreams })
+        });
+        const result = await res.json();
+        if (result.status === 'ok') {
+          showToast(`✅ تغییرات با موفقیت در کل پایگاه داده اعمال شد (${allStreams.length} اثر)`);
+        } else {
+          showToast('❌ خطا در ذخیره‌سازی: ' + result.error, true);
+        }
+      } catch (e) {
+        showToast('❌ خطای ارتباط با سرور: ' + e, true);
+      }
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.borderColor = isError ? 'var(--danger)' : 'var(--success)';
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+  </script>
+</body>
+</html>

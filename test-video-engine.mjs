@@ -1,10 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { readDatabase, writeDatabase, verifyOwnerPassword, createOwnerSession, validateOwnerSession } from './src/video-engine/db.js';
+const TEST_PASSWORD = process.env.VELORA_OWNER_PASSWORD || 'test-only-owner-password';
+process.env.VELORA_OWNER_PASSWORD = TEST_PASSWORD;
+const { readDatabase, writeDatabase, verifyOwnerPassword, createOwnerSession, validateOwnerSession } = await import('./src/video-engine/db.js');
 
 describe('VELORA Video Catalog Engine - Verification Suite', () => {
   it('1. Verifies Owner Password Authentication correctly', () => {
-    assert.strictEqual(verifyOwnerPassword('velora-owner-master-2026'), true);
+    assert.strictEqual(verifyOwnerPassword(TEST_PASSWORD), true);
     assert.strictEqual(verifyOwnerPassword('wrong-password-123'), false);
     assert.strictEqual(verifyOwnerPassword(''), false);
   });

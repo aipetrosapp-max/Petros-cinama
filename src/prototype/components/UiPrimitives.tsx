@@ -30,6 +30,7 @@ import type {
 import { useT } from '../i18n';
 
 export function formatDuration(sec: number): string {
+  if (!sec || sec <= 0) return '—';
   const safe = Math.max(0, Math.floor(sec));
   const m = Math.floor(safe / 60);
   const s = safe % 60;

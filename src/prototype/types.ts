@@ -107,9 +107,16 @@ export interface PrototypeMediaItem {
   sourceName: string;
   sourceType?: string;
   telegramUrl?: string;
+  /** stable upstream descriptor for the rolling cache gateway */
+  upstreamUrl?: string;
   streamUrl?: string;
   defaultStreamUrl?: string;
+  playableUrl?: string;
+  trailerUrl?: string;
   originalSource?: string;
+  streamStatus?: 'available' | 'requires_gateway' | 'unavailable' | 'maintenance';
+  streamStatusReason?: string;
+  subtitleUrl?: string;
   qualities?: { quality: string; url: string; format?: string }[];
   subtitles: SubtitleLine[];
   chapters: ChapterMarker[];

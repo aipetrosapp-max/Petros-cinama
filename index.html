@@ -170,7 +170,26 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 235, 175, 0.25);
     }
   </style>
-</head>
+
+    <!-- Google Search Engine Dominance Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AI Petros Cinema",
+      "url": "https://aipetros.xyz",
+      "description": "تماشای آنلاین و رایگان برترین فیلم‌های سینمایی جهان با کیفیت 4K HDR، بدون سانسور و با صدای باینورال در AI Petros Cinema.",
+      "applicationCategory": "EntertainmentApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+    
+  </head>
 
 <body class="relative select-none">
 
@@ -299,9 +318,9 @@
             </div>
             <div class="w-full mt-2 pt-1.5 border-t border-amber-500/20 flex flex-col items-center gap-1">
               <button onclick="event.stopPropagation(); downloadPlatform('android')" class="w-full inline-flex items-center justify-center gap-0.5 text-[8px] sm:text-[9.5px] font-semibold text-amber-300 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/30 rounded-full px-2 py-1 transition cursor-pointer">
-                ↓ Direct APK
+                Coming soon
               </button>
-              <span class="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">18.4 MB • v2.4.1</span>
+              <span class="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">APK • coming soon</span>
             </div>
           </div>
 
@@ -319,9 +338,9 @@
             </div>
             <div class="w-full mt-2 pt-1.5 border-t border-amber-500/20 flex flex-col items-center gap-1">
               <button onclick="event.stopPropagation(); downloadPlatform('tv')" class="w-full inline-flex items-center justify-center gap-0.5 text-[8px] sm:text-[9.5px] font-semibold text-amber-300 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/30 rounded-full px-2 py-1 transition cursor-pointer">
-                ↓ TV Client
+                Coming soon
               </button>
-              <span class="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">22.1 MB • v2.4.1</span>
+              <span class="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">TV APK • coming soon</span>
             </div>
           </div>
 
@@ -341,9 +360,9 @@
             </div>
             <div class="w-full mt-2 pt-1.5 border-t border-amber-500/20 flex flex-col items-center gap-1">
               <button onclick="event.stopPropagation(); downloadPlatform('windows')" class="w-full inline-flex items-center justify-center gap-0.5 text-[8px] sm:text-[9.5px] font-semibold text-amber-300 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-400/30 rounded-full px-2 py-1 transition cursor-pointer">
-                ↓ .EXE Setup
+                Coming soon
               </button>
-              <span class="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">64.5 MB • v2.4.1</span>
+              <span class="text-[7.5px] sm:text-[9px] text-zinc-400 font-mono">EXE • coming soon</span>
             </div>
           </div>
 
@@ -461,12 +480,14 @@
         setTimeout(() => { dlBtn.textContent = original; }, 2200);
       }
 
+      if (platform !== 'ios') {
+        if (dlBtn) dlBtn.textContent = 'COMING SOON — BUILD IN PROGRESS';
+        setTimeout(() => { if (dlBtn) dlBtn.textContent = 'DOWNLOAD CLIENTS'; }, 2600);
+        return;
+      }
       if (platform === 'android') {
-        window.open('https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/petros-cinema.apk', '_blank');
       } else if (platform === 'tv') {
-        window.open('https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/petros-tv-release.apk', '_blank');
       } else if (platform === 'windows') {
-        window.open('https://github.com/aipetrosapp-max/Petros-cinama/releases/latest/download/PetrosCinema-Setup.exe', '_blank');
       } else if (platform === 'github') {
         window.open('https://github.com/aipetrosapp-max/Petros-cinama/releases', '_blank');
       } else if (platform === 'telegram') {

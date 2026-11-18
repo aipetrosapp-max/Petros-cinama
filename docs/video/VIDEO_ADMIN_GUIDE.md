@@ -3,7 +3,7 @@
 ## 1. Accessing the Owner Panel
 1. In the top navigation bar of the application, locate the **Lock icon** (`Lock` symbol next to the Settings gear).
 2. Click the icon to open the **VELORA Owner Control Center**.
-3. Enter the master owner password (default: `velora-owner-master-2026` or configured via `process.env.VELORA_OWNER_PASSWORD`).
+3. Enter the master owner password configured via `process.env.VELORA_OWNER_PASSWORD`. There is no default password; the panel stays locked until the environment variable is set.
 4. Upon successful server verification, an authorized bearer session token is issued and stored in browser memory.
 
 ## 2. Managing Source Websites

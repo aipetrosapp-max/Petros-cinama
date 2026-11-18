@@ -15,8 +15,10 @@ from telethon.tl.functions.messages import CheckChatInviteRequest
 from telethon.tl.types import InputPeerChannel
 
 # Get configuration from env or local file
-API_ID_ENV = os.environ.get("TG_API_ID", "76997")
-API_HASH = os.environ.get("TG_API_HASH", "5fab41b477b0caf5a30648b86570b5b5")
+API_ID_ENV = os.environ.get("TG_API_ID", "").strip()
+API_HASH = os.environ.get("TG_API_HASH", "").strip()
+if not API_ID_ENV or not API_HASH:
+    raise ValueError("TG_API_ID and TG_API_HASH are required (no hardcoded credentials).")
 
 SESSION_STR = os.environ.get("TG_STRING_SESSION")
 if not SESSION_STR and os.path.exists("telegram_session.txt"):
@@ -27,6 +29,8 @@ if not SESSION_STR:
     raise ValueError("TG_STRING_SESSION is required (set env var or generate telegram_session.txt)")
 
 API_ID = int(API_ID_ENV)
+if not API_HASH:
+    raise ValueError("TG_API_HASH is required")
 PORT = int(os.environ.get("PORT", 8765))
 
 client = TelegramClient(StringSession(SESSION_STR), API_ID, API_HASH)
@@ -48,6 +52,9 @@ async def resolve_peer(channel_param: str):
     return await client.get_entity(channel_param)
 
 async def handle_stream(request: web.Request):
+    if request.method == "HEAD":
+        # A HEAD request still needs the real size/mime, but no body.
+        pass
     channel_param = request.match_info["channel"]
     msg_id = int(request.match_info["msg_id"])
 
@@ -89,9 +96,15 @@ async def handle_stream(request: web.Request):
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
         "Access-Control-Allow-Headers": "Range, Content-Range",
+        "Access-Control-Expose-Headers": "Content-Range, Accept-Ranges, Content-Length, Content-Type",
+        "Cache-Control": "private, max-age=0, no-store",
+        "Content-Disposition": "inline",
     }
     if status == 206:
         headers["Content-Range"] = f"bytes {start}-{end}/{file_size}"
+
+    if request.method == "HEAD":
+        return web.Response(status=status, headers=headers)
 
     response = web.StreamResponse(status=status, headers=headers)
     await response.prepare(request)
@@ -142,6 +155,7 @@ def create_app():
     app.router.add_get("/", handle_health)
     app.router.add_options("/{channel}/{msg_id}", handle_cors)
     app.router.add_get("/{channel}/{msg_id}", handle_stream)
+    app.router.add_head("/{channel}/{msg_id}", handle_stream)
     return app
 
 if __name__ == "__main__":

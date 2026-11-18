@@ -1,0 +1,21 @@
+/* Petros Cinema Master Admin Panel — Tailwind entry + cinematic base */
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: #06060a;
+}
+
+body {
+  font-family: 'Vazirmatn', system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+  background: #06060a;
+  color: #e4e4e7;
+}
+
+/* tabular numerals for stat cards */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
