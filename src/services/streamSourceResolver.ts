@@ -142,11 +142,12 @@ export function collectStreamCandidates(
   preferredQualityId?: string
 ): string[] {
   if (!item) return [];
+  const qUrls = qualityCandidates(item, preferredQualityId);
   return [
+    ...(qUrls.length > 0 ? qUrls : []),
     item.playableUrl,
     item.streamUrl,
     item.defaultStreamUrl,
-    ...qualityCandidates(item, preferredQualityId),
     // Lowest priority: the raw upstream (Telegram post or cache descriptor).
     // Preserved so cache-route titles keep a resolvable origin.
     (item as { upstreamUrl?: string }).upstreamUrl,

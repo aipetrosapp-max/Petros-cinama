@@ -66,16 +66,17 @@ const clientDetailsCache = new Map<string, BackendFilmDetailsResponse>();
 
 export function buildFallbackBackendQualities(item: PrototypeMediaItem): BackendStreamQuality[] {
   if (item.qualities && item.qualities.length > 0) {
-    const valid = item.qualities.filter(q => q.url && q.url.startsWith('http'));
+    const valid = item.qualities.filter(q => q.url && (q.url.startsWith('http') || q.url.startsWith('/api/stream/cache/')));
     if (valid.length > 0) {
       return valid.map((q, idx) => {
         const qName = q.quality || '1080p';
         const is4k = qName.includes('4K') || qName.includes('2160p');
         const is1080 = qName.includes('1080p');
         const is720 = qName.includes('720p');
+        const resolution = is4k ? '2160p' : is1080 ? '1080p' : is720 ? '720p' : '480p';
         return {
-          id: `quality-${idx}-${qName}`,
-          resolution: is4k ? '2160p' : is1080 ? '1080p' : is720 ? '720p' : '480p',
+          id: (q as { id?: string }).id || resolution || `quality-${idx}-${qName}`,
+          resolution,
           label: `${qName} ${is4k ? 'Ultra HD' : 'Direct Stream'}`,
           fps: is4k ? 60 : 30,
           bitrateMbps: is4k ? 24 : is1080 ? 8.5 : 4.2,
@@ -211,7 +212,7 @@ export async function fetchBackendFilmDetails(
     trailer: {
       title: `${item.titleEn} — Official Trailer`,
       durationSec: 45,
-      previewVideoUrl: null,
+      previewVideoUrl: (item as unknown as { trailerUrl?: string }).trailerUrl || null,
       sourceType: 'director-cut-trailer',
       highlights: [
         { timeSec: 5, label: 'Atmosphere & World' },
