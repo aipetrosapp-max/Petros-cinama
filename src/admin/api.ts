@@ -981,7 +981,9 @@ adminRouter.post('/catalog/from-link', requireAdminAuth, async (req, res) => {
         id: makeId('q'),
         quality: String(body.quality || '1080p'),
         url: rawUrl,
-        format: (kind || 'direct_mp4') as PlaybackKind
+        format: (kind || 'direct_mp4') as PlaybackKind,
+        ...(body.username ? { username: String(body.username).trim() } : {}),
+        ...(body.password ? { password: String(body.password).trim() } : {})
       }
     ],
     subtitles: []

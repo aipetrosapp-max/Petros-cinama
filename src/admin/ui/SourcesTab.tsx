@@ -32,6 +32,8 @@ export function SourcesTab() {
   const [name, setName] = useState('');
   const [kind, setKind] = useState('direct_mp4');
   const [gatewayPort, setGatewayPort] = useState('8089');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [notes, setNotes] = useState('');
   const [validation, setValidation] = useState<SourceValidationResult | null>(null);
   const [validating, setValidating] = useState(false);
@@ -81,11 +83,15 @@ export function SourcesTab() {
         kind: kind as SourceRecord['kind'],
         baseUrl: url.trim(),
         notes,
-        gatewayPort: Number(gatewayPort) || 8089
+        gatewayPort: Number(gatewayPort) || 8089,
+        username: username.trim() || undefined,
+        password: password.trim() || undefined
       });
       toast.push('success', 'سورس ثبت شد');
       setUrl('');
       setName('');
+      setUsername('');
+      setPassword('');
       setNotes('');
       setValidation(null);
       await load();
@@ -143,7 +149,7 @@ export function SourcesTab() {
           </div>
         ) : null}
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-4">
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <Field label="نام سورس">
             <TextInput value={name} onChange={(e) => setName(e.target.value)} />
           </Field>
@@ -163,8 +169,28 @@ export function SourcesTab() {
               dir="ltr"
             />
           </Field>
+        </div>
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-3 rounded-xl border border-amber-500/20 bg-amber-950/10 p-3">
+          <Field label="نام کاربری VIP (اختیاری)" hint="برای سایت‌های اشتراکی و VIP">
+            <TextInput
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="user_vip"
+              dir="ltr"
+            />
+          </Field>
+          <Field label="رمز عبور VIP (اختیاری)" hint="برای Basic Auth سرور مبدا">
+            <TextInput
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              dir="ltr"
+            />
+          </Field>
           <Field label="یادداشت">
-            <TextInput value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <TextInput value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="توضیحات سرور یا پلن" />
           </Field>
         </div>
 

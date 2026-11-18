@@ -1,10 +1,74 @@
 {
   "version": "2026-11-18T00:19:57.853Z",
-  "updatedAt": "2026-11-18T00:40:44.854Z",
+  "updatedAt": "2026-11-18T01:43:31.347Z",
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
   "streams": [
+    {
+      "id": "title-mwlgjcpe-6780a0a7",
+      "title": "https://movielandz.com/",
+      "titleFa": "https://movielandz.com/",
+      "originalTitle": "",
+      "category": "movie",
+      "synopsis": "",
+      "synopsisFa": "",
+      "director": "",
+      "cast": [],
+      "genres": [],
+      "tags": [],
+      "posterUrl": "",
+      "backdropUrl": "",
+      "contentRating": "",
+      "status": "draft",
+      "featured": false,
+      "qualities": [
+        {
+          "id": "q-mwlgjcpf-c0835677",
+          "quality": "1080p",
+          "url": "https://movielandz.com/",
+          "format": "direct_mp4"
+        }
+      ],
+      "subtitles": [],
+      "seasons": [],
+      "episodes": [],
+      "downloadLinks": [],
+      "createdAt": "2026-11-18T01:43:31.347Z",
+      "updatedAt": "2026-11-18T01:43:31.347Z"
+    },
+    {
+      "id": "title-mwlghfe3-4226c3af",
+      "title": "HXnY1F11fLEyNmU0",
+      "titleFa": "HXnY1F11fLEyNmU0",
+      "originalTitle": "",
+      "category": "movie",
+      "synopsis": "",
+      "synopsisFa": "",
+      "director": "",
+      "cast": [],
+      "genres": [],
+      "tags": [],
+      "posterUrl": "",
+      "backdropUrl": "",
+      "contentRating": "",
+      "status": "draft",
+      "featured": false,
+      "qualities": [
+        {
+          "id": "q-mwlghfe4-05ae5eb2",
+          "quality": "1080p",
+          "url": "https://t.me/+hXnY1F11fLEyNmU0",
+          "format": "telegram_gateway"
+        }
+      ],
+      "subtitles": [],
+      "seasons": [],
+      "episodes": [],
+      "downloadLinks": [],
+      "createdAt": "2026-11-18T01:42:01.516Z",
+      "updatedAt": "2026-11-18T01:42:01.516Z"
+    },
     {
       "id": "canonical-blade-runner-2049",
       "title": "Blade Runner 2049",

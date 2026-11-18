@@ -28,6 +28,9 @@ export interface QualityStream {
   sizeBytes?: number;
   /** subtitle / quality label shown in the player */
   label?: string;
+  /** Optional HTTP Basic Auth credentials for VIP sources */
+  username?: string;
+  password?: string;
 }
 
 export interface SubtitleTrack {
@@ -113,6 +116,9 @@ export interface SourceRecord {
   notes?: string;
   /** Telegram gateway uses the local range gateway (default port 8089) */
   gatewayPort?: number;
+  /** VIP credentials for auto-authenticating stream links on this domain */
+  username?: string;
+  password?: string;
   createdAt: string;
   updatedAt: string;
 }

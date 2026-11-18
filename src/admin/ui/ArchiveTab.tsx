@@ -873,6 +873,9 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
   const toast = useToast();
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showVip, setShowVip] = useState(false);
   const [postToTelegram, setPostToTelegram] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -887,7 +890,9 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
       const res = await adminApi.addFromLink({
         url: link,
         title: title.trim() || undefined,
-        postToTelegram
+        postToTelegram,
+        username: username.trim() || undefined,
+        password: password.trim() || undefined
       });
       if (res.duplicate) {
         toast.push('info', 'تکراری — چیزی اضافه نشد', res.messageFa);
@@ -899,6 +904,8 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
         );
         setUrl('');
         setTitle('');
+        setUsername('');
+        setPassword('');
         onAdded();
       }
     } catch (error) {
@@ -910,9 +917,18 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
 
   return (
     <div className="mb-4 rounded-2xl border border-[#D4AF37]/25 bg-black/40 p-4">
-      <h4 className="mb-1 flex items-center gap-1.5 text-xs font-bold text-[#F5E7B8]">
-        <Link2 className="h-3.5 w-3.5" /> افزودن سریع از لینک (بررسی کل لیست فیلم و سریال)
-      </h4>
+      <div className="mb-2 flex items-center justify-between">
+        <h4 className="flex items-center gap-1.5 text-xs font-bold text-[#F5E7B8]">
+          <Link2 className="h-3.5 w-3.5" /> افزودن سریع از لینک (بررسی کل لیست فیلم و سریال)
+        </h4>
+        <button
+          type="button"
+          onClick={() => setShowVip(!showVip)}
+          className="text-[11px] font-medium text-[#D4AF37] hover:underline"
+        >
+          {showVip ? '✕ بستن اکانت VIP' : '🔑 اکانت VIP / لاگین سایت'}
+        </button>
+      </div>
       <p className="mb-3 text-[10px] leading-relaxed text-zinc-400">
         لینک پست تلگرام (t.me/…/postId)، فایل مستقیم (mp4/mkv/webm) یا HLS بچسبانید. اگر عنوان از
         قبل در کاتالوگ باشد، تکراری گزارش می‌شود و چیزی اضافه نمی‌شود؛ در غیر صورت وارد سایت شده و
@@ -940,6 +956,29 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
           {busy ? 'در حال بررسی…' : 'بررسی و افزودن'}
         </GoldButton>
       </div>
+      {showVip && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
+          <span className="text-[11px] font-bold text-amber-300">👤 اطلاعات VIP سایت:</span>
+          <TextInput
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="نام کاربری (Username)"
+            className="w-44 text-xs"
+            dir="ltr"
+          />
+          <TextInput
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="رمز عبور (Password)"
+            className="w-44 text-xs"
+            dir="ltr"
+          />
+          <span className="text-[10px] text-zinc-400">
+            (اگر سرور دانلود نیاز به اشتراک VIP دارد، این اطلاعات ذخیره می‌شود تا ویدیو بدون مشکل دانلود و پخش شود)
+          </span>
+        </div>
+      )}
     </div>
   );
 }

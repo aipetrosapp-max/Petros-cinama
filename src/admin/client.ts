@@ -336,6 +336,8 @@ export const adminApi = {
     category?: MediaCategory;
     quality?: string;
     postToTelegram?: boolean;
+    username?: string;
+    password?: string;
   }) =>
     request<{
       duplicate: boolean;
