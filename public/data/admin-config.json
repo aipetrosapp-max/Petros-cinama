@@ -13,16 +13,6 @@
   },
   "wallets": [
     {
-      "id": "wallet-mwl5xbve-e76c5b7c",
-      "network": "USDT-TRC20",
-      "address": "TTestAddress123",
-      "label": "tron",
-      "enabled": true,
-      "decimals": 6,
-      "createdAt": "2026-11-17T20:46:27.674Z",
-      "updatedAt": "2026-11-17T20:46:27.674Z"
-    },
-    {
       "id": "wallet-mwl6252d-62466bf0",
       "network": "USDT-TRC20",
       "address": "TTestAddress123",
@@ -65,6 +55,6 @@
   ],
   "tokens": [],
   "sources": [],
-  "updatedAt": "2026-11-18T00:19:57.884Z",
+  "updatedAt": "2026-11-18T02:28:55.438Z",
   "subtitleFiles": []
 }

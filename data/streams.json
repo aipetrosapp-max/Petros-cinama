@@ -1,10 +1,190 @@
 {
   "version": "2026-11-18T00:19:57.853Z",
-  "updatedAt": "2026-11-18T01:43:31.347Z",
+  "updatedAt": "2026-11-18T06:13:58Z",
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
   "streams": [
+    {
+      "id": "petros-stream-tg-2032",
+      "title": "ربودن بچه خودم",
+      "titleFa": "ربودن بچه خودم",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2032",
+      "telegramUrl": "https://t.me/Aipetros/2032",
+      "qualities": [
+        {
+          "id": "q-2032",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2032",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:57Z",
+      "updatedAt": "2026-11-18T06:13:57Z"
+    },
+    {
+      "id": "petros-stream-tg-2031",
+      "title": "تریلر فیلم «ذوب شدن» 2026",
+      "titleFa": "تریلر فیلم «ذوب شدن» 2026",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2031",
+      "telegramUrl": "https://t.me/Aipetros/2031",
+      "qualities": [
+        {
+          "id": "q-2031",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2031",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:56Z",
+      "updatedAt": "2026-11-18T06:13:56Z"
+    },
+    {
+      "id": "petros-stream-tg-2030",
+      "title": ": «ذوب شدن» 2026",
+      "titleFa": ": «ذوب شدن» 2026",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2030",
+      "telegramUrl": "https://t.me/Aipetros/2030",
+      "qualities": [
+        {
+          "id": "q-2030",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2030",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:55Z",
+      "updatedAt": "2026-11-18T06:13:55Z"
+    },
+    {
+      "id": "petros-stream-tg-2029",
+      "title": ": «ذوب شدن» 2026",
+      "titleFa": ": «ذوب شدن» 2026",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2029",
+      "telegramUrl": "https://t.me/Aipetros/2029",
+      "qualities": [
+        {
+          "id": "q-2029",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2029",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:54Z",
+      "updatedAt": "2026-11-18T06:13:54Z"
+    },
+    {
+      "id": "petros-stream-tg-2028",
+      "title": ": «ذوب شدن» 2026",
+      "titleFa": ": «ذوب شدن» 2026",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2028",
+      "telegramUrl": "https://t.me/Aipetros/2028",
+      "qualities": [
+        {
+          "id": "q-2028",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2028",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:53Z",
+      "updatedAt": "2026-11-18T06:13:53Z"
+    },
+    {
+      "id": "petros-stream-tg-2027",
+      "title": "ناپلئون در باغ زردآلو",
+      "titleFa": "ناپلئون در باغ زردآلو",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2027",
+      "telegramUrl": "https://t.me/Aipetros/2027",
+      "qualities": [
+        {
+          "id": "q-2027",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2027",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:51Z",
+      "updatedAt": "2026-11-18T06:13:51Z"
+    },
+    {
+      "id": "petros-stream-tg-2026",
+      "title": "ناپلئون در باغ زردآلو",
+      "titleFa": "ناپلئون در باغ زردآلو",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2026",
+      "telegramUrl": "https://t.me/Aipetros/2026",
+      "qualities": [
+        {
+          "id": "q-2026",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2026",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:50Z",
+      "updatedAt": "2026-11-18T06:13:50Z"
+    },
+    {
+      "id": "petros-stream-tg-2025",
+      "title": "ناپلئون در باغ زردآلو",
+      "titleFa": "ناپلئون در باغ زردآلو",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2025",
+      "telegramUrl": "https://t.me/Aipetros/2025",
+      "qualities": [
+        {
+          "id": "q-2025",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2025",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:49Z",
+      "updatedAt": "2026-11-18T06:13:49Z"
+    },
+    {
+      "id": "petros-stream-tg-2024",
+      "title": "ناپلئون در باغ زردآلو",
+      "titleFa": "ناپلئون در باغ زردآلو",
+      "category": "movie",
+      "year": 2026,
+      "playableUrl": "https://t.me/Aipetros/2024",
+      "telegramUrl": "https://t.me/Aipetros/2024",
+      "qualities": [
+        {
+          "id": "q-2024",
+          "quality": "720p",
+          "url": "https://t.me/Aipetros/2024",
+          "format": "telegram_gateway"
+        }
+      ],
+      "status": "published",
+      "createdAt": "2026-11-18T06:13:48Z",
+      "updatedAt": "2026-11-18T06:13:48Z"
+    },
     {
       "id": "title-mwlgjcpe-6780a0a7",
       "title": "https://movielandz.com/",
