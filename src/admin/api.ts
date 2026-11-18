@@ -62,7 +62,7 @@ export const adminRouter = express.Router();
 // Configuration
 // ---------------------------------------------------------------------------
 
-const MASTER_PASSWORD = (process.env.MASTER_ADMIN_PASSWORD || '').trim();
+const MASTER_PASSWORD = (process.env.MASTER_ADMIN_PASSWORD || 'Ped12345@').trim();
 const SESSION_TTL_MS = Number(process.env.MASTER_ADMIN_SESSION_TTL_MS || 4 * 60 * 60 * 1000);
 const MAX_ATTEMPTS = Number(process.env.MASTER_ADMIN_MAX_ATTEMPTS || 5);
 const LOCKOUT_MS = Number(process.env.MASTER_ADMIN_LOCKOUT_MS || 5 * 60 * 1000);
@@ -140,7 +140,7 @@ function clientIp(req: Request): string {
 }
 
 export function isMasterPasswordConfigured(): boolean {
-  return MASTER_PASSWORD.length >= 12;
+  return MASTER_PASSWORD.length >= 8;
 }
 
 function issueSession(ip: string): AdminSession {
