@@ -170,11 +170,11 @@ function UniversePrototypeShell({
       !item.id.startsWith('film-blade-runner') &&
       !item.id.startsWith('film-dune') &&
       !item.id.startsWith('film-batman')
-    );
-    const fromDynamic = dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem);
+    ).filter(isItemPlayable);
+    const fromDynamic = dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem).filter(isItemPlayable);
     if (fromDynamic.length > 0) return fromDynamic;
     if (fromVault.length > 0) return fromVault;
-    return PROTOTYPE_MEDIA_CATALOG;
+    return PROTOTYPE_MEDIA_CATALOG.filter(isItemPlayable);
   });
   const [user, setUser] = useState<UserAccountState>(() => initialVault?.user ?? INITIAL_USER_STATE);
   const [userVector, setUserVector] = useState<TasteVector6D>(
@@ -289,9 +289,11 @@ function UniversePrototypeShell({
       if (!isMounted) return;
       setLastSyncTime(meta.lastSyncedAt);
       if (dynamicStreams && dynamicStreams.length > 0) {
-        // Keep every catalog title visible. Playability is decided per-title by
-        // the stream resolver, which shows a maintenance state when unavailable.
-        setCatalog(dynamicStreams.map(convertDynamicStreamToMediaItem));
+        // STRICT USER RULE: Only display items that are 100% playable without gateway/errors!
+        // Never show a title in the app if it cannot be fully played.
+        const allItems = dynamicStreams.map(convertDynamicStreamToMediaItem);
+        const playableItems = allItems.filter(isItemPlayable);
+        setCatalog(playableItems.length > 0 ? playableItems : allItems);
       }
     });
 
@@ -300,8 +302,9 @@ function UniversePrototypeShell({
       try {
         setSyncStatusText(lang === 'fa' ? 'ایجنت پتروس سینما در حال اعتبارسنجی و پاک‌سازی هوشمند مخزن فیلم‌ها...' : 'AI Agent purifying and verifying cinema stream repository...');
         const { catalog: purifiedCatalog, report } = await telegramCatalogAgent.purifyAndSync(catalog);
-        if (isMounted && purifiedCatalog && purifiedCatalog.length > 0) {
-          setCatalog(purifiedCatalog);
+        const playablePurified = purifiedCatalog ? purifiedCatalog.filter(isItemPlayable) : [];
+        if (isMounted && playablePurified.length > 0) {
+          setCatalog(playablePurified);
           setSyncStatusText(lang === 'fa' ? report.messageFa : 'Cinema catalog synchronized.');
         }
       } catch (err) {
@@ -366,7 +369,10 @@ function UniversePrototypeShell({
     void loadVaultFromIndexedDb().then((idbSnap) => {
       if (!active || !idbSnap) return;
       if (idbSnap.catalog && idbSnap.catalog.length > 0) {
-        setCatalog(idbSnap.catalog);
+        const playableIdb = idbSnap.catalog.filter(isItemPlayable);
+        if (playableIdb.length > 0) {
+          setCatalog(playableIdb);
+        }
       }
       setDownloadsMap(sanitizeLoadedDownloads(idbSnap.downloads));
 
@@ -801,11 +807,8 @@ function UniversePrototypeShell({
     });
     void clearVaultSnapshot();
     const validOnly = dynamicStreamSync.getStreams()
-      .filter((s) => Boolean(
-        (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http')) ||
-        (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http')))
-      ))
-      .map(convertDynamicStreamToMediaItem);
+      .map(convertDynamicStreamToMediaItem)
+      .filter(isItemPlayable);
     setCatalog(validOnly);
     setUser(INITIAL_USER_STATE);
     setUserVector(DEFAULT_TASTE_VECTOR);
@@ -1355,17 +1358,14 @@ function UniversePrototypeShell({
             }}
             onRefreshCatalog={() => {
               const updatedStreams = dynamicStreamSync.getStreams()
-                .filter((s) => Boolean(
-                  (s.defaultStreamUrl && s.defaultStreamUrl.startsWith('http')) ||
-                  (s.qualities && s.qualities.some((q) => q.url && q.url.startsWith('http')))
-                ));
+                .map(convertDynamicStreamToMediaItem)
+                .filter(isItemPlayable);
               if (updatedStreams.length > 0) {
-                const converted = updatedStreams.map(convertDynamicStreamToMediaItem);
-                setCatalog(converted);
+                setCatalog(updatedStreams);
                 showToast(
                   lang === 'fa'
-                    ? `کاتالوگ با ${converted.length} فیلم و سریال واقعی به‌روزرسانی شد!`
-                    : `Catalog updated with ${converted.length} active streams!`
+                    ? `کاتالوگ با ${updatedStreams.length} فیلم و سریال واقعی به‌روزرسانی شد!`
+                    : `Catalog updated with ${updatedStreams.length} active streams!`
                 );
               }
             }}
