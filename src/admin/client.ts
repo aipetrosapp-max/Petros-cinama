@@ -165,16 +165,57 @@ export interface SourceValidationResult {
 // ---------------------------------------------------------------------------
 
 export const adminApi = {
-  authStatus: () =>
-    request<{ passwordConfigured: boolean; minimumLength: number; sessionTtlMinutes: number }>(
-      '/auth/status'
-    ),
+  authStatus: async () => {
+    try {
+      const res = await request<{ passwordConfigured: boolean; minimumLength: number; sessionTtlMinutes: number }>(
+        '/auth/status'
+      );
+      return res;
+    } catch {
+      // In static hosting environments like GitHub Pages, client-side fallback is active
+      return { passwordConfigured: true, minimumLength: 8, sessionTtlMinutes: 240 };
+    }
+  },
 
-  login: (password: string) =>
-    request<{ token: string; expiresAt: string; messageFa: string }>('/auth/login', {
-      method: 'POST',
-      body: { password }
-    }),
+  login: async (password: string) => {
+    try {
+      const res = await request<{ token: string; expiresAt: string; messageFa: string }>('/auth/login', {
+        method: 'POST',
+        body: { password }
+      });
+      return res;
+    } catch (err: unknown) {
+      // If server returned 404 or 405 (e.g. GitHub Pages static host), use client-side sha256 authentication
+      const isStaticOrDisallowed =
+        err instanceof AdminApiError && (err.status === 405 || err.status === 404);
+
+      if (isStaticOrDisallowed) {
+        // Precomputed SHA-256 for Ped12345@
+        const TARGET_HASH = 'a003a83cdddddcbe55d9d81c68b2c13b798c21386d16f1c94989fb3a88218b7c';
+        
+        // Calculate SHA-256 using Web Crypto API in browser
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password.trim());
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+
+        if (hashHex === TARGET_HASH) {
+          const fakeToken = 'gh_admin_' + Math.random().toString(36).substring(2);
+          const expires = new Date(Date.now() + 4 * 3600 * 1000).toISOString();
+          setSessionToken(fakeToken, expires);
+          return {
+            token: fakeToken,
+            expiresAt: expires,
+            messageFa: 'ورود موفق به پنل مدیریت اختصاصی پتروس سینما'
+          };
+        } else {
+          throw new AdminApiError(401, 'invalid_password', 'رمز عبور وارد شده نادرست است.');
+        }
+      }
+      throw err;
+    }
+  },
 
   logout: () => request<{ ok: boolean; messageFa: string }>('/auth/logout', { method: 'POST' }),
 
