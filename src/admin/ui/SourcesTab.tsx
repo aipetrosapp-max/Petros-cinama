@@ -144,8 +144,8 @@ export function SourcesTab() {
   return (
     <div className="space-y-4">
       <Panel
-        title="🌐 مرورگر لاگین هوشمند سورس (Web Bot Login)"
-        subtitle="برای سایت‌هایی مانند دیجی‌موویز و سایت‌های VIP — مرورگر را باز کنید، در پنجره باز شده لاگین کنید، کوکی‌ها و توکن‌ها خودکار استخراج می‌شوند"
+        title="🌐 ورود به سایت‌های VIP و استخراج نشست"
+        subtitle="برای سایت‌هایی مانند دیجی‌موویز و سایر سایت‌های VIP — می‌توانید سایت را مستقیم در تب جدید باز کنید و کوکی/توکن را کپی کنید یا اطلاعات ورود را در کادر زیر وارد نمایید"
       >
         <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
           <TextInput
@@ -154,12 +154,43 @@ export function SourcesTab() {
             placeholder="مثال: https://digimoviez.com یا آدرس صفحه ورود سایت فیلم"
             dir="ltr"
           />
-          <GoldButton onClick={launchInteractiveBrowser} loading={launchingBrowser}>
-            🌐 باز کردن مرورگر لاگین
+          <GoldButton
+            onClick={() => {
+              const target = browserUrl.trim() || url.trim();
+              if (!target) {
+                toast.push('info', 'آدرس لازم است', 'ابتدا آدرس سایت را وارد کنید.');
+                return;
+              }
+              const fullUrl = /^https?:\/\//i.test(target) ? target : `https://${target}`;
+              window.open(fullUrl, '_blank');
+              toast.push('success', 'سایت باز شد', 'سایت در تب جدید باز شد. وارد اکانت شوید.');
+            }}
+          >
+            ↗ باز کردن سایت در تب جدید گوشی
           </GoldButton>
-          <GoldButton variant="ghost" onClick={fetchSessionCookies}>
-            📥 استخراج خودکار کوکی‌ها {cookieCount ? `(${cookieCount})` : ''}
+          <GoldButton onClick={launchInteractiveBrowser} loading={launchingBrowser} variant="ghost">
+            🖥️ باز کردن روی مانیتور کامپیوتر
           </GoldButton>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
+          <p className="mb-2 text-[11px] font-bold text-amber-300">
+            📋 وارد کردن دستی کوکی / نشست ورود (اختیاری و فوق‌العاده سریع):
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <TextInput
+              placeholder="مقدار Cookie یا توکن لاگین سایت را اینجا بچسبانید (مثلاً: sessionid=...)"
+              className="flex-1 text-xs"
+              dir="ltr"
+              onChange={(e) => {
+                const val = e.target.value.trim();
+                if (val) {
+                  setNotes((prev) => (prev ? `${prev} | ` : '') + `Cookie: ${val}`);
+                  toast.push('success', 'کوکی ثبت شد', 'نشست با موفقیت به سورس اضافه شد.');
+                }
+              }}
+            />
+          </div>
         </div>
       </Panel>
 

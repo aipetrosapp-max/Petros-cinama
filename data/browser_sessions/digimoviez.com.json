@@ -1,0 +1,19 @@
+{
+  "url": "https://digimoviez.com/",
+  "cookies": [
+    {
+      "name": "cf_clearance",
+      "value": "CpnY8HoGj13kwZCccaMstwHe7ntwApSAj6ancGvvRJg69ovXlI9C_5006tiG1NRbKj7SHjEEcM5xPs7Kcv6YJnOvKKej6mLZzwOqYHGnGXp897AvbSb9CjQTQPMu68s-KzAlC2Af1lTuSkb5zGXq0e7cJ9GumQNB6-5F2vPFQmj4C4q5e0p_H-1tBt_7R8A7P_uuLcp0wHCW9wBWRSiCDBfKGebTi7-ZYaqzdmNzmtp1F1Ji8jw8bnln1RxiKFFwwQZgdGHfk7JNeT22YMmRR4dwRnjYQA3tiOmFPARjQBOFrF4M8-GHfDgnoVV9Oa6YpSygz7wl5tFJaPiq_Kvtg_4FAMELWvEwP9DRBqOdZSkafRDwzEYozhlwpoOnrq57ag",
+      "domain": ".digimoviez.com",
+      "path": "/",
+      "expires": 1826504360.353552,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None",
+      "partitionKey": "https://digimoviez.com",
+      "_crHasCrossSiteAncestor": false
+    }
+  ],
+  "cookie_header": "cf_clearance=CpnY8HoGj13kwZCccaMstwHe7ntwApSAj6ancGvvRJg69ovXlI9C_5006tiG1NRbKj7SHjEEcM5xPs7Kcv6YJnOvKKej6mLZzwOqYHGnGXp897AvbSb9CjQTQPMu68s-KzAlC2Af1lTuSkb5zGXq0e7cJ9GumQNB6-5F2vPFQmj4C4q5e0p_H-1tBt_7R8A7P_uuLcp0wHCW9wBWRSiCDBfKGebTi7-ZYaqzdmNzmtp1F1Ji8jw8bnln1RxiKFFwwQZgdGHfk7JNeT22YMmRR4dwRnjYQA3tiOmFPARjQBOFrF4M8-GHfDgnoVV9Oa6YpSygz7wl5tFJaPiq_Kvtg_4FAMELWvEwP9DRBqOdZSkafRDwzEYozhlwpoOnrq57ag",
+  "count": 1
+}
