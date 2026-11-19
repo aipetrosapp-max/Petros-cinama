@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-19T12:05:48.693Z",
-  "updatedAt": "2026-11-19T12:05:48.693Z",
+  "version": "2026-11-19T12:10:37.465Z",
+  "updatedAt": "2026-11-19T12:10:37.465Z",
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
@@ -95,16 +95,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.007Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:56.793Z"
@@ -152,16 +142,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.007Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:48.592Z"
@@ -366,16 +346,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.007Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:17.981Z"
@@ -439,16 +409,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.007Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:13.210Z"
@@ -550,16 +510,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.007Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:03.633Z"
@@ -1156,16 +1106,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.007Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:00.990Z"
@@ -1400,16 +1340,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.007Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:34.037Z"
@@ -1536,16 +1466,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:23.907Z"
@@ -1735,16 +1655,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:08.169Z"
@@ -1785,16 +1695,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:04.261Z"
@@ -1914,16 +1814,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:56.559Z"
@@ -1987,16 +1877,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:50.053Z"
@@ -2325,16 +2205,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:19.611Z"
@@ -2546,16 +2416,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:00.363Z"
@@ -2610,16 +2470,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:55.345Z"
@@ -2761,16 +2611,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:39.842Z"
@@ -2879,16 +2719,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:29.489Z"
@@ -3015,16 +2845,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:19.053Z"
@@ -3214,16 +3034,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:59.236Z"
@@ -3287,16 +3097,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.008Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:54.335Z"
@@ -3549,16 +3349,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:26.580Z"
@@ -3977,16 +3767,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:52.020Z"
@@ -4293,16 +4073,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:17.856Z"
@@ -4343,16 +4113,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:11.973Z"
@@ -4454,16 +4214,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:03.541Z"
@@ -4574,16 +4324,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:53.813Z"
@@ -4755,16 +4495,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:39.844Z"
@@ -4873,16 +4603,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:15.098Z"
@@ -4939,16 +4659,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:10.133Z"
@@ -5066,16 +4776,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:00.416Z"
@@ -5186,16 +4886,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:48.138Z"
@@ -5259,16 +4949,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:43.510Z"
@@ -5323,16 +5003,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:38.750Z"
@@ -5670,16 +5340,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:00.925Z"
@@ -5734,16 +5394,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:56.046Z"
@@ -5798,16 +5448,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:50.615Z"
@@ -5925,16 +5565,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:36.792Z"
@@ -5989,16 +5619,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:31.303Z"
@@ -6298,16 +5918,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:01.542Z"
@@ -6371,16 +5981,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:56.130Z"
@@ -6491,16 +6091,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:46.341Z"
@@ -6564,16 +6154,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.009Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:40.460Z"
@@ -6628,16 +6208,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:35.117Z"
@@ -6764,16 +6334,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:24.827Z"
@@ -6837,16 +6397,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:19.608Z"
@@ -7335,16 +6885,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:36.503Z"
@@ -7408,16 +6948,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:31.505Z"
@@ -7472,16 +7002,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:26.169Z"
@@ -7545,16 +7065,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:21.103Z"
@@ -7915,16 +7425,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:51.716Z"
@@ -8161,16 +7661,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.010Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:31.372Z"
@@ -8328,16 +7818,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:17.371Z"
@@ -8392,16 +7872,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:13.440Z"
@@ -8456,16 +7926,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:07.871Z"
@@ -8529,16 +7989,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:02.536Z"
@@ -8858,16 +8308,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:25.328Z"
@@ -9041,16 +8481,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:08.972Z"
@@ -9222,16 +8652,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:54.676Z"
@@ -9333,16 +8753,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:39.464Z"
@@ -9491,16 +8901,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:27.426Z"
@@ -9879,16 +9279,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:50.865Z"
@@ -9952,16 +9342,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:45.680Z"
@@ -10009,16 +9389,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:40.697Z"
@@ -10082,16 +9452,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:36.151Z"
@@ -10240,16 +9600,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.012Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:38:05.626Z"
@@ -10313,16 +9663,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:38:02.545Z"
@@ -10559,16 +9899,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:45.229Z"
@@ -10758,16 +10088,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:18.780Z"
@@ -10815,16 +10135,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:02.692Z"
@@ -10888,16 +10198,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:36:50.684Z"
@@ -11116,16 +10416,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:35:36.743Z"
@@ -11252,16 +10542,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:35:00.043Z"
@@ -11316,16 +10596,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:34:50.838Z"
@@ -11373,16 +10643,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:34:18.107Z"
@@ -11747,11 +11007,10 @@
         "mode": "block",
         "countries": [
           "IR",
-          "IQ",
-          "TH"
+          "IQ"
         ],
         "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:05:48.514Z"
+        "updatedAt": "2026-11-19T12:10:37.395Z"
       },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
@@ -12169,16 +11428,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:26.440Z"
@@ -12359,16 +11608,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:13.088Z"
@@ -12423,16 +11662,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:08.538Z"
@@ -12559,16 +11788,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:07:59.090Z"
@@ -12636,11 +11855,10 @@
         "mode": "block",
         "countries": [
           "IR",
-          "IQ",
-          "TH"
+          "IQ"
         ],
         "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:05:48.514Z"
+        "updatedAt": "2026-11-19T12:10:37.395Z"
       },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
@@ -12815,16 +12033,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:46.980Z"
@@ -13131,16 +12339,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:42.532Z"
@@ -13204,16 +12402,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:39.859Z"
@@ -13268,16 +12456,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:37.526Z"
@@ -13325,16 +12503,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:18.570Z"
@@ -13492,16 +12660,6 @@
       "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:52:04.604Z"
@@ -13745,16 +12903,6 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "geoPolicy": {
-        "mode": "block",
-        "countries": [
-          "IR",
-          "IQ",
-          "TH"
-        ],
-        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
-      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:45:00.341Z"
@@ -13872,7 +13020,7 @@
       "posterUrl": "https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
       "backdropUrl": "",
       "year": 2017,
-      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
+      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
       "durationSec": 9840,
       "director": "Denis Villeneuve",
       "cast": [],
