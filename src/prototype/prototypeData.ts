@@ -2,6 +2,7 @@ import type {
   PrototypeMediaItem,
   UserAccountState
 } from './types';
+import { generateUniquePosterSvg } from '../services/posterRegistry';
 
 // Initial high-fidelity seed catalog ensuring authentic Telegram repository alignment & zero black screen
 export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
@@ -20,7 +21,7 @@ export const PROTOTYPE_MEDIA_CATALOG: PrototypeMediaItem[] = [
     quality: '4K HDR',
     releaseYear: 2025,
     addedDaysAgo: 0,
-    posterUrl: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop&q=80',
+    posterUrl: generateUniquePosterSvg('فیوز', 'tg-aipetros-990'),
     accentHex: '#D4AF37',
     synopsisEn: 'Stream and download Fuze in 4K HDR from Petros Cinema VIP soundstage.',
     synopsisFa: 'پخش آنلاین و مستقیم فیلم فیوز با کیفیت سینمایی 4K HDR در سالن اختصاصی پتروس سینما.',

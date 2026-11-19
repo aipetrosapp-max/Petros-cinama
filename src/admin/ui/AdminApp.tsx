@@ -16,7 +16,10 @@ import {
   Clapperboard,
   Layers,
   Subtitles,
-  CircleDot
+  CircleDot,
+  Bot,
+  UploadCloud,
+  ListVideo
 } from 'lucide-react';
 import { adminApi, clearSessionToken, setSessionToken, getSessionExpiry } from '../client.ts';
 import type { TitleRecord } from '../types.ts';
@@ -25,13 +28,17 @@ import { ArchiveTab } from './ArchiveTab.tsx';
 import { SourcesTab } from './SourcesTab.tsx';
 import { VaultTab } from './VaultTab.tsx';
 import { SyncTab } from './SyncTab.tsx';
+import { AgentChatTab } from './AgentChatTab.tsx';
+import { CollectionTab } from './CollectionTab.tsx';
 import { Panel, StatCard, Badge, GoldButton, useToast } from './primitives.tsx';
 
-type TabKey = 'dashboard' | 'archive' | 'sources' | 'vault' | 'sync';
+type TabKey = 'agent' | 'dashboard' | 'archive' | 'collection' | 'sources' | 'vault' | 'sync';
 
 const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
+  { key: 'agent', label: 'ایجنت هوشمند', icon: <Bot className="h-4 w-4" /> },
   { key: 'dashboard', label: 'داشبورد', icon: <LayoutDashboard className="h-4 w-4" /> },
   { key: 'archive', label: 'آرشیو مدیا', icon: <LibraryBig className="h-4 w-4" /> },
+  { key: 'collection', label: 'کالکشن ۲۵۰تایی', icon: <ListVideo className="h-4 w-4" /> },
   { key: 'sources', label: 'سورس‌ها', icon: <Server className="h-4 w-4" /> },
   { key: 'vault', label: 'ولت و توکن‌ها', icon: <Wallet className="h-4 w-4" /> },
   { key: 'sync', label: 'همگام‌سازی گیت‌هاب', icon: <Github className="h-4 w-4" /> }
@@ -40,6 +47,7 @@ const TABS: Array<{ key: TabKey; label: string; icon: React.ReactNode }> = [
 export default function AdminApp() {
   const [authenticated, setAuthenticated] = useState(false);
   const [tab, setTab] = useState<TabKey>('dashboard');
+  const toast = useToast();
   const [titles, setTitles] = useState<TitleRecord[]>([]);
   const [dashboard, setDashboard] = useState<Awaited<ReturnType<typeof adminApi.dashboard>> | null>(
     null
@@ -117,6 +125,26 @@ export default function AdminApp() {
           </div>
 
           <div className="mr-auto flex items-center gap-2">
+            <GoldButton
+              variant="ghost"
+              onClick={async () => {
+                if (!window.confirm('اعمال سراسری: ساخت مانیفست و push روی سایت؟')) return;
+                try {
+                  const res = await adminApi.publish('publish via admin header');
+                  if (res.ok) {
+                    toast.push('success', 'روی سایت منتشر شد', 'همه دستگاه‌ها در چرخه همگام‌سازی دریافت می‌کنند.');
+                  } else {
+                    toast.push('info', 'فقط محلی ذخیره شد', 'push گیت‌هاب ناموفق بود — تب همگام‌سازی را چک کن.');
+                  }
+                  await load();
+                } catch (e) {
+                  toast.push('error', 'انتشار ناموفق', (e as Error).message);
+                }
+              }}
+            >
+              <UploadCloud className="h-3.5 w-3.5" />
+              اعمال سراسری
+            </GoldButton>
             <button
               type="button"
               onClick={load}
@@ -162,10 +190,14 @@ export default function AdminApp() {
       <main className="relative mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8">
         {loading && !dashboard ? (
           <Spinner label="در حال بارگذاری داده‌ها…" />
+        ) : tab === 'agent' ? (
+          <AgentChatTab />
         ) : tab === 'dashboard' ? (
-          <DashboardView dashboard={dashboard} titles={titles} />
+          <DashboardView dashboard={dashboard} titles={titles} onNavigate={setTab} />
         ) : tab === 'archive' ? (
           <ArchiveTab titles={titles} onChanged={load} />
+        ) : tab === 'collection' ? (
+          <CollectionTab />
         ) : tab === 'sources' ? (
           <SourcesTab />
         ) : tab === 'vault' ? (
@@ -184,10 +216,12 @@ export default function AdminApp() {
 
 function DashboardView({
   dashboard,
-  titles
+  titles,
+  onNavigate
 }: {
   dashboard: Awaited<ReturnType<typeof adminApi.dashboard>> | null;
   titles: TitleRecord[];
+  onNavigate?: (tab: 'agent' | 'dashboard' | 'archive' | 'sources' | 'vault' | 'sync') => void;
 }) {
   const toast = useToast();
   const recent = useMemo(
@@ -220,8 +254,9 @@ function DashboardView({
           <StatCard
             label="کل عناوین"
             value={totals.titles.toLocaleString('fa-IR')}
-            hint={`${totals.published.toLocaleString('fa-IR')} منتشرشده`}
+            hint={`${totals.published.toLocaleString('fa-IR')} منتشرشده — کلیک: آرشیو`}
             icon={<Clapperboard className="h-4 w-4 text-[#D4AF37]" />}
+            onClick={onNavigate ? () => onNavigate('archive') : undefined}
           />
           <StatCard
             label="فصل / قسمت"
@@ -267,7 +302,8 @@ function DashboardView({
           <StatCard
             label="دارای استریم"
             value={dashboard.withStream.toLocaleString('fa-IR')}
-            hint="قابل پخش در کلاینت"
+            hint="قابل پخش در کلاینت — کلیک: گزارش سلامت در چت ایجنت"
+            onClick={onNavigate ? () => onNavigate('agent') : undefined}
           />
           <StatCard
             label="بدون استریم"

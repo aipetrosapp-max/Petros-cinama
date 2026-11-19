@@ -1,5 +1,9 @@
 import type { PrototypeMediaItem } from '../prototype/types';
-import { isPlayableDirectMediaUrl } from './mediaUrlValidator';
+import {
+  isPlayableDirectMediaUrl,
+  isPlayableHttpsMediaFile,
+  isTrailerUrl
+} from './mediaUrlValidator';
 
 /**
  * Single source of truth for deciding whether a title can actually be played.
@@ -39,6 +43,30 @@ export function normalizeGatewayBase(value?: string | null): string {
   if (!raw) return '';
   if (!/^https?:\/\//i.test(raw)) return '';
   return raw.replace(/\/+$/, '');
+}
+
+/**
+ * True when the bundle runs in production (aipetros.xyz, APK, Electron…).
+ * In production the app has no local rolling cache server, so relative
+ * localhost routes and raw Telegram links must never be shown as playable.
+ */
+export function isProductionRuntime(): boolean {
+  const env = (import.meta as unknown as { env?: Record<string, unknown> }).env ?? {};
+  return env.PROD === true || env.MODE === 'production';
+}
+
+function isLocalPlaybackHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+}
+
+/** A title is verified-playable only through a direct HTTPS MP4/HLS file. */
+export function hasVerifiedDirectSource(item: PrototypeMediaItem | null | undefined): boolean {
+  if (!item) return false;
+  return collectStreamCandidates(item).some(
+    (candidate) => isPlayableHttpsMediaFile(candidate) && !isTrailerUrl(candidate)
+  );
 }
 
 export function getConfiguredGatewayBase(): string {
@@ -172,11 +200,17 @@ export function resolvePlayableSource(
   for (const candidate of collectStreamCandidates(item, options.preferredQualityId)) {
     if (isUnverifiedMirror(candidate)) continue;
 
+    // Immutable separation law: a trailer file may NEVER be resolved as the
+    // movie stream. Trailers play only through the dedicated trailer mode.
+    if (isTrailerUrl(candidate)) continue;
+
     // Stable upstream descriptor written by the Master Admin Panel publish:
     // it is by definition served through the same-origin rolling cache route.
+    // In production (no local stream server exists) cache routes are skipped
+    // entirely so the player never lands on the maintenance error state.
     if (candidate.startsWith('petros-cache://')) {
       const id = (item as { id?: string }).id;
-      if (id) {
+      if (id && (!isProductionRuntime() || isLocalPlaybackHost())) {
         return { url: `/api/stream/cache/${id}`, kind: 'cache', host: 'same-origin' };
       }
       continue;
@@ -191,7 +225,10 @@ export function resolvePlayableSource(
     }
 
     if (candidate.startsWith('/api/stream/cache/')) {
-      return { url: candidate, kind: 'cache', host: 'same-origin' };
+      if (!isProductionRuntime() || isLocalPlaybackHost()) {
+        return { url: candidate, kind: 'cache', host: 'same-origin' };
+      }
+      continue;
     }
     // petros-cache:// descriptors are same-origin cache routes too: map them
     // to the canonical route so the client never sends the scheme anywhere.
@@ -252,6 +289,19 @@ export function getStreamAvailability(
   };
 }
 
+/**
+ * Immutable playback law (client build):
+ * "Under no circumstances may the app display a title whose full movie cannot
+ * be played."
+ *
+ *  - PRODUCTION: a title is playable ONLY when it carries a verified direct
+ *    HTTPS MP4/HLS/WebM file. Relative localhost routes (/api/stream/cache/…)
+ *    and raw Telegram links (t.me) are always treated as non-playable.
+ *  - DEV (localhost with the local stream server running): cache/gateway
+ *    routes keep working so the operator can test the gateway.
+ */
 export function isItemPlayable(item: PrototypeMediaItem | null | undefined): boolean {
+  if (hasVerifiedDirectSource(item)) return true;
+  if (isProductionRuntime()) return false; // cache-route / t.me-only titles: never show
   return Boolean(resolvePlayableSource(item));
 }

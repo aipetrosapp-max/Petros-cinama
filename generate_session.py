@@ -17,6 +17,17 @@ except ImportError:
     sys.exit(1)
 
 def main():
+    # Load uncommitted local credentials (.env.local) when env is not set.
+    env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env.local")
+    try:
+        with open(env_file, encoding="utf-8") as f:
+            for line in f:
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+    except Exception:
+        pass
+
     print("=" * 70)
     print("🔐 Telegram StringSession Generator (راهنمای ساخت نشست تلگرام)")
     print("=" * 70)

@@ -5,6 +5,19 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { videoApiRouter } from './src/video-engine/api.ts';
+
+// Local uncommitted secrets (.env.local, gitignored via .env* pattern).
+// Loaded first so TG_API_ID / TG_API_HASH / TG_STRING_SESSION work without
+// being committed to the repository.
+try {
+  const envLocal = fs.readFileSync(path.join(process.cwd(), '.env.local'), 'utf8');
+  for (const line of envLocal.split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+  }
+} catch {
+  // optional file — ignore when missing
+}
 import { adminRouter, publicConfigRouter } from './src/admin/api.ts';
 import {
   handleCacheStream,

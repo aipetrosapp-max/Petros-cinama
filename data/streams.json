@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "version": "2026-11-19T11:22:58.362Z",
   "updatedAt": "2026-11-19T11:22:58.362Z",
+=======
+  "version": "2026-11-19T11:15:17.096Z",
+  "updatedAt": "2026-11-19T11:15:17.097Z",
+>>>>>>> 595bc20 (collection: 250-title editable public-domain catalog + multi-quality (3) ingestion)
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
@@ -11841,7 +11846,11 @@
       "posterUrl": "https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
       "backdropUrl": "",
       "year": 2017,
+<<<<<<< HEAD
       "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
+=======
+      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
+>>>>>>> 595bc20 (collection: 250-title editable public-domain catalog + multi-quality (3) ingestion)
       "durationSec": 9840,
       "director": "Denis Villeneuve",
       "cast": [],

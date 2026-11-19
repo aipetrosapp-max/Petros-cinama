@@ -1,4 +1,5 @@
 import type { PrototypeMediaItem, TasteVector6D } from '../prototype/types';
+import { generateUniquePosterSvg } from './posterRegistry';
 
 export interface CinemetaMetaItem {
   id: string; // IMDb ID like tt0068646
@@ -55,8 +56,9 @@ function mapCinemetaToPrototypeItem(meta: CinemetaMetaItem, index: number): Prot
   const castList = Array.isArray(meta.cast) ? meta.cast : [];
   const castStr = castList.length > 0 ? castList.slice(0, 3).join(', ') : '';
 
-  const fallbackPoster = 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop';
-  const poster = meta.poster || fallbackPoster;
+  // Poster law: the shared Unsplash "CINEMA" art is banned — every title gets
+  // its own unique poster (generated from its name) when Cinemeta has none.
+  const poster = meta.poster || generateUniquePosterSvg(meta.name, `cinemeta-${meta.id || index}`);
   const backdrop = meta.background || poster;
 
   const synopsisEn = meta.description || `${meta.name} (${cleanYear}) - High-fidelity global cinema presentation. Directed by ${directorName}.`;

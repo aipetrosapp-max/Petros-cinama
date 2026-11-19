@@ -35,10 +35,12 @@ import {
   DEFAULT_TASTE_VECTOR
 } from './tasteEngine';
 import {
+  SNAPSHOT_VERSION,
   clearVaultSnapshot,
   getVaultByteSize,
   loadVaultFromIndexedDb,
   loadVaultSnapshot,
+  purgeLegacyVaultData,
   saveVaultSnapshot
 } from './localVault';
 import {
@@ -70,6 +72,8 @@ import { AipetrosLandingScreen } from './screens/AipetrosLandingScreen';
 import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
 import { platformConfigSync, isFeatureEnabled } from '../services/platformConfigSync';
 import { isItemPlayable } from '../services/streamSourceResolver';
+import { ensureUniqueCatalogPosters } from '../services/posterRegistry';
+import { enrichCatalogPosters } from '../services/posterEnrichment';
 import { telegramCatalogAgent } from '../agents/telegramCatalogAgent';
 import { autoUpdateService } from '../services/autoUpdateService';
 import { aiAdOptimizationAgent, type OptimizedAdUnit } from '../services/aiAdOptimizationAgent';
@@ -172,9 +176,10 @@ function UniversePrototypeShell({
       !item.id.startsWith('film-batman')
     ).filter(isItemPlayable);
     const fromDynamic = dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem).filter(isItemPlayable);
-    if (fromDynamic.length > 0) return fromDynamic;
-    if (fromVault.length > 0) return fromVault;
-    return PROTOTYPE_MEDIA_CATALOG.filter(isItemPlayable);
+    const fromSeed = PROTOTYPE_MEDIA_CATALOG.filter(isItemPlayable);
+    const chosen = fromDynamic.length > 0 ? fromDynamic : fromVault.length > 0 ? fromVault : fromSeed;
+    // Poster law: no two titles on the home screen may ever share a cover.
+    return ensureUniqueCatalogPosters(chosen);
   });
   const [user, setUser] = useState<UserAccountState>(() => initialVault?.user ?? INITIAL_USER_STATE);
   const [userVector, setUserVector] = useState<TasteVector6D>(
@@ -227,6 +232,18 @@ function UniversePrototypeShell({
       setLibraryTabRequest(undefined);
     }
     setRoute(nextRoute);
+  }, []);
+
+  // Immutable storage law: purge any legacy browser snapshot (IndexedDB
+  // AiPetrosUniverseVaultDB v1 / localStorage v1 keys) that still contains
+  // unplayable /api/stream/cache/ or t.me links BEFORE any cache hydrates.
+  useEffect(() => {
+    void purgeLegacyVaultData().then((report) => {
+      if (report.purged) {
+        console.warn('[LocalVault] Stale catalog storage purged:', report.details);
+        void clearVaultSnapshot();
+      }
+    });
   }, []);
 
   // Dynamic Stream Sync, AI Ad Agent, TV Navigation & Interactive Tour State
@@ -293,7 +310,8 @@ function UniversePrototypeShell({
         // Never show a title in the app if it cannot be fully played.
         const allItems = dynamicStreams.map(convertDynamicStreamToMediaItem);
         const playableItems = allItems.filter(isItemPlayable);
-        setCatalog(playableItems.length > 0 ? playableItems : allItems);
+        const nextCatalog = ensureUniqueCatalogPosters(playableItems.length > 0 ? playableItems : allItems);
+        setCatalog(nextCatalog);
       }
     });
 
@@ -304,7 +322,7 @@ function UniversePrototypeShell({
         const { catalog: purifiedCatalog, report } = await telegramCatalogAgent.purifyAndSync(catalog);
         const playablePurified = purifiedCatalog ? purifiedCatalog.filter(isItemPlayable) : [];
         if (isMounted && playablePurified.length > 0) {
-          setCatalog(playablePurified);
+          setCatalog(ensureUniqueCatalogPosters(playablePurified));
           setSyncStatusText(lang === 'fa' ? report.messageFa : 'Cinema catalog synchronized.');
         }
       } catch (err) {
@@ -371,7 +389,7 @@ function UniversePrototypeShell({
       if (idbSnap.catalog && idbSnap.catalog.length > 0) {
         const playableIdb = idbSnap.catalog.filter(isItemPlayable);
         if (playableIdb.length > 0) {
-          setCatalog(playableIdb);
+          setCatalog(ensureUniqueCatalogPosters(playableIdb));
         }
       }
       setDownloadsMap(sanitizeLoadedDownloads(idbSnap.downloads));
@@ -400,7 +418,7 @@ function UniversePrototypeShell({
   // Persist everything inside the application automatically on any change
   useEffect(() => {
     const snapshot = {
-      version: 1,
+      version: SNAPSHOT_VERSION,
       updatedAt: new Date().toISOString(),
       lang,
       onboardingDone,
@@ -434,6 +452,26 @@ function UniversePrototypeShell({
     searchFilters,
     catalog
   ]);
+
+  // Real-Poster Enrichment: every generated/missing poster is looked up in the
+  // reputable TMDb archive (Cinemeta) so each title gets its own genuine cover.
+  // Uniqueness is re-enforced, and the effect only re-renders when art changed.
+  useEffect(() => {
+    if (catalog.length === 0) return;
+    const needsEnrichment = catalog.some(
+      (item) => !item.posterUrl || item.posterUrl.startsWith('data:image/svg')
+    );
+    if (!needsEnrichment) return;
+    let active = true;
+    void enrichCatalogPosters(catalog).then((enriched) => {
+      if (!active || enriched.length !== catalog.length) return;
+      const changed = enriched.some((it, idx) => it.posterUrl !== catalog[idx].posterUrl);
+      if (changed) setCatalog(enriched);
+    });
+    return () => {
+      active = false;
+    };
+  }, [catalog]);
 
   // Global keyboard shortcut: Cmd/Ctrl + K jumps directly to Intelligent Search
   useEffect(() => {
@@ -806,9 +844,11 @@ function UniversePrototypeShell({
       void deleteOfflineMediaBlob(id);
     });
     void clearVaultSnapshot();
-    const validOnly = dynamicStreamSync.getStreams()
-      .map(convertDynamicStreamToMediaItem)
-      .filter(isItemPlayable);
+    const validOnly = ensureUniqueCatalogPosters(
+      dynamicStreamSync.getStreams()
+        .map(convertDynamicStreamToMediaItem)
+        .filter(isItemPlayable)
+    );
     setCatalog(validOnly);
     setUser(INITIAL_USER_STATE);
     setUserVector(DEFAULT_TASTE_VECTOR);
@@ -1357,9 +1397,11 @@ function UniversePrototypeShell({
               }
             }}
             onRefreshCatalog={() => {
-              const updatedStreams = dynamicStreamSync.getStreams()
-                .map(convertDynamicStreamToMediaItem)
-                .filter(isItemPlayable);
+              const updatedStreams = ensureUniqueCatalogPosters(
+                dynamicStreamSync.getStreams()
+                  .map(convertDynamicStreamToMediaItem)
+                  .filter(isItemPlayable)
+              );
               if (updatedStreams.length > 0) {
                 setCatalog(updatedStreams);
                 showToast(

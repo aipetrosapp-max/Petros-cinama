@@ -18,7 +18,9 @@ import {
   Subtitles,
   Languages,
   Link2,
-  Send
+  Send,
+  Star,
+  Rocket
 } from 'lucide-react';
 import type {
   TitleRecord,
@@ -102,6 +104,27 @@ export function ArchiveTab({
     }
   };
 
+  /** One-click field toggle (status / featured) without opening the editor. */
+  const patchTitle = async (title: TitleRecord, patch: Partial<TitleRecord>, label: string) => {
+    try {
+      await adminApi.updateTitle(title.id, { ...title, ...patch });
+      toast.push('success', label, title.titleFa || title.title);
+      onChanged();
+    } catch (error) {
+      toast.push('error', 'به‌روزرسانی ناموفق', (error as Error).message);
+    }
+  };
+
+  const toggleStatus = (title: TitleRecord) => {
+    const next = title.status === 'published' ? 'draft' : 'published';
+    void patchTitle(title, { status: next }, next === 'published' ? 'عنوان منتشر شد' : 'عنوان به پیش‌نویس برگشت');
+  };
+
+  const toggleFeatured = (title: TitleRecord) => {
+    const next = !title.featured;
+    void patchTitle(title, { featured: next }, next ? 'به اسلایدر برگزیده اضافه شد ⭐' : 'از اسلایدر برگزیده حذف شد');
+  };
+
   const toggleExpand = (id: string) =>
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
 
@@ -183,6 +206,7 @@ export function ArchiveTab({
                               ? 'پیش‌نویس'
                               : 'بایگانی'}
                         </Badge>
+                        {title.featured ? <Badge tone="gold">⭐ برگزیده</Badge> : null}
                         {title.year ? <Badge>{title.year}</Badge> : null}
                         {seasons.length ? <Badge tone="blue">{seasons.length} فصل</Badge> : null}
                         {episodes.length ? (
@@ -204,6 +228,30 @@ export function ArchiveTab({
                       </p>
                     </div>
                     <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        title={title.featured ? 'حذف از اسلایدر برگزیده' : 'افزودن به اسلایدر برگزیده'}
+                        onClick={() => toggleFeatured(title)}
+                        className={`rounded-lg border p-2 transition ${
+                          title.featured
+                            ? 'border-[#D4AF37]/60 bg-[#D4AF37]/15 text-[#F5E7B8]'
+                            : 'border-white/12 text-zinc-400 hover:border-[#D4AF37]/40 hover:text-[#F5E7B8]'
+                        }`}
+                      >
+                        <Star className={`h-3.5 w-3.5 ${title.featured ? 'fill-current' : ''}`} />
+                      </button>
+                      <button
+                        type="button"
+                        title={title.status === 'published' ? 'برگرداندن به پیش‌نویس' : 'انتشار سریع'}
+                        onClick={() => toggleStatus(title)}
+                        className={`rounded-lg border p-2 transition ${
+                          title.status === 'published'
+                            ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-300'
+                            : 'border-white/12 text-zinc-400 hover:border-emerald-500/40 hover:text-emerald-300'
+                        }`}
+                      >
+                        <Rocket className={`h-3.5 w-3.5 ${title.status === 'published' ? 'rotate-45' : ''}`} />
+                      </button>
                       <button
                         type="button"
                         title="افزودن فصل"

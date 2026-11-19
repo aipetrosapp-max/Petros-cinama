@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "manifestVersion": "mwldjw74",
+  "manifestVersion": "mwngehv4",
   "features": {
     "donationEnabled": true,
     "cryptoPaymentEnabled": true,
@@ -54,7 +54,21 @@
     }
   ],
   "tokens": [],
-  "sources": [],
-  "updatedAt": "2026-11-18T02:28:55.438Z",
+  "sources": [
+    {
+      "id": "src-mwmma2ix-c1c3a503",
+      "name": "digimoviez.com",
+      "nameFa": "",
+      "kind": "direct_mp4",
+      "baseUrl": "https://digimoviez.com/",
+      "homepage": "",
+      "status": "active",
+      "notes": "Cookie: 877fe56083df1fcb48d9b2b0a10ac910",
+      "gatewayPort": 8089,
+      "createdAt": "2026-11-18T21:12:02.121Z",
+      "updatedAt": "2026-11-18T21:12:02.121Z"
+    }
+  ],
+  "updatedAt": "2026-11-19T11:15:17.104Z",
   "subtitleFiles": []
 }

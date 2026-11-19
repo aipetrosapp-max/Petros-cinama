@@ -57,7 +57,41 @@ import {
   decodeGithubContent
 } from './githubSync.ts';
 
+import { handleAdminChatMessage } from './agent.ts';
+import { publishToTelegramChannel } from './telegramPublish.ts';
+import { makeLocalId } from './agentUtils.ts';
+import {
+  readCollection,
+  saveCollection,
+  readProgress,
+  startCollectionRun,
+  validateCollectionItems
+} from './collectionStore.ts';
+
 export const adminRouter = express.Router();
+
+/**
+ * POST /api/admin/agent/message — the Persian chat entrypoint of the
+ * Autonomous Local Cinema Admin Agent. Requires the admin session token.
+ * Everything is processed locally; nothing leaves the server on its own.
+ */
+adminRouter.post('/agent/message', requireAdminAuth, async (req, res) => {
+  const text = String(req.body?.text || '').trim();
+  if (!text) {
+    res.status(400).json({ error: 'empty_message', messageFa: 'پیام خالی است.' });
+    return;
+  }
+  try {
+    const reply = await handleAdminChatMessage(text);
+    res.json({ ok: true, ...reply });
+  } catch (err: unknown) {
+    res.status(500).json({
+      ok: false,
+      error: 'agent_error',
+      messageFa: `⛔ خطای داخلی ایجنت: ${(err as Error).message}\nلطفاً جزئیات خطا را بفرست تا ریشه‌یابی شود.`
+    });
+  }
+});
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -789,6 +823,38 @@ adminRouter.delete('/catalog/subtitle-file/:filename', requireAdminAuth, async (
 });
 
 // ---------------------------------------------------------------------------
+// Public-Domain Collection (editable list + background ingestion)
+// ---------------------------------------------------------------------------
+
+adminRouter.get('/collection', requireAdminAuth, async (_req, res) => {
+  const [collection, progress] = await Promise.all([readCollection(), readProgress()]);
+  res.json({ ...collection, progress });
+});
+
+adminRouter.put('/collection', requireAdminAuth, async (req, res) => {
+  const body = requireBody(req, res);
+  if (!body) return;
+  const check = validateCollectionItems(body.items);
+  if (!check.ok) {
+    res.status(400).json({ error: 'validation_failed', messageFa: check.messageFa });
+    return;
+  }
+  const collection = await readCollection();
+  collection.items = check.items;
+  await saveCollection(collection);
+  res.json({ ok: true, count: check.items.length, messageFa: `کالکشن ذخیره شد (${check.items.length} عنوان).` });
+});
+
+adminRouter.post('/collection/run', requireAdminAuth, async (_req, res) => {
+  const result = await startCollectionRun();
+  res.json({ ok: true, started: result.started, messageFa: result.messageFa, progress: result.progress });
+});
+
+adminRouter.get('/collection/progress', requireAdminAuth, async (_req, res) => {
+  res.json(await readProgress());
+});
+
+// ---------------------------------------------------------------------------
 // Quick-add from a single link (Telegram post / direct media / HLS)
 //
 // Behaviour requested by the owner:
@@ -881,76 +947,6 @@ async function fetchTelegramPostTitle(post: TelegramPostRef): Promise<string> {
   } catch {
     return '';
   }
-}
-
-function readTelegramBotConfig(): { token: string; channel: string } {
-  let token = (process.env.TELEGRAM_BOT_TOKEN || process.env.TG_BOT_TOKEN || '').trim();
-  let channel = (process.env.TELEGRAM_DEST_CHANNEL || '').trim();
-  if (!token || !channel) {
-    try {
-      const raw = fs.readFileSync(path.join(process.cwd(), 'config.json'), 'utf8');
-      const cfg = JSON.parse(raw) as { bot_token?: string; destination_channel?: number | string; channel_id?: number | string };
-      token = token || String(cfg.bot_token || '').trim();
-      channel = channel || String(cfg.destination_channel ?? cfg.channel_id ?? '').trim();
-    } catch {
-      // no local config — env only
-    }
-  }
-  return { token, channel };
-}
-
-async function publishToTelegramChannel(
-  mediaUrl: string,
-  title: string,
-  siteUrl: string
-): Promise<{ ok: boolean; method?: string; messageFa: string }> {
-  const { token, channel } = readTelegramBotConfig();
-  if (!token) {
-    return { ok: false, messageFa: 'توکن بات تلگرام تنظیم نشده (env یا config.json)؛ فقط به سایت اضافه شد.' };
-  }
-  if (!channel) {
-    return { ok: false, messageFa: 'شناسه کانال مقصد تنظیم نشده؛ فقط به سایت اضافه شد.' };
-  }
-  const caption = `🎬 ${title}\n✅ آماده پخش در سایت: ${siteUrl}`;
-  const isDirectMedia = /\.(mp4|mkv|webm|m4v|mov|avi)(\?|$)/i.test(mediaUrl) && !mediaUrl.includes('t.me/');
-  const post = async (method: 'sendVideo' | 'sendMessage', payload: Record<string, unknown>) => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 20000);
-    try {
-      const botResponse = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: channel, ...payload }),
-        signal: controller.signal
-      });
-      const body = (await botResponse.json()) as { ok?: boolean; description?: string };
-      return body.ok
-        ? { ok: true as const, method, messageFa: 'در کانال تلگرام منتشر شد.' }
-        : { ok: false as const, method, messageFa: `انتشار تلگرام ناموفق: ${String(body.description || botResponse.status).slice(0, 140)}` };
-    } catch (error) {
-      return { ok: false as const, method, messageFa: `انتشار تلگرام ناموفق: ${String(error).slice(0, 140)}` };
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-
-  if (isDirectMedia) {
-    // Telegram downloads the file server-side and posts the real video.
-    const videoPost = await post('sendVideo', { video: mediaUrl, caption });
-    if (videoPost.ok) return videoPost;
-    // Bot video fetch can fail (dead URL, >20MB bot limit). Never lose the
-    // announcement: fall back to a captioned link message.
-    const fallback = await post('sendMessage', {
-      text: `${caption}\n🔗 ${mediaUrl}`,
-      disable_web_page_preview: false
-    });
-    return fallback.ok
-      ? { ...fallback, messageFa: `ویدیو مستقیم منتشر نشد (${videoPost.messageFa})؛ به‌جای آن لینک در کانال قرار گرفت.` }
-      : { ...fallback, messageFa: `${videoPost.messageFa} — لینک جایگزین هم منتشر نشد.` };
-  }
-
-  // t.me posts / HLS / page links: share a captioned link message.
-  return post('sendMessage', { text: `${caption}\n🔗 ${mediaUrl}`, disable_web_page_preview: false });
 }
 
 adminRouter.post('/catalog/from-link', requireAdminAuth, async (req, res) => {

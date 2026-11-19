@@ -16,7 +16,8 @@ import type {
   SourceRecord,
   FeatureFlags,
   MediaCategory,
-  SubtitleFileRecord
+  SubtitleFileRecord,
+  CollectionItem
 } from './types.ts';
 
 let sessionToken = '';
@@ -272,6 +273,28 @@ export const adminApi = {
 
   deleteSource: (id: string) =>
     request<{ ok: boolean; messageFa: string }>(`/sources/${id}`, { method: 'DELETE' }),
+
+  // Public-Domain editable collection
+  getCollection: () =>
+    request<{ items: CollectionItem[]; progress?: unknown }>('/collection'),
+  saveCollection: (items: CollectionItem[]) =>
+    request<{ ok: boolean; count: number; messageFa: string }>('/collection', {
+      method: 'PUT',
+      body: { items }
+    }),
+  runCollection: () =>
+    request<{ ok: boolean; started: boolean; messageFa: string }>('/collection/run', { method: 'POST' }),
+  getCollectionProgress: () =>
+    request<{ running?: boolean; total?: number; processed?: number; added?: number; failed?: number; skipped?: number; log?: string[] }>(
+      '/collection/progress'
+    ),
+
+  /** Persian chat with the Autonomous Local Cinema Admin Agent. */
+  agentMessage: (text: string) =>
+    request<{ ok: boolean; intent: string; replyFa: string; data?: unknown }>('/agent/message', {
+      method: 'POST',
+      body: { text }
+    }),
 
   vault: () => request<AdminConfig>('/vault'),
 

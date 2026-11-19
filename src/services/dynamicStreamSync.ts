@@ -1,5 +1,7 @@
 import type { PrototypeMediaItem } from '../prototype/types';
 import { loadCatalogCache, saveCatalogCache } from './catalogCache';
+import { isLegacyLocalOrTelegramUrl, isPlayableDirectMediaUrl, isPlayableHttpsMediaFile, isTrailerUrl } from './mediaUrlValidator';
+import { resolveUniquePoster } from './posterRegistry';
 
 /**
  * Dynamic URL & Stream Sync Service
@@ -121,7 +123,14 @@ class DynamicStreamSyncService {
     try {
       const cached = await loadCatalogCache<DynamicStreamItem>();
       if (cached && cached.length > 0) {
-        this.currentStreams = cached;
+        // Purge stale cached entries pointing at the local rolling-cache
+        // gateway (/api/stream/cache/) or raw Telegram posts: on production
+        // builds they are unplayable and trigger the maintenance error box.
+        const clean = cached.filter(isCleanStreamItem);
+        this.currentStreams = clean;
+        if (clean.length !== cached.length) {
+          void saveCatalogCache(clean);
+        }
       }
       const meta = localStorage.getItem(STORAGE_SYNC_META);
       if (meta) {
@@ -207,8 +216,9 @@ class DynamicStreamSyncService {
 
       // Merge remote streams with existing local custom streams so user streams are never lost
       const remoteIds = new Set(data.streams.map((s) => s.id));
-      const userCustom = this.currentStreams.filter((s) => !remoteIds.has(s.id));
-      this.currentStreams = [...userCustom, ...data.streams];
+      const userCustom = this.currentStreams.filter((s) => !remoteIds.has(s.id) && isCleanStreamItem(s));
+      const cleanRemote = data.streams.filter(isCleanStreamItem);
+      this.currentStreams = [...userCustom, ...cleanRemote];
       this.lastSyncedAt = new Date().toISOString();
 
       // Full catalog lives in IndexedDB. localStorage keeps only a tiny pointer.
@@ -323,6 +333,43 @@ const DEFAULT_CINEMA_POSTERS = [
   'https://image.tmdb.org/t/p/w780/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg'  // The Matrix
 ];
 
+/**
+ * Legacy guard: a stream whose playable links only point at the local rolling
+ * cache route, a raw Telegram post, a trailer file, or the shared fake demo
+ * clip can never play as the full movie on the production build. Such stale
+ * entries are purged from every cache layer at load/sync time.
+ */
+export function isCleanStreamItem(stream: DynamicStreamItem): boolean {
+  const record = stream as unknown as {
+    defaultStreamUrl?: string;
+    playableUrl?: string;
+    streamUrl?: string;
+    upstreamUrl?: string;
+    telegramUrl?: string;
+    qualities?: { url?: string }[];
+  };
+  const urls = [
+    record.defaultStreamUrl,
+    record.playableUrl,
+    record.streamUrl,
+    record.upstreamUrl,
+    record.telegramUrl,
+    ...(Array.isArray(record.qualities) ? record.qualities.map((q) => q.url) : [])
+  ].filter((u): u is string => Boolean(u));
+
+  // Legacy cache-route / raw-Telegram links: always stale.
+  if (urls.some(isLegacyLocalOrTelegramUrl)) return false;
+
+  // The stream must offer at least one full-movie file (NOT a trailer, NOT a
+  // fake demo clip): a verified HTTPS MP4/HLS/WebM in production, or any
+  // validated direct media route while running on the local dev gateway.
+  const movieFiles = urls.filter((u) => !isTrailerUrl(u));
+  const hasMovieFile = movieFiles.some(
+    (u) => isPlayableHttpsMediaFile(u) || isPlayableDirectMediaUrl(u)
+  );
+  return hasMovieFile;
+}
+
 export function getFallbackPoster(id: string): string {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
@@ -332,6 +379,7 @@ export function getFallbackPoster(id: string): string {
 }
 
 export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): PrototypeMediaItem {
+  const displayTitle = stream.titleFa || stream.title || stream.id;
   return {
     id: stream.id,
     titleEn: stream.title,
@@ -352,7 +400,7 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     quality: (stream.qualities && Array.isArray(stream.qualities) && stream.qualities.some(q => q.quality === '4K')) ? '4K HDR' : '1080p',
     releaseYear: stream.year || 0,
     addedDaysAgo: 0,
-    posterUrl: stream.posterUrl || (stream as any).poster || getFallbackPoster(stream.id),
+    posterUrl: resolveUniquePoster(displayTitle, stream.id, stream.posterUrl || (stream as any).poster),
     accentHex: '#F5B942',
     synopsisEn: stream.synopsis,
     synopsisFa: stream.synopsisFa || stream.synopsis,

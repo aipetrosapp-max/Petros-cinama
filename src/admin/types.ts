@@ -123,6 +123,13 @@ export interface SourceRecord {
   updatedAt: string;
 }
 
+/** Editable public-domain collection entry (archive.org item). */
+export interface CollectionItem {
+  title: string;
+  year?: number | null;
+  identifier: string;
+}
+
 export interface WalletRecord {
   id: string;
   network: 'BTC' | 'ETH' | 'USDT-TRC20' | 'TON' | 'USDT-ERC20' | 'LTC';

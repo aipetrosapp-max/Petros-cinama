@@ -388,15 +388,30 @@ export function StatCard({
   label,
   value,
   hint,
-  icon
+  icon,
+  onClick
 }: {
   label: string;
   value: React.ReactNode;
   hint?: string;
   icon?: React.ReactNode;
+  onClick?: () => void;
 }) {
+  const Wrapper = onClick ? 'button' : 'div';
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent px-4 py-3.5">
+    <Wrapper
+      {...(onClick
+        ? {
+            type: 'button' as const,
+            onClick,
+            className:
+              'cursor-pointer rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent px-4 py-3.5 text-right transition hover:border-[#D4AF37]/40 hover:bg-white/[0.04]'
+          }
+        : {
+            className:
+              'rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent px-4 py-3.5'
+          })}
+    >
       <div className="flex items-center justify-between gap-2">
         <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">{label}</span>
         {icon}
@@ -405,7 +420,7 @@ export function StatCard({
         {value}
       </p>
       {hint ? <p className="mt-0.5 text-[10px] text-zinc-500">{hint}</p> : null}
-    </div>
+    </Wrapper>
   );
 }
 
