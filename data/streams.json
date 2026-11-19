@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-19T13:55:44.047Z",
-  "updatedAt": "2026-11-19T13:55:44.047Z",
+  "version": "2026-11-19T13:56:50.473Z",
+  "updatedAt": "2026-11-19T13:56:50.473Z",
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
@@ -41,6 +41,14 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T13:56:50.405Z"
+      },
       "status": "draft",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
@@ -5580,6 +5588,14 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T13:56:50.407Z"
+      },
       "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
@@ -13294,6 +13310,14 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T13:56:50.409Z"
+      },
       "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
@@ -13415,7 +13439,7 @@
       "posterUrl": "https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
       "backdropUrl": "",
       "year": 2017,
-      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
+      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
       "durationSec": 9840,
       "director": "Denis Villeneuve",
       "cast": [],
