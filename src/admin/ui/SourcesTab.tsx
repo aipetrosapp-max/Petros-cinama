@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { Link2, Plus, Trash2, ShieldCheck, Server, Radio } from 'lucide-react';
 import type { SourceRecord } from '../types.ts';
 import { adminApi, type SourceValidationResult } from '../client.ts';
+import { getAdminMode } from '../transport.ts';
 import {
   Panel,
   GoldButton,
@@ -38,6 +39,23 @@ export function SourcesTab() {
   const [browserUrl, setBrowserUrl] = useState('');
   const [launchingBrowser, setLaunchingBrowser] = useState(false);
   const [cookieCount, setCookieCount] = useState<number | null>(null);
+  const [sessions, setSessions] = useState<Array<{ host: string; count: number; logged_in: boolean; savedAt?: string | null; url?: string }>>([]);
+
+  const refreshSessions = async () => {
+    try {
+      const res = await adminApi.browserSessions();
+      setSessions(res.sessions || []);
+      if ((res.sessions || []).length === 0) {
+        toast.push('info', 'نشستی نیست', 'اول مرورگر واقعی را باز کن و لاگین کن؛ بعد «بررسی دوباره» را بزن.');
+      }
+    } catch {
+      setSessions([]);
+    }
+  };
+
+  useEffect(() => {
+    void refreshSessions();
+  }, []);
 
   const launchInteractiveBrowser = async () => {
     const target = browserUrl.trim() || url.trim();
@@ -48,8 +66,13 @@ export function SourcesTab() {
     setLaunchingBrowser(true);
     try {
       const res = await adminApi.launchBrowser(target);
-      toast.push('success', 'مرورگر باز شد', res.messageFa);
+      toast.push('success', 'مرورگر باز شد', 'پنجره Chrome for Testing روی مانیتور/نوار وظیفه باز می‌شود — بعد از لاگین آن را ببند تا کوکی‌ها ذخیره شود.');
       if (!name) setName(new URL(target).hostname);
+      // auto-check for the session shortly after — the user closes the window when done
+      setTimeout(() => {
+        void fetchSessionCookies();
+        void refreshSessions();
+      }, 60_000);
     } catch (e) {
       toast.push('error', 'اجرای مرورگر ناموفق', (e as Error).message);
     } finally {
@@ -145,8 +168,13 @@ export function SourcesTab() {
     <div className="space-y-4">
       <Panel
         title="🌐 ورود به سایت‌های VIP و استخراج نشست"
-        subtitle="برای سایت‌هایی مانند دیجی‌موویز و سایر سایت‌های VIP — می‌توانید سایت را مستقیم در تب جدید باز کنید و کوکی/توکن را کپی کنید یا اطلاعات ورود را در کادر زیر وارد نمایید"
+        subtitle="برای سایت‌هایی مانند دیجی‌موویز و سایر سایت‌های VIP — لینک مستقیم، مرورگر واقعی روی مانیتور، یا ورود خودکار با اکانت خودت"
       >
+        {getAdminMode() === 'github' ? (
+          <div className="mb-3 rounded-xl border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[10.5px] text-amber-200">
+            ⚠️ این ابزارها (مرورگر واقعی، کوکی و نشست) فقط روی کامپیوتر خودت کار می‌کنند — پنل را از لوکال باز کن: <a href="http://localhost:3210/admin" target="_blank" rel="noopener noreferrer" className="underline">localhost:3210/admin</a>
+          </div>
+        ) : null}
         <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto]">
           <TextInput
             value={browserUrl}
@@ -154,23 +182,75 @@ export function SourcesTab() {
             placeholder="مثال: https://digimoviez.com یا آدرس صفحه ورود سایت فیلم"
             dir="ltr"
           />
-          <GoldButton
-            onClick={() => {
-              const target = browserUrl.trim() || url.trim();
-              if (!target) {
-                toast.push('info', 'آدرس لازم است', 'ابتدا آدرس سایت را وارد کنید.');
-                return;
-              }
-              const fullUrl = /^https?:\/\//i.test(target) ? target : `https://${target}`;
-              window.open(fullUrl, '_blank');
-              toast.push('success', 'سایت باز شد', 'سایت در تب جدید باز شد. وارد اکانت شوید.');
-            }}
-          >
-            ↗ باز کردن سایت در تب جدید گوشی
-          </GoldButton>
+          {(() => {
+            const target = (browserUrl.trim() || url.trim()).trim();
+            const fullUrl = target ? (/^https?:\/\//i.test(target) ? target : `https://${target}`) : '';
+            return (
+              <a
+                href={fullUrl || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!fullUrl) {
+                    e.preventDefault();
+                    toast.push('info', 'آدرس لازم است', 'ابتدا آدرس سایت را وارد کنید.');
+                    return;
+                  }
+                  toast.push('success', 'لینک باز شد', 'سایت در تب جدید باز شد. وارد اکانت شوید.');
+                }}
+                className="inline-flex items-center justify-center gap-1.5 self-start rounded-xl bg-gradient-to-l from-[#F3D06B]/90 to-[#D4AF37]/90 px-4 py-2.5 text-[11px] font-bold text-black transition hover:brightness-110"
+                style={{ pointerEvents: fullUrl ? 'auto' : 'none', opacity: fullUrl ? 1 : 0.5 }}
+              >
+                ↗ باز کردن سایت در تب جدید
+              </a>
+            );
+          })()}
           <GoldButton onClick={launchInteractiveBrowser} loading={launchingBrowser} variant="ghost">
-            🖥️ باز کردن روی مانیتور کامپیوتر
+            🖥️ مرورگر واقعی روی مانیتور
           </GoldButton>
+        </div>
+        {(browserUrl.trim() || url.trim()) ? (
+          <p className="mt-2 text-[10px] text-zinc-500" dir="ltr">
+            {/^https?:\/\//i.test(browserUrl.trim() || url.trim()) ? (browserUrl.trim() || url.trim()) : `https://${browserUrl.trim() || url.trim()}`}
+          </p>
+        ) : null}
+        {launchingBrowser ? (
+          <p className="mt-2 text-[10.5px] text-[#D4AF37]">
+            ⏳ مرورگر در حال باز شدن است (چند ثانیه طول می‌کشد) — پنجره ممکن است پشت دیگر برنامه‌ها باز شود؛ در نوار وظیفه (Taskbar) دنبال پنجره «Google Chrome for Testing» بگرد.
+          </p>
+        ) : null}
+
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-bold text-amber-300">📋 نشست‌های ذخیره‌شده (بعد از لاگین خودکار اضافه می‌شود):</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => void refreshSessions()}
+                className="rounded-lg border border-white/12 px-2 py-1 text-[10px] font-bold text-zinc-300 transition hover:border-[#D4AF37]/40"
+              >
+                ↻ بررسی دوباره
+              </button>
+              <button
+                type="button"
+                onClick={() => void fetchSessionCookies()}
+                className="rounded-lg border border-white/12 px-2 py-1 text-[10px] font-bold text-zinc-300 transition hover:border-[#D4AF37]/40"
+              >
+                🍪 کوکی مرورگر زنده
+              </button>
+            </div>
+          </div>
+          {sessions.length === 0 ? (
+            <p className="text-[10px] text-zinc-500">هنوز نشستی ذخیره نشده — یکی از دو دکمه بالا را استفاده کن، بعد از بستن مرورگر «بررسی دوباره» را بزن.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {sessions.map((s) => (
+                <Badge key={s.host} tone={s.logged_in ? 'green' : 'neutral'}>
+                  {s.host} • {s.count} کوکی{s.logged_in ? ' ✓ لاگین' : ''}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
