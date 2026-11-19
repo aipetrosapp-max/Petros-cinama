@@ -348,12 +348,17 @@ async function githubRequest<T>(path: string, init: AdminRequestInit = {}): Prom
     }
 
     if (path === '/dashboard') {
-      return dashboardFrom((await loadCatalog()).file, await loadConfig()) as T;
+      const config = await loadConfig().catch(() => ({}) as AdminConfig);
+      return dashboardFrom((await loadCatalog()).file, config) as T;
     }
 
     if (path === '/catalog' && method === 'GET') {
-      const { file } = await loadCatalog(true);
-      return { version: file.version, updatedAt: file.updatedAt, titles: file.streams || [] } as T;
+      try {
+        const { file } = await loadCatalog(true);
+        return { version: file.version, updatedAt: file.updatedAt, titles: file.streams || [] } as T;
+      } catch (e: unknown) {
+        throw new AdminApiError(502, 'github_read_failed', `خواندن کاتالوگ از گیت‌هاب ناموفق بود: ${e instanceof Error ? e.message : 'خطای شبکه'}`);
+      }
     }
 
     if (path === '/catalog/title' && method === 'POST') {
