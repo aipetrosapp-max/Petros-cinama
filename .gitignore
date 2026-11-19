@@ -36,3 +36,7 @@ run_local_server.bat
 
 # Browser cookie vaults (per-host login sessions — sensitive)
 data/browser_cookies/
+
+# VIP session vaults — local only, never in the repo
+data/browser_sessions/
+data/browser_cookies/
