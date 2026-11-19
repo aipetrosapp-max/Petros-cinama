@@ -1181,6 +1181,88 @@ async function fetchTelegramPostTitle(post: TelegramPostRef): Promise<string> {
   }
 }
 
+/** Send selected files to the owner's Telegram channel with their original
+ * names — real download + real Telethon upload (worker with progress). */
+function cookieForHost(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const vaultPath = path.join(process.cwd(), 'data', 'browser_sessions', `${host}.json`);
+    if (!fs.existsSync(vaultPath)) return '';
+    const vault = JSON.parse(fs.readFileSync(vaultPath, 'utf-8')) as { cookie_header?: string };
+    return String(vault.cookie_header || '');
+  } catch {
+    return '';
+  }
+}
+
+adminRouter.post('/telegram/transfer', requireAdminAuth, async (req, res) => {
+  const body = requireBody(req, res);
+  if (!body) return;
+  const rawItems = Array.isArray(body.items) ? body.items : [];
+  const items = rawItems
+    .map((it: unknown, i: number) => {
+      const rec = (it || {}) as Record<string, unknown>;
+      const url = String(rec.url || '').trim();
+      if (!/^https?:\/\//i.test(url)) return null;
+      const fallbackName = (() => {
+        try {
+          return decodeURIComponent(new URL(url).pathname.split('/').pop() || '') || `file-${i + 1}.mp4`;
+        } catch {
+          return `file-${i + 1}.mp4`;
+        }
+      })();
+      return {
+        id: `file-${Date.now().toString(36)}-${i}`,
+        title: String(rec.name || '').trim() || fallbackName,
+        url,
+        watchUrl: '',
+        // attach the owner's VIP session for this host automatically (if saved)
+        ...(cookieForHost(url) ? { cookieHeader: cookieForHost(url) } : {})
+      };
+    })
+    .filter(Boolean);
+  if (items.length === 0) {
+    res.status(400).json({ error: 'no_items', messageFa: 'هیچ لینک معتبری برای ارسال انتخاب نشده است.' });
+    return;
+  }
+  const destination = await (async () => {
+    try {
+      const cfg = JSON.parse(await fsp.readFile(path.join(process.cwd(), 'config.json'), 'utf-8')) as { destination_channel?: string | number };
+      return String(cfg.destination_channel || '');
+    } catch {
+      return '';
+    }
+  })();
+  if (!destination) {
+    res.status(500).json({ error: 'no_destination', messageFa: 'کانال مقصد (config.json) تنظیم نشده است.' });
+    return;
+  }
+  const job = { destination, items };
+  await fsp.writeFile(path.join(process.cwd(), 'data', 'agent_transfer_job.json'), JSON.stringify(job, null, 2), 'utf-8');
+  await fsp.rm(path.join(process.cwd(), 'data', 'agent_transfer_status.json'), { force: true });
+  const python = process.platform === 'win32' ? 'python' : 'python3';
+  const child = spawn(python, [path.join(process.cwd(), 'scripts', 'telethon_file_transfer.py')], {
+    detached: true,
+    stdio: 'ignore'
+  });
+  child.unref();
+  res.json({
+    ok: true,
+    started: items.length,
+    messageFa: `📤 انتقال ${(items as unknown[]).length} فایل شروع شد — دانلود از منبع و آپلود واقعی به کانال تلگرام تو با نام خود فایل‌ها.`
+  });
+});
+
+adminRouter.get('/telegram/transfer/status', requireAdminAuth, async (_req, res) => {
+  try {
+    const raw = await fsp.readFile(path.join(process.cwd(), 'data', 'agent_transfer_status.json'), 'utf-8');
+    const parsed = JSON.parse(raw) as Record<string, { title: string; status: string; progressPct: number; error: string }>;
+    res.json({ ok: true, items: Object.entries(parsed).map(([id, v]) => ({ id, ...v })) });
+  } catch {
+    res.json({ ok: true, items: [] });
+  }
+});
+
 adminRouter.post('/catalog/from-link', requireAdminAuth, async (req, res) => {
   const body = requireBody(req, res);
   if (!body) return;

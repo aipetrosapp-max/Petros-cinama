@@ -2,10 +2,10 @@
   "destination": "-1003885570365",
   "items": [
     {
-      "id": "canonical-blade-runner-2049",
-      "title": "Blade Runner 2049",
-      "url": "https://archive.org/download/film-blade-runner-2049-vf-2017/Blade%20Runner%202049%20%282017%29.ia.mp4",
-      "watchUrl": "https://aipetros.xyz/#/watch/canonical-blade-runner-2049"
+      "id": "file-mwo5i7gk-0",
+      "title": "tiny_test_clip.mp4",
+      "url": "http://127.0.0.1:3219/tiny_test_clip.mp4",
+      "watchUrl": ""
     }
   ]
 }

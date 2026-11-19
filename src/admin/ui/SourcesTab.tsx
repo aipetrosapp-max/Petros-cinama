@@ -40,21 +40,90 @@ export function SourcesTab() {
   const [launchingBrowser, setLaunchingBrowser] = useState(false);
   const [cookieCount, setCookieCount] = useState<number | null>(null);
   const [sessions, setSessions] = useState<Array<{ host: string; count: number; logged_in: boolean; savedAt?: string | null; url?: string }>>([]);
+  const [sourcePageUrl, setSourcePageUrl] = useState('');
+  const [extractingFiles, setExtractingFiles] = useState(false);
+  const [extractedFiles, setExtractedFiles] = useState<Array<{ url: string; text: string; type: string }>>([]);
+  const [selectedForTelegram, setSelectedForTelegram] = useState<string[]>([]);
+  const [fileNames, setFileNames] = useState<Record<string, string>>({});
+  const [sendingToTelegram, setSendingToTelegram] = useState(false);
+  const [transferItems, setTransferItems] = useState<Array<{ id: string; title: string; status: string; progressPct: number; error: string }>>([]);
+  const [transferState, setTransferState] = useState<Record<string, { status: string; progressPct: number; error: string }>>({});
+
+  const fileNameFromUrl = (u: string): string => {
+    try {
+      return decodeURIComponent(new URL(u).pathname.split('/').pop() || u);
+    } catch {
+      return u;
+    }
+  };
 
   const refreshSessions = async () => {
     try {
       const res = await adminApi.browserSessions();
       setSessions(res.sessions || []);
-      if ((res.sessions || []).length === 0) {
-        toast.push('info', 'نشستی نیست', 'اول مرورگر واقعی را باز کن و لاگین کن؛ بعد «بررسی دوباره» را بزن.');
-      }
     } catch {
       setSessions([]);
     }
   };
 
+  const extractSourceFiles = async () => {
+    setExtractingFiles(true);
+    setExtractedFiles([]);
+    setSelectedForTelegram([]);
+    try {
+      const res = await adminApi.vipExtractLinks(sourcePageUrl.trim());
+      if (res.ok) {
+        // media + embed links are the transferable files; sort direct first
+        const media = res.links.filter((l) => l.type === 'direct' || l.type === 'stream');
+        const rest = res.links.filter((l) => l.type !== 'direct' && l.type !== 'stream');
+        const all = [...media, ...rest];
+        setExtractedFiles(all);
+        setSelectedForTelegram(media.map((l) => l.url));
+        toast.push('success', 'لیست فایل‌ها آماده شد', `${all.length} فایل — پیش‌فرض‌ها تیک خورده‌اند؛ هر خواستی را بردار/بگذار و ارسال کن.`);
+      } else {
+        toast.push('info', 'فایلی پیدا نشد', res.messageFa);
+      }
+    } catch (error) {
+      toast.push('error', 'استخراج ناموفق', (error as Error).message);
+    } finally {
+      setExtractingFiles(false);
+    }
+  };
+
+  const sendSelectedToTelegram = async () => {
+    setSendingToTelegram(true);
+    try {
+      const items = selectedForTelegram.map((u) => ({
+        url: u,
+        ...(fileNames[u] ? { name: fileNames[u] } : {})
+      }));
+      const res = await adminApi.transferToTelegram(items);
+      toast.push('success', 'ارسال شروع شد', res.messageFa);
+      setSelectedForTelegram([]);
+      void pollTransfer();
+    } catch (error) {
+      toast.push('error', 'ارسال ناموفق', (error as Error).message);
+    } finally {
+      setSendingToTelegram(false);
+    }
+  };
+
+  const pollTransfer = async () => {
+    try {
+      const res = await adminApi.transferStatus();
+      setTransferItems(res.items || []);
+      setTransferState(Object.fromEntries((res.items || []).map((it) => [it.title, { status: it.status, progressPct: it.progressPct, error: it.error }])));
+    } catch {
+      // silent
+    }
+  };
+
   useEffect(() => {
     void refreshSessions();
+    const timer = setInterval(() => {
+      void pollTransfer();
+    }, 8000);
+    return () => clearInterval(timer);
   }, []);
 
   const launchInteractiveBrowser = async () => {
@@ -272,6 +341,100 @@ export function SourcesTab() {
             />
           </div>
         </div>
+      </Panel>
+
+      <Panel
+        title="📂 لیست فایل‌های منبع — تیک بزن، کامل به تلگرام برو"
+        subtitle="از یک صفحه سایت منبع لینک بگیر؛ فایل‌ها را با تیک انتخاب کن؛ دانلود کامل + آپلود واقعی به کانال تلگرام تو با نام خود فایل‌ها"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <TextInput
+            value={sourcePageUrl}
+            onChange={(e) => setSourcePageUrl(e.target.value)}
+            placeholder="آدرس یک صفحه از سایت منبع (لیست فیلم/سریال)"
+            dir="ltr"
+            className="min-w-[240px] flex-1"
+          />
+          <GoldButton
+            onClick={() => void extractSourceFiles()}
+            loading={extractingFiles}
+            disabled={!sourcePageUrl.trim()}
+          >
+            📂 استخراج لیست فایل‌ها
+          </GoldButton>
+          <GoldButton
+            variant="ghost"
+            onClick={() => void sendSelectedToTelegram()}
+            disabled={selectedForTelegram.length === 0 || sendingToTelegram}
+          >
+            {sendingToTelegram ? 'در حال ارسال…' : `📤 ارسال ${selectedForTelegram.length.toLocaleString('fa-IR')} فایل تیک‌خورده به تلگرام`}
+          </GoldButton>
+        </div>
+
+        {extractedFiles.length > 0 ? (
+          <div className="mt-3 max-h-80 overflow-y-auto rounded-xl border border-white/10 bg-black/40 p-2">
+            {extractedFiles.map((f, i) => {
+              const name = fileNameFromUrl(f.url);
+              const checked = selectedForTelegram.includes(f.url);
+              const st = transferState[f.url];
+              return (
+                <label
+                  key={f.url + i}
+                  className="flex cursor-pointer items-center gap-2 border-b border-white/5 px-2 py-2 last:border-0"
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() =>
+                      setSelectedForTelegram((prev) =>
+                        prev.includes(f.url) ? prev.filter((u) => u !== f.url) : [...prev, f.url]
+                      )
+                    }
+                    className="accent-[#D4AF37]"
+                  />
+                  <Badge tone={f.type === 'direct' || f.type === 'stream' ? 'green' : f.type === 'embed' ? 'gold' : 'neutral'}>
+                    {f.type === 'direct' ? 'مستقیم' : f.type === 'stream' ? 'استریم' : f.type === 'embed' ? 'پلیر' : 'صفحه'}
+                  </Badge>
+                  <span className="min-w-0 flex-1 truncate text-[10.5px] text-zinc-300" dir="ltr" title={f.url}>
+                    {name}
+                  </span>
+                  <TextInput
+                    value={fileNames[f.url] ?? ''}
+                    onChange={(e) => setFileNames((prev) => ({ ...prev, [f.url]: e.target.value }))}
+                    placeholder="نام ارسالی (اختیاری)"
+                    className="w-40 text-[10px]"
+                  />
+                  {st ? (
+                    <Badge tone={st.status === 'uploaded' ? 'green' : st.status === 'failed' ? 'red' : 'gold'}>
+                      {st.status === 'downloading'
+                        ? `⏬ ${st.progressPct}%`
+                        : st.status === 'uploading'
+                          ? `⏫ ${st.progressPct}%`
+                          : st.status === 'uploaded'
+                            ? '✅ رسید به تلگرام'
+                            : `⛔ ${st.error || 'ناموفق'}`}
+                    </Badge>
+                  ) : null}
+                </label>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-2 text-[10px] text-zinc-500">
+            صفحه منبع را بچسبان و «استخراج لیست فایل‌ها» را بزن — فایل‌های مستقیم/پلیر/صفحه‌های دانلود لیست می‌شوند. فایل‌هایی که تیک می‌زنی دانلود کامل می‌شوند و با همان نام اصلی به کانال «Aipetros» می‌روند.
+          </p>
+        )}
+
+        {transferItems.length > 0 && (
+          <div className="mt-3 rounded-xl border border-white/10 bg-white/5 p-3">
+            <p className="text-[10.5px] font-bold text-amber-300">وضعیت انتقال اخیر:</p>
+            {transferItems.map((t) => (
+              <p key={t.id} className="text-[10px] text-zinc-300">
+                {t.status === 'uploaded' ? '✅' : t.status === 'failed' ? '⛔' : '⏳'} {t.title} — {t.status === 'downloading' ? `⏬ ${t.progressPct}%` : t.status === 'uploading' ? `⏫ ${t.progressPct}%` : t.status === 'uploaded' ? 'رسید' : t.error || t.status}
+              </p>
+            ))}
+          </div>
+        )}
       </Panel>
 
       <Panel

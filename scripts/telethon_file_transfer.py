@@ -147,6 +147,11 @@ async def main() -> None:
         job = json.load(f)
     items = job.get("items", [])
     destination = job.get("destination")
+    # Telethon requires a numeric chat id (a string id is not resolvable)
+    try:
+        destination = int(str(destination).strip())
+    except (TypeError, ValueError):
+        pass
 
     api_id_raw = os.environ.get("TG_API_ID", "").strip()
     api_hash = os.environ.get("TG_API_HASH", "").strip()
@@ -183,6 +188,13 @@ async def main() -> None:
 
     os.makedirs(TEMP_DIR, exist_ok=True)
 
+    # Resolve & cache the destination entity once (raw numeric ids need this)
+    try:
+        destination = await client.get_entity(destination)
+    except Exception as e:
+        write_all_status("destination_unreachable", f"کانال مقصد پیدا نشد: {e}")
+        return
+
     for item in items:
         item_id = str(item.get("id", ""))
         title = item.get("title", "")
@@ -210,12 +222,39 @@ async def main() -> None:
         last_write.append(0.0)
 
         try:
-            urllib.request.urlretrieve(url, local_path, reporthook=hook)
+            # VIP sources may need the owner's session cookies to download
+            cookie_header = str(item.get("cookieHeader", "")).strip()
+            if cookie_header:
+                opener = urllib.request.build_opener()
+                req = urllib.request.Request(url)
+                req.add_header("Cookie", cookie_header)
+                req.add_header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+                req.add_header("Referer", urllib.parse.urljoin(url, "/"))
+                with opener.open(req, timeout=60) as resp, open(local_path, "wb") as fh:
+                    total = int(resp.headers.get("Content-Length", 0) or 0)
+                    downloaded = 0
+                    while True:
+                        chunk = resp.read(1024 * 512)
+                        if not chunk:
+                            break
+                        fh.write(chunk)
+                        downloaded += len(chunk)
+                        if total:
+                            pct = min(99, int(downloaded * 100 / total))
+                            if pct - last_write[0] >= 5:
+                                last_write[0] = pct
+                                entry["progressPct"] = pct
+                                save_json(STATUS_FILE, status)
+            else:
+                urllib.request.urlretrieve(url, local_path, reporthook=hook)
             entry["status"] = "uploading"
             entry["progressPct"] = 0
             save_json(STATUS_FILE, status)
 
-            caption = f"🎬 {title}\n✅ پخش آنلاین و دانلود: {watch_url}"
+            if watch_url:
+                caption = f"🎬 {title}\n✅ پخش آنلاین و دانلود: {watch_url}"
+            else:
+                caption = f"🎬 {title}"
             await client.send_file(
                 destination,
                 local_path,

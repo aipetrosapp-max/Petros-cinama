@@ -840,6 +840,17 @@ export const adminApi = {
       { method: 'POST', body: { url } }
     ),
 
+  transferToTelegram: (items: Array<{ url: string; name?: string; cookieHeader?: string }>) =>
+    request<{ ok: boolean; started: number; messageFa: string }>('/telegram/transfer', {
+      method: 'POST',
+      body: { items }
+    }),
+
+  transferStatus: () =>
+    request<{ ok: boolean; items: Array<{ id: string; title: string; status: string; progressPct: number; error: string }> }>(
+      '/telegram/transfer/status'
+    ),
+
   checkBrowserSession: (host: string) =>
     request<{ ok: boolean; session?: { url: string; cookie_header: string; count: number }; messageFa?: string }>(
       `/browser/session/${encodeURIComponent(host)}`
