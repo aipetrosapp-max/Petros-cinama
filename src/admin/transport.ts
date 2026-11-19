@@ -72,22 +72,39 @@ export interface RepoFile {
 }
 
 /** Read a JSON file from the repo (with its blob SHA for updates).
- * Public repo → reads work without a token; writes need the owner's token. */
+ * Reads go through raw.githubusercontent (fast CDN, no rate limit).
+ * Writes need the owner's token via the Contents API. */
+let inflightRaw: Map<string, Promise<{ data: unknown; sha: string } | null>> = new Map();
 export async function readRepoJson(path: string): Promise<{ data: unknown; sha: string } | null> {
-  const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-  if (githubToken) {
-    headers.Authorization = `Bearer ${githubToken}`;
-    headers['X-GitHub-Api-Version'] = '2022-11-28';
+  const existing = inflightRaw.get(path);
+  if (existing) return existing;
+  const job = (async () => {
+    const res = await fetch(
+      `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/${path}?cb=${Date.now()}`,
+      { cache: 'no-store' }
+    );
+    if (res.status === 404) return null;
+    if (!res.ok) throw new GithubApiError(res.status, `خواندن ${path} از گیت‌هاب ناموفق بود (${res.status}).`);
+    const data: unknown = await res.json();
+    // sha is only needed for writes — fetch it lazily/cheaply (best effort)
+    let sha = '';
+    try {
+      const meta = await fetch(
+        `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${REPO_BRANCH}`,
+        { headers: githubToken ? githubHeaders() : { Accept: 'application/vnd.github+json' }, cache: 'no-store' }
+      );
+      if (meta.ok) sha = ((await meta.json()) as { sha?: string }).sha || '';
+    } catch {
+      // sha best-effort — writes will retry
+    }
+    return { data, sha };
+  })();
+  inflightRaw.set(path, job);
+  try {
+    return await job;
+  } finally {
+    inflightRaw.delete(path);
   }
-  const res = await fetch(
-    `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${REPO_BRANCH}`,
-    { headers, cache: 'no-store' }
-  );
-  if (res.status === 404) return null;
-  if (!res.ok) throw new GithubApiError(res.status, `خواندن ${path} از گیت‌هاب ناموفق بود (${res.status}).`);
-  const payload = (await res.json()) as { content?: string; sha: string };
-  const text = payload.content ? decodeURIComponent(escape(atob(payload.content.replace(/\n/g, '')))) : '';
-  return { data: JSON.parse(text), sha: payload.sha };
 }
 
 /** Commit a JSON file back to the repo. */
