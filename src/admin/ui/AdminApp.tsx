@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { adminApi, clearSessionToken, setSessionToken, getSessionExpiry } from '../client.ts';
 import type { TitleRecord } from '../types.ts';
+import { detectMode, getAdminMode, hasGithubToken, setGithubToken, verifyGithubToken } from '../transport.ts';
 import { LoginGate, SessionExpiryBadge, Spinner } from './LoginGate.tsx';
 import { ArchiveTab } from './ArchiveTab.tsx';
 import { SourcesTab } from './SourcesTab.tsx';
@@ -53,6 +54,8 @@ export default function AdminApp() {
     null
   );
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<'unknown' | 'local' | 'github'>('unknown');
+  const [tokenConnected, setTokenConnected] = useState(hasGithubToken());
 
   useEffect(() => {
     (window as unknown as { __pc_admin_expiry?: number }).__pc_admin_expiry = getSessionExpiry();
@@ -61,6 +64,8 @@ export default function AdminApp() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
+      const detected = await detectMode();
+      setMode(detected);
       const [dash, catalog] = await Promise.all([adminApi.dashboard(), adminApi.catalog()]);
       setDashboard(dash);
       setTitles(catalog.titles || []);
@@ -188,6 +193,34 @@ export default function AdminApp() {
       </header>
 
       <main className="relative mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8">
+        {mode === 'github' && (
+          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-3 text-[11px] text-[#F5E7B8]">
+            <span>🌐 حالت گیت‌هاب — پنل مستقیم با مخزن خودت کار می‌کند (بدون هیچ سرور بیرونی).</span>
+            {!tokenConnected ? (
+              <GoldButton
+                variant="ghost"
+                onClick={async () => {
+                  const token = window.prompt(
+                    'توکن شخصی گیت‌هاب خودت را وارد کن (فقط در حافظه مرورگر می‌ماند):'
+                  );
+                  if (!token) return;
+                  const ok = await verifyGithubToken(token.trim()).catch(() => false);
+                  if (ok) {
+                    setGithubToken(token.trim());
+                    setTokenConnected(true);
+                    toast.push('success', 'گیت‌هاب وصل شد', 'حالا ویرایش آرشیو و کالکشن کار می‌کند.');
+                  } else {
+                    toast.push('error', 'توکن نامعتبر', 'دسترسی به مخزن Petros-cinama با این توکن ممکن نشد.');
+                  }
+                }}
+              >
+                🔑 اتصال توکن گیت‌هاب
+              </GoldButton>
+            ) : (
+              <span className="text-emerald-300">✓ توکن وصل است — ویرایش فعال</span>
+            )}
+          </div>
+        )}
         {loading && !dashboard ? (
           <Spinner label="در حال بارگذاری داده‌ها…" />
         ) : tab === 'agent' ? (
