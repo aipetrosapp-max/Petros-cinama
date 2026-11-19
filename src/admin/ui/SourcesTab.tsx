@@ -2,7 +2,7 @@
  * PETROS CINEMA — MASTER ADMIN PANEL
  * Sources tab: validate and register stream/download sources.
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link2, Plus, Trash2, ShieldCheck, Server, Radio } from 'lucide-react';
 import type { SourceRecord } from '../types.ts';
 import { adminApi, type SourceValidationResult } from '../client.ts';
@@ -14,6 +14,7 @@ import {
   Select,
   Field,
   Badge,
+  SearchInput,
   useToast,
   EmptyState
 } from './primitives.tsx';
@@ -42,12 +43,20 @@ export function SourcesTab() {
   const [sessions, setSessions] = useState<Array<{ host: string; count: number; logged_in: boolean; savedAt?: string | null; url?: string }>>([]);
   const [sourcePageUrl, setSourcePageUrl] = useState('');
   const [extractingFiles, setExtractingFiles] = useState(false);
-  const [extractedFiles, setExtractedFiles] = useState<Array<{ url: string; text: string; type: string }>>([]);
+  type ExtractedLink = { url: string; text: string; type: string; name?: string; quality?: string; size?: number | null; http?: number };
+  const [extractedFiles, setExtractedFiles] = useState<ExtractedLink[]>([]);
   const [selectedForTelegram, setSelectedForTelegram] = useState<string[]>([]);
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const [sendingToTelegram, setSendingToTelegram] = useState(false);
   const [transferItems, setTransferItems] = useState<Array<{ id: string; title: string; status: string; progressPct: number; error: string }>>([]);
   const [transferState, setTransferState] = useState<Record<string, { status: string; progressPct: number; error: string }>>({});
+  const [fileQuery, setFileQuery] = useState('');
+
+  const visibleFiles = useMemo(() => {
+    const q = fileQuery.trim().toLowerCase();
+    if (!q) return extractedFiles;
+    return extractedFiles.filter((f) => f.url.toLowerCase().includes(q) || (f.text || '').toLowerCase().includes(q) || (f.name || '').toLowerCase().includes(q));
+  }, [extractedFiles, fileQuery]);
 
   const fileNameFromUrl = (u: string): string => {
     try {
@@ -70,16 +79,21 @@ export function SourcesTab() {
     setExtractingFiles(true);
     setExtractedFiles([]);
     setSelectedForTelegram([]);
+    setFileQuery('');
     try {
-      const res = await adminApi.vipExtractLinks(sourcePageUrl.trim());
+      // full=true → the WHOLE link list of the page, not just the obvious media ones
+      const res = await adminApi.vipExtractLinks(sourcePageUrl.trim(), true);
       if (res.ok) {
-        // media + embed links are the transferable files; sort direct first
         const media = res.links.filter((l) => l.type === 'direct' || l.type === 'stream');
         const rest = res.links.filter((l) => l.type !== 'direct' && l.type !== 'stream');
         const all = [...media, ...rest];
         setExtractedFiles(all);
         setSelectedForTelegram(media.map((l) => l.url));
-        toast.push('success', 'لیست فایل‌ها آماده شد', `${all.length} فایل — پیش‌فرض‌ها تیک خورده‌اند؛ هر خواستی را بردار/بگذار و ارسال کن.`);
+        toast.push(
+          'success',
+          'کل لیست لینک‌های صفحه آماده شد',
+          `${all.length} لینک: ${media.length.toLocaleString('fa-IR')} فایل قابل ارسال + ${rest.length.toLocaleString('fa-IR')} لینک دیگر — هرکدام را خواستی تیک بزن.`
+        );
       } else {
         toast.push('info', 'فایلی پیدا نشد', res.messageFa);
       }
@@ -372,52 +386,85 @@ export function SourcesTab() {
         </div>
 
         {extractedFiles.length > 0 ? (
-          <div className="mt-3 max-h-80 overflow-y-auto rounded-xl border border-white/10 bg-black/40 p-2">
-            {extractedFiles.map((f, i) => {
-              const name = fileNameFromUrl(f.url);
-              const checked = selectedForTelegram.includes(f.url);
-              const st = transferState[f.url];
-              return (
-                <label
-                  key={f.url + i}
-                  className="flex cursor-pointer items-center gap-2 border-b border-white/5 px-2 py-2 last:border-0"
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() =>
-                      setSelectedForTelegram((prev) =>
-                        prev.includes(f.url) ? prev.filter((u) => u !== f.url) : [...prev, f.url]
-                      )
-                    }
-                    className="accent-[#D4AF37]"
-                  />
-                  <Badge tone={f.type === 'direct' || f.type === 'stream' ? 'green' : f.type === 'embed' ? 'gold' : 'neutral'}>
-                    {f.type === 'direct' ? 'مستقیم' : f.type === 'stream' ? 'استریم' : f.type === 'embed' ? 'پلیر' : 'صفحه'}
-                  </Badge>
-                  <span className="min-w-0 flex-1 truncate text-[10.5px] text-zinc-300" dir="ltr" title={f.url}>
-                    {name}
-                  </span>
-                  <TextInput
-                    value={fileNames[f.url] ?? ''}
-                    onChange={(e) => setFileNames((prev) => ({ ...prev, [f.url]: e.target.value }))}
-                    placeholder="نام ارسالی (اختیاری)"
-                    className="w-40 text-[10px]"
-                  />
-                  {st ? (
-                    <Badge tone={st.status === 'uploaded' ? 'green' : st.status === 'failed' ? 'red' : 'gold'}>
-                      {st.status === 'downloading'
-                        ? `⏬ ${st.progressPct}%`
-                        : st.status === 'uploading'
-                          ? `⏫ ${st.progressPct}%`
-                          : st.status === 'uploaded'
-                            ? '✅ رسید به تلگرام'
-                            : `⛔ ${st.error || 'ناموفق'}`}
+          <div className="mt-3 space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="gold">کل: {extractedFiles.length.toLocaleString('fa-IR')}</Badge>
+              <Badge tone="green">فایل قابل ارسال: {extractedFiles.filter((f) => f.type === 'direct' || f.type === 'stream').length.toLocaleString('fa-IR')}</Badge>
+              <Badge tone="neutral">لینک دیگر: {extractedFiles.filter((f) => f.type !== 'direct' && f.type !== 'stream').length.toLocaleString('fa-IR')}</Badge>
+              <SearchInput
+                value={fileQuery}
+                onChange={setFileQuery}
+                placeholder="جستجو در لینک‌ها…"
+              />
+              <button
+                type="button"
+                onClick={() => setSelectedForTelegram(visibleFiles.map((f) => f.url))}
+                className="rounded-lg border border-white/12 px-2 py-1 text-[10px] font-bold text-zinc-300 transition hover:border-[#D4AF37]/40"
+              >
+                ✓ انتخاب همه نمایشی
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedForTelegram([])}
+                className="rounded-lg border border-white/12 px-2 py-1 text-[10px] font-bold text-zinc-300 transition hover:border-rose-400/40"
+              >
+                ✕ برداشتن همه
+              </button>
+            </div>
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-white/10 bg-black/40 p-2">
+              {visibleFiles.map((f, i) => {
+                const name = f.name || f.text || fileNameFromUrl(f.url);
+                const checked = selectedForTelegram.includes(f.url);
+                const st = transferState[f.url];
+                const sendable = f.type === 'direct' || f.type === 'stream';
+                return (
+                  <label
+                    key={f.url + i}
+                    className="flex cursor-pointer items-center gap-2 border-b border-white/5 px-2 py-2 last:border-0"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() =>
+                        setSelectedForTelegram((prev) =>
+                          prev.includes(f.url) ? prev.filter((u) => u !== f.url) : [...prev, f.url]
+                        )
+                      }
+                      className="accent-[#D4AF37]"
+                    />
+                    <Badge tone={sendable ? 'green' : f.type === 'embed' ? 'gold' : 'neutral'}>
+                      {f.type === 'direct' ? 'مستقیم' : f.type === 'stream' ? 'استریم' : f.type === 'embed' ? 'پلیر' : f.type === 'page' ? 'صفحه' : 'لینک'}
                     </Badge>
-                  ) : null}
-                </label>
-              );
-            })}
+                    <span className="min-w-0 flex-1 truncate text-[10.5px] text-zinc-300" dir="ltr" title={f.url}>
+                      {name}
+                    </span>
+                    {f.quality ? <Badge tone="blue">{f.quality}</Badge> : null}
+                    {f.size ? (
+                      <Badge tone="neutral" dir="ltr">
+                        {(f.size / 1024 / 1024).toFixed(1)} MB
+                      </Badge>
+                    ) : null}
+                    <TextInput
+                      value={fileNames[f.url] ?? ''}
+                      onChange={(e) => setFileNames((prev) => ({ ...prev, [f.url]: e.target.value }))}
+                      placeholder="نام ارسالی (اختیاری)"
+                      className="w-36 text-[10px]"
+                    />
+                    {st ? (
+                      <Badge tone={st.status === 'uploaded' ? 'green' : st.status === 'failed' ? 'red' : 'gold'}>
+                        {st.status === 'downloading'
+                          ? `⏬ ${st.progressPct}%`
+                          : st.status === 'uploading'
+                            ? `⏫ ${st.progressPct}%`
+                            : st.status === 'uploaded'
+                              ? '✅ رسید به تلگرام'
+                              : `⛔ ${st.error || 'ناموفق'}`}
+                      </Badge>
+                    ) : null}
+                  </label>
+                );
+              })}
+            </div>
           </div>
         ) : (
           <p className="mt-2 text-[10px] text-zinc-500">

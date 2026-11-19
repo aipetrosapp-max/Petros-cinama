@@ -893,8 +893,11 @@ adminRouter.post('/browser/vip-links', requireAdminAuth, async (req, res) => {
   const python = process.platform === 'win32' ? 'python' : 'python3';
   const scriptPath = path.join(process.cwd(), 'scripts', 'vip_link_extractor.py');
   try {
+    const fullMode = req.body?.full === true || req.body?.full === 'true';
+    const args = [scriptPath, pageUrl, sessionPath, outPath];
+    if (fullMode) args.push('full');
     await new Promise<void>((resolve, reject) => {
-      const child = spawn(python, [scriptPath, pageUrl, sessionPath, outPath], {
+      const child = spawn(python, args, {
         stdio: ['ignore', 'pipe', 'pipe']
       });
       const timer = setTimeout(() => {
@@ -913,16 +916,18 @@ adminRouter.post('/browser/vip-links', requireAdminAuth, async (req, res) => {
     const data = JSON.parse(await fsp.readFile(outPath, 'utf-8')) as {
       ok?: boolean;
       withSession?: boolean;
+      full?: boolean;
       count?: number;
-      links?: Array<{ url: string; text: string; type: string }>;
+      links?: Array<{ url: string; text: string; type: string; name?: string; quality?: string; size?: number | null; http?: number }>;
       message?: string;
     };
     res.json({
       ok: Boolean(data.ok),
       host,
       withSession: Boolean(data.withSession),
+      full: Boolean(data.full),
       count: Number(data.count || 0),
-      links: (data.links || []).slice(0, 200),
+      links: (data.links || []).slice(0, fullMode ? 800 : 200),
       messageFa: String(data.message || '')
     });
   } catch (err: unknown) {

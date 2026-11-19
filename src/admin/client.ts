@@ -834,10 +834,10 @@ export const adminApi = {
       '/browser/sessions'
     ),
 
-  vipExtractLinks: (url: string) =>
-    request<{ ok: boolean; host: string; withSession: boolean; count: number; links: Array<{ url: string; text: string; type: string }>; messageFa: string }>(
+  vipExtractLinks: (url: string, full = false) =>
+    request<{ ok: boolean; host: string; withSession: boolean; full?: boolean; count: number; links: Array<{ url: string; text: string; type: string; name?: string; quality?: string; size?: number | null; http?: number }>; messageFa: string }>(
       '/browser/vip-links',
-      { method: 'POST', body: { url } }
+      { method: 'POST', body: { url, full } }
     ),
 
   transferToTelegram: (items: Array<{ url: string; name?: string; cookieHeader?: string }>) =>

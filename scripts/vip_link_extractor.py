@@ -11,6 +11,7 @@ Usage: python vip_link_extractor.py <page_url> <session_json> <out_json>
 import sys
 import json
 import re
+import urllib.parse
 from urllib.parse import urlsplit
 from playwright.sync_api import sync_playwright
 
@@ -20,7 +21,7 @@ QUALITY_RE = re.compile(r"(480p|720p|1080p|2160p|4k|hdr|x265|x264|hevc|bluray|we
 LINK_TEXT_RE = re.compile(r"(دانلود|کیفیت|دوبله|زیرنویس|دانلود فیلم|download|episode|قسمت|فصل|season|series|movie)", re.I)
 
 
-def extract(page_url: str, session_path: str, out_path: str) -> dict:
+def extract(page_url: str, session_path: str, out_path: str, full: bool = False) -> dict:
     sess = {}
     try:
         sess = json.load(open(session_path, encoding="utf-8"))
@@ -89,6 +90,8 @@ def extract(page_url: str, session_path: str, out_path: str) -> dict:
                 kind = "direct"
             elif QUALITY_RE.search(href) or LINK_TEXT_RE.search(text) or QUALITY_RE.search(text):
                 kind = "page"
+            elif full:
+                kind = "link"
             else:
                 continue
             if href not in found:
@@ -106,11 +109,37 @@ def extract(page_url: str, session_path: str, out_path: str) -> dict:
 
         browser.close()
 
-    links = list(found.values())[:200]
+    links = list(found.values())
+
+    # Probe real size of direct/stream files (fast HEAD, with the session) so the
+    # owner can see what he is sending before ticking anything.
+    probed = 0
+    for l in links:
+        try:
+            name = l["url"].split("?")[0].split("/")[-1]
+            l["name"] = urllib.parse.unquote(name) or l["url"][:60]
+            q = QUALITY_RE.search(l["name"])
+            l["quality"] = q.group(0) if q else ""
+        except Exception:
+            l["name"] = l["url"][:60]
+            l["quality"] = ""
+        if probed < 60 and l["type"] in ("direct", "stream"):
+            probed += 1
+            try:
+                head = context.request.head(l["url"], timeout=15000, fail_on_status_code=False)
+                clen = head.headers.get("content-length")
+                l["size"] = int(clen) if clen and clen.isdigit() else None
+                l["http"] = head.status
+            except Exception:
+                l["size"] = None
+
+    cap = 800 if full else 200
+    links = links[:cap]
     result = {
         "url": page_url,
         "ok": True,
         "withSession": with_session,
+        "full": full,
         "count": len(links),
         "links": links,
         "message": f"{len(links)} لینک پیدا شد" + (" (با نشست VIP)" if with_session else " (بدون نشست — لطفاً اول لاگین کن)"),
@@ -122,6 +151,7 @@ def extract(page_url: str, session_path: str, out_path: str) -> dict:
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print(json.dumps({"count": 0, "message": "usage: vip_link_extractor.py <page_url> <session_json> <out_json>"}))
+        print(json.dumps({"count": 0, "message": "usage: vip_link_extractor.py <page_url> <session_json> <out_json> [full]"}))
         sys.exit(1)
-    extract(sys.argv[1], sys.argv[2], sys.argv[3])
+    full_mode = len(sys.argv) > 4 and sys.argv[4] in ("1", "true", "True", "full")
+    extract(sys.argv[1], sys.argv[2], sys.argv[3], full=full_mode)
