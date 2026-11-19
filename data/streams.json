@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-19T11:30:53.319Z",
-  "updatedAt": "2026-11-19T11:30:53.319Z",
+  "version": "2026-11-19T12:02:59.106Z",
+  "updatedAt": "2026-11-19T12:02:59.106Z",
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
@@ -95,6 +95,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.007Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:56.793Z"
@@ -142,6 +152,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.007Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:48.592Z"
@@ -333,10 +353,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/The_Wasp_Women.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.007Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:17.981Z"
@@ -387,10 +426,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/phantom_ship.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.007Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:13.210Z"
@@ -492,6 +550,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.007Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:03.633Z"
@@ -542,8 +610,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/border_patrolman.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -650,8 +727,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Phantom_From_Space.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -704,8 +790,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/american_empire.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -758,8 +853,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/hot_rod_girl_1956.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -913,8 +1017,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/dick_tracy_detctive.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -967,8 +1080,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/killer_diller.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -1021,10 +1143,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/SonofHerculesTheLandofDarkness.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.007Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:00.990Z"
@@ -1075,8 +1216,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Jamaica_Inn.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -1129,8 +1279,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Bluebeard.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -1241,6 +1400,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.007Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:34.037Z"
@@ -1291,8 +1460,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Attack_From_Space.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -1345,10 +1523,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/made_for_each_other_film.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:23.907Z"
@@ -1399,8 +1596,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/transatlantic_tunnel.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -1453,8 +1659,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/GulliversTravels720p_652.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -1507,10 +1722,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/The_Wonderful_Wizard_of_Oz.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:08.169Z"
@@ -1551,6 +1785,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:04.261Z"
@@ -1594,8 +1838,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/miss_london_ltd_1943.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -1648,10 +1901,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/last_of_the_mohicans_1920.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:56.559Z"
@@ -1702,10 +1974,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/till_the_clouds_roll_by.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:50.053Z"
@@ -1958,8 +2249,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/DeepRed1975.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -2012,10 +2312,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/TheGreatTrainRobbery_555.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:19.611Z"
@@ -2059,8 +2378,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/fantastic-planet__1973.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -2218,6 +2546,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:00.363Z"
@@ -2272,6 +2610,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:55.345Z"
@@ -2413,6 +2761,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:39.842Z"
@@ -2521,6 +2879,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:29.489Z"
@@ -2571,8 +2939,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Horror_Express.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -2625,10 +3002,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Grave_of_the_Vampire_movie.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:19.053Z"
@@ -2679,8 +3075,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/rogues_tavern.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -2733,8 +3138,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Hemp_for_victory_1942.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -2787,10 +3201,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/King_of_the_Zombies.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:59.236Z"
@@ -2841,10 +3274,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Hercules_and_the_Tyrants_of_Babylon.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.008Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:54.335Z"
@@ -2895,8 +3347,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/We_Dive_at_Dawn_1943.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -2949,8 +3410,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/rhythm_blues_review.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3003,8 +3473,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/MushAndMilk.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3057,10 +3536,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/beneath_the_12-mile_reef.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:26.580Z"
@@ -3111,8 +3609,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Destroy_All_Planets.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3158,8 +3665,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/A_Man_Betrayed_movie.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3259,8 +3775,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/oliver_twist.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3313,8 +3838,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/In_Which_We_Serve.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3367,8 +3901,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/things_to_come_ipod.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3421,10 +3964,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/TheMemphisBelleAStoryofaFlyingFortress.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:52.020Z"
@@ -3475,8 +4037,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/2_weeks_to_live.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3529,8 +4100,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Bird_of_Paradise_1932.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3583,8 +4163,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/road_to_happiness.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3691,10 +4280,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Rifle_Marksmanship_with_M1_Rifle_Part_1.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:17.856Z"
@@ -3735,6 +4343,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:11.973Z"
@@ -3836,6 +4454,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:03.541Z"
@@ -3886,8 +4514,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/AtomAgeVampire.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -3937,6 +4574,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:53.813Z"
@@ -4041,8 +4688,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/HerculesUnchained.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -4099,6 +4755,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:39.844Z"
@@ -4207,6 +4873,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:15.098Z"
@@ -4250,10 +4926,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/HouseOnBareMountain.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:10.133Z"
@@ -4358,10 +5053,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/HolyGhostPeople.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:00.416Z"
@@ -4412,8 +5126,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/FirstSpaceshipOnVenusMPEG.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -4463,6 +5186,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:48.138Z"
@@ -4513,10 +5246,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Phantom_Planet.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:43.510Z"
@@ -4571,6 +5323,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:38.750Z"
@@ -4668,8 +5430,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/she_gods_of_shark_reef.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -4823,8 +5594,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Death_Rides_A_Horse_pan_and_scan.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -4877,10 +5657,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/west_of_the_divide.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:00.925Z"
@@ -4935,6 +5734,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:56.046Z"
@@ -4989,6 +5798,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:50.615Z"
@@ -5039,8 +5858,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/nightmare_castle.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -5097,6 +5925,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:36.792Z"
@@ -5151,6 +5989,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:31.303Z"
@@ -5201,8 +6049,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/dishonored_lady.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -5255,8 +6112,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/girl_o_my_dreams.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -5302,8 +6168,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/BehindGreenLights_high_Q_mp4.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -5356,8 +6231,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Assignment_Outer_Space.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -5414,6 +6298,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:01.542Z"
@@ -5464,10 +6358,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/YoungandInnocentTheGirlWasYoung.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:56.130Z"
@@ -5565,10 +6478,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/jack_and_the_beanstalk_ipod.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:46.341Z"
@@ -5619,10 +6551,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/the_gorilla.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.009Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:40.460Z"
@@ -5677,6 +6628,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:35.117Z"
@@ -5727,8 +6688,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Scrooge_1935.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -5781,10 +6751,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/They_Made_Me_A_Criminal_1939.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:24.827Z"
@@ -5835,10 +6824,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/In_The_Year_2889.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:19.608Z"
@@ -5889,8 +6897,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/brideless_groom.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -5943,8 +6960,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/slave_in_bondage.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6051,8 +7077,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/private_snuffy_smith.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6105,8 +7140,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/sing_a_song_of_six_pants.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6159,8 +7203,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/WhiteZombie.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6206,8 +7259,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/rock_rock_rock.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6260,10 +7322,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Hitch_Hiker.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:36.503Z"
@@ -6314,10 +7395,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Saint_Louis_Bank_Robbery.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:31.505Z"
@@ -6372,6 +7472,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:26.169Z"
@@ -6422,10 +7532,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/night_of_the_living_dead_dvd.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:21.103Z"
@@ -6476,8 +7605,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/planet_outlaws_ipod.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6584,8 +7722,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Please_Murder_Me_movie.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6692,8 +7839,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Martha_Ivers_movie.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6746,10 +7902,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/disorder_in_the_court.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:51.716Z"
@@ -6847,8 +8022,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/markofzorro-1920.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6901,8 +8085,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/angel_on_my_shoulder.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -6955,10 +8148,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Horror_Hotel.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.010Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:31.372Z"
@@ -7056,8 +8268,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/behave_yourself_ipod.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -7107,6 +8328,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:17.371Z"
@@ -7161,6 +8392,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:13.440Z"
@@ -7215,6 +8456,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:07.871Z"
@@ -7265,10 +8516,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/the_big_show.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:02.536Z"
@@ -7420,8 +8690,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/texas_terror_1935.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -7579,6 +8858,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:25.328Z"
@@ -7629,8 +8918,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/AfricaScreams.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -7683,8 +8981,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/JailBait.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -7734,6 +9041,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:08.972Z"
@@ -7838,8 +9155,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/inner_sanctum.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -7896,6 +9222,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:54.676Z"
@@ -7997,6 +9333,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:39.464Z"
@@ -8145,6 +9491,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:27.426Z"
@@ -8195,8 +9551,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Hitchcock_Secret_Agent.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -8249,8 +9614,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Santa_Fe_Trail_movie.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -8303,8 +9677,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/mr_robinson_crusoe.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -8357,8 +9740,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/ChildBride.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -8411,8 +9803,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/teenagers_from_outerspace.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -8465,10 +9866,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/amazing_adventure.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:50.865Z"
@@ -8519,10 +9939,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/iron_mask.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:45.680Z"
@@ -8570,6 +10009,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:40.697Z"
@@ -8620,10 +10069,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/TheGhoul.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:36.151Z"
@@ -8772,6 +10240,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.012Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:38:05.626Z"
@@ -8822,10 +10300,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/secret_weapon.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:38:02.545Z"
@@ -8876,8 +10373,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Teaserama.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -8977,8 +10483,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Quicksand_clear.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -9031,10 +10546,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/tarzan_and_the_green_goddess.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:45.229Z"
@@ -9085,8 +10619,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Cyrano_DeBergerac.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -9139,8 +10682,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/impact.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -9193,10 +10745,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/little_princess.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:18.780Z"
@@ -9244,6 +10815,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:02.692Z"
@@ -9294,10 +10875,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/TheFlyingDeuces.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:36:50.684Z"
@@ -9402,8 +11002,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/royal_wedding.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -9507,6 +11116,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:35:36.743Z"
@@ -9557,8 +11176,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Killers_from_space.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -9611,10 +11239,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/lost_world.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:35:00.043Z"
@@ -9669,6 +11316,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:34:50.838Z"
@@ -9716,6 +11373,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:34:18.107Z"
@@ -9766,8 +11433,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/gullivers_travels1939.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -9820,8 +11496,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/my_favorite_brunette.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -9928,8 +11613,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/tarzans_revenge.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10036,10 +11730,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/TheStranger_0.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:33:00.778Z"
@@ -10090,8 +11803,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/suddenly.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10198,8 +11920,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/dressed_to_kill.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10252,8 +11983,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/abraham_lincoln.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10299,8 +12039,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/BloodyPitOfHorror.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10353,8 +12102,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/nazi_concentration_camps.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10411,6 +12169,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:26.440Z"
@@ -10461,8 +12229,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/utopia.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10569,10 +12346,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/VoyagetothePlanetofPrehistoricWomen.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:13.088Z"
@@ -10627,6 +12423,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:08.538Z"
@@ -10677,8 +12483,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/charlie_chaplin_film_fest.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10731,10 +12546,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/angel_and_the_badman.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:07:59.090Z"
@@ -10785,10 +12619,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/TheStranger_0.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:56.118Z"
@@ -10839,8 +12692,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Detour.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10893,8 +12755,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/suddenly.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -10944,6 +12815,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:46.980Z"
@@ -10994,8 +12875,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/gullivers_travels1939.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -11048,8 +12938,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/CarnivalOfSouls_ipod.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -11156,8 +13055,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/Sabotage_1936.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -11210,10 +13118,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/lost_world.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:42.532Z"
@@ -11264,10 +13191,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/amazing_mr_x.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:39.859Z"
@@ -11322,6 +13268,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:37.526Z"
@@ -11369,6 +13325,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:18.570Z"
@@ -11513,10 +13479,29 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/TheRedHouse.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:52:04.604Z"
@@ -11567,8 +13552,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/ScarletStreet.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -11621,8 +13615,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/penny_serenade.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -11675,8 +13678,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/his_girl_friday.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -11733,6 +13745,16 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "geoPolicy": {
+        "mode": "block",
+        "countries": [
+          "IR",
+          "IQ",
+          "TH"
+        ],
+        "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
+        "updatedAt": "2026-11-19T12:02:59.013Z"
+      },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:45:00.341Z"
@@ -11823,8 +13845,17 @@
           "fps": 0
         }
       ],
-      "subtitles": [],
-      "subtitleStatus": "not_registered",
+      "subtitles": [
+        {
+          "language": "en",
+          "label": "English (auto)",
+          "url": "./subtitles/The_House_On_Haunted_Hill.en.vtt",
+          "format": "vtt",
+          "offsetMs": 0,
+          "forced": false
+        }
+      ],
+      "subtitleStatus": "registered",
       "seasons": [],
       "episodes": [],
       "playbackStatus": "available",
@@ -11841,7 +13872,7 @@
       "posterUrl": "https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
       "backdropUrl": "",
       "year": 2017,
-      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
+      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
       "durationSec": 9840,
       "director": "Denis Villeneuve",
       "cast": [],
