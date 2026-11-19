@@ -20,7 +20,8 @@ import {
   Link2,
   Send,
   Star,
-  Rocket
+  Rocket,
+  Globe2
 } from 'lucide-react';
 import type {
   TitleRecord,
@@ -207,6 +208,12 @@ export function ArchiveTab({
                               : 'بایگانی'}
                         </Badge>
                         {title.featured ? <Badge tone="gold">⭐ برگزیده</Badge> : null}
+                        {title.geoPolicy && title.geoPolicy.countries?.length ? (
+                          <Badge tone="blue">
+                            <Globe2 className="h-3 w-3" />
+                            {title.geoPolicy.mode === 'allow' ? 'فقط' : 'ممنوع'} {title.geoPolicy.countries.join('،')}
+                          </Badge>
+                        ) : null}
                         {title.year ? <Badge>{title.year}</Badge> : null}
                         {seasons.length ? <Badge tone="blue">{seasons.length} فصل</Badge> : null}
                         {episodes.length ? (
@@ -301,6 +308,7 @@ export function ArchiveTab({
 
                   {isOpen ? (
                     <div className="border-t border-white/10 px-4 py-3">
+                      <GeoPolicyRow title={title} onChanged={onChanged} />
                       <div className="grid gap-3 lg:grid-cols-2">
                         <div>
                           <h4 className="mb-2 flex items-center gap-1.5 text-[11px] font-bold text-zinc-400">
@@ -467,6 +475,134 @@ export function ArchiveTab({
             onChanged();
           }}
         />
+      ) : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Two-tier geo policy (سطح‌بندی جغرافیایی) — admin-only playback control
+// ---------------------------------------------------------------------------
+
+const GEO_COUNTRY_OPTIONS: Array<{ code: string; fa: string }> = [
+  { code: 'IR', fa: 'ایران' }, { code: 'US', fa: 'آمریکا' }, { code: 'GB', fa: 'انگلیس' },
+  { code: 'DE', fa: 'آلمان' }, { code: 'FR', fa: 'فرانسه' }, { code: 'CA', fa: 'کانادا' },
+  { code: 'TR', fa: 'ترکیه' }, { code: 'AE', fa: 'امارات' }, { code: 'SA', fa: 'عربستان' },
+  { code: 'IQ', fa: 'عراق' }, { code: 'AF', fa: 'افغانستان' }, { code: 'TJ', fa: 'تاجیکستان' },
+  { code: 'UZ', fa: 'ازبکستان' }, { code: 'PK', fa: 'پاکستان' }, { code: 'IN', fa: 'هند' },
+  { code: 'CN', fa: 'چین' }, { code: 'RU', fa: 'روسیه' }, { code: 'JP', fa: 'ژاپن' },
+  { code: 'AU', fa: 'استرالیا' }, { code: 'BR', fa: 'برزیل' }, { code: 'ES', fa: 'اسپانیا' },
+  { code: 'IT', fa: 'ایتالیا' }, { code: 'NL', fa: 'هلند' }, { code: 'SE', fa: 'سوئد' },
+  { code: 'EG', fa: 'مصر' }, { code: 'AZ', fa: 'آذربایجان' }, { code: 'GE', fa: 'گرجستان' },
+  { code: 'AM', fa: 'ارمنستان' }, { code: 'SY', fa: 'سوریه' }, { code: 'LB', fa: 'لبنان' }
+];
+
+export interface GeoPolicyValue {
+  mode: 'block' | 'allow';
+  countries: string[];
+  noteFa?: string;
+}
+
+/** Compact inline editor used in the expanded archive row. */
+function GeoPolicyRow({ title, onChanged }: { title: TitleRecord; onChanged: () => void }) {
+  const toast = useToast();
+  const [mode, setMode] = useState<'none' | 'block' | 'allow'>(title.geoPolicy ? title.geoPolicy.mode : 'none');
+  const [codes, setCodes] = useState<string[]>(title.geoPolicy?.countries || []);
+  const [custom, setCustom] = useState('');
+  const [saving, setSaving] = useState(false);
+  const dirty =
+    (title.geoPolicy?.mode || 'none') !== mode ||
+    JSON.stringify(title.geoPolicy?.countries || []) !== JSON.stringify(codes);
+
+  const toggle = (c: string) =>
+    setCodes((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await adminApi.updateTitle(title.id, {
+        geoPolicy: mode === 'none' ? null : { mode, countries: codes, noteFa: mode === 'block' ? 'در کشورهای فهرست‌شده پخش نمی‌شود' : 'فقط در کشورهای فهرست‌شده قابل مشاهده است' }
+      } as Partial<TitleRecord>);
+      toast.push('success', 'قید جغرافیایی ذخیره و منتشر می‌شود', mode === 'none' ? 'بدون قید — همه‌جا قابل مشاهده' : `${mode === 'block' ? 'ممنوع در' : 'فقط مجاز در'} ${codes.join('، ')}`);
+      onChanged();
+    } catch (error) {
+      toast.push('error', 'ذخیره ناموفق', (error as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mb-3 rounded-2xl border border-[#D4AF37]/25 bg-[#D4AF37]/[0.04] p-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <h4 className="flex items-center gap-1.5 text-[11px] font-bold text-[#D4AF37]">
+          <Globe2 className="h-3.5 w-3.5" /> کنترل پخش جغرافیایی (دو سطح)
+        </h4>
+        {dirty ? (
+          <GoldButton onClick={save} loading={saving}>
+            ذخیره قید
+          </GoldButton>
+        ) : null}
+      </div>
+      <div className="mb-2 flex flex-wrap gap-1.5">
+        {([
+          ['none', 'سطح A — همه‌جا پخش می‌شود'],
+          ['block', 'سطح B — ممنوع در کشورهای انتخابی'],
+          ['allow', 'سطح B — فقط کشورهای انتخابی می‌بینند']
+        ] as Array<['none' | 'block' | 'allow', string]>).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setMode(value)}
+            className={`rounded-full border px-3 py-1 text-[10px] font-bold transition ${
+              mode === value
+                ? 'border-[#D4AF37] bg-[#D4AF37]/20 text-[#F5E7B8]'
+                : 'border-white/12 text-zinc-400 hover:border-[#D4AF37]/40'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {mode !== 'none' ? (
+        <>
+          <div className="mb-2 flex flex-wrap gap-1">
+            {GEO_COUNTRY_OPTIONS.map(({ code, fa }) => (
+              <button
+                key={code}
+                type="button"
+                title={fa}
+                onClick={() => toggle(code)}
+                className={`rounded-lg border px-2 py-0.5 text-[9.5px] font-bold transition ${
+                  codes.includes(code)
+                    ? 'border-rose-400/60 bg-rose-500/15 text-rose-200'
+                    : 'border-white/10 text-zinc-400 hover:border-[#D4AF37]/40'
+                }`}
+              >
+                {code}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <TextInput
+              value={custom}
+              onChange={(e) => setCustom(e.target.value.toUpperCase())}
+              placeholder="کد کشور دیگر (مثال: KR) + Enter"
+              dir="ltr"
+              className="w-64"
+              onKeyDown={(e) => {
+                const c = custom.trim();
+                if (e.key === 'Enter' && /^[A-Z]{2}$/.test(c)) {
+                  if (!codes.includes(c)) setCodes((prev) => [...prev, c]);
+                  setCustom('');
+                }
+              }}
+            />
+            <span className="text-[9.5px] text-zinc-500">
+              انتخاب‌شده: {codes.length ? codes.join('، ') : 'هیچ'}
+            </span>
+          </div>
+        </>
       ) : null}
     </div>
   );

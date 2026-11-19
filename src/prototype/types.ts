@@ -119,6 +119,8 @@ export interface PrototypeMediaItem {
   subtitleUrl?: string;
   /** catalog workflow status (draft/published) carried from the admin manifest */
   catalogStatus?: string;
+  /** when this file was added to the catalog — drives the newest-first sort law */
+  addedAt?: string;
   qualities?: { quality: string; url: string; format?: string }[];
   subtitles: SubtitleLine[];
   chapters: ChapterMarker[];

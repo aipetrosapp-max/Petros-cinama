@@ -55,6 +55,7 @@ export interface DynamicStreamItem {
   trailerUrl?: string;
   subtitleUrl?: string;
   status?: string;
+  createdAt?: string;
   /** Two-tier geo policy (set by the Master Admin Agent only). */
   geoPolicy?: { mode: 'block' | 'allow'; countries: string[]; noteFa?: string; updatedAt?: string };
 }
@@ -146,7 +147,12 @@ class DynamicStreamSyncService {
   }
 
   public getStreams(): DynamicStreamItem[] {
-    return this.currentStreams;
+    //PETROS SORT LAW: newest added file/series first, oldest last (createdAt desc)
+    return [...this.currentStreams].sort((a, b) => {
+      const at = a.createdAt ? Date.parse(a.createdAt) : 0;
+      const bt = b.createdAt ? Date.parse(b.createdAt) : 0;
+      return bt - at;
+    });
   }
 
   /** Await this before relying on the persistent cache. */
@@ -402,7 +408,7 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     durationSec: Number(stream.durationSec) > 0 ? Number(stream.durationSec) : 0,
     quality: (stream.qualities && Array.isArray(stream.qualities) && stream.qualities.some(q => q.quality === '4K')) ? '4K HDR' : '1080p',
     releaseYear: stream.year || 0,
-    addedDaysAgo: 0,
+    addedDaysAgo: stream.createdAt ? Math.max(0, Math.floor((Date.now() - Date.parse(stream.createdAt)) / 86400000)) : 0,
     posterUrl: resolveUniquePoster(displayTitle, stream.id, stream.posterUrl || (stream as any).poster),
     accentHex: '#F5B942',
     synopsisEn: stream.synopsis,
@@ -447,6 +453,7 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     catalogStatus: stream.status,
     sourceType: stream.sourceType || (stream.defaultStreamUrl?.includes('t.me') ? 'telegram' : 'direct_mp4'),
     originalSource: stream.originalSource,
+    addedAt: stream.createdAt,
     qualities: stream.qualities || [],
     subtitles: [],
     geoPolicy: stream.geoPolicy,

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ایجنت مرورگر پتروس سینما — page-agent</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: Vazirmatn, Tahoma, sans-serif; background: #0a0a0c; color: #e8e8ea;
+    display: flex; flex-direction: column; height: 100vh;
+  }
+  header {
+    padding: 10px 16px; border-bottom: 1px solid #2a2a30; display: flex;
+    align-items: center; gap: 10px; background: #101014; flex-shrink: 0;
+  }
+  header h1 { font-size: 13px; margin: 0; color: #D4AF37; font-weight: 700; }
+  header .url { font-size: 10.5px; color: #8a8a92; direction: ltr; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #status { font-size: 10.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid #333; }
+  #status.ok { color: #7ee2a8; border-color: #2c5; }
+  #status.warn { color: #f5b942; border-color: #963; }
+  #status.err { color: #f87171; border-color: #933; }
+  #frameWrap { flex: 1; position: relative; background: #000; }
+  #target { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+  #blocked {
+    position: absolute; inset: 0; display: none; flex-direction: column; align-items: center;
+    justify-content: center; gap: 12px; text-align: center; padding: 24px; background: #0a0a0c;
+  }
+  #blocked h2 { color: #D4AF37; font-size: 15px; margin: 0; }
+  #blocked p { font-size: 11.5px; color: #9a9aa2; max-width: 480px; line-height: 1.9; margin: 0; }
+  #blocked a { color: #D4AF37; font-size: 12px; }
+  footer { padding: 8px 16px; border-top: 1px solid #2a2a30; font-size: 10px; color: #6a6a72; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🤖 ایجنت مرورگر پتروس</h1>
+  <span class="url" id="targetUrl"></span>
+  <span id="status">در حال آماده‌سازی…</span>
+</header>
+<div id="frameWrap">
+  <iframe id="target" src="about:blank" referrerpolicy="no-referrer"></iframe>
+  <div id="blocked">
+    <h2>این سایت اجازه نمایش داخل قاب را نمی‌دهد</h2>
+    <p id="blockedMsg">
+      سایت مقصد با هدر X-Frame-Options بارگذاری داخل iframe را مساب کرده است (محافظت استاندارد مرورگرها).
+      ایجنت مرورگر پتروس روی سایت‌هایی کار می‌کند که اجازه قاب بدهند (مثل خود پنل ادمین پتروس) —
+      برای سایت‌های دیگر، صفحه مقصد را مستقیم باز کن و افزونه کروم page-agent را روی آن فعال کن.
+    </p>
+    <a id="openDirect" href="#" target="_blank" rel="noopener noreferrer">باز کردن مستقیم صفحه مقصد ↗</a>
+  </div>
+</div>
+<footer>
+  page-agent v1.12.4 (alibaba/page-agent — MIT) • بسته از خودِ سرور پتروس لود می‌شود، بدون CDN بیرونی • اعتبار مدل فقط در حافظه این صفحه است
+</footer>
+
+<script src="/vendor/page-agent.demo.js?autoInit=false" crossorigin="anonymous"></script>
+<script>
+(async () => {
+  const status = document.getElementById('status');
+  const setStatus = (cls, text) => { status.className = cls; status.textContent = text; };
+  const params = new URLSearchParams(location.search);
+  const targetUrl = params.get('url') || '';
+  const sessionId = params.get('session') || '';
+  const task = params.get('task') || '';
+  document.getElementById('targetUrl').textContent = targetUrl;
+  document.getElementById('openDirect').href = targetUrl;
+
+  if (!sessionId || !targetUrl) {
+    setStatus('err', 'نشست نامعتبر');
+    return;
+  }
+
+  let cfg;
+  try {
+    const res = await fetch('/api/admin/agent/browser/llm-config?session=' + encodeURIComponent(sessionId));
+    if (!res.ok) throw new Error('session rejected');
+    cfg = await res.json();
+  } catch (e) {
+    setStatus('err', 'نشست منقضی/نامعتبر — دوباره از چت ایجنت شروع کن');
+    return;
+  }
+
+  // Try to load the target in the iframe; detect framing blocks after a timeout
+  const frame = document.getElementById('target');
+  const blocked = document.getElementById('blocked');
+  frame.src = targetUrl;
+  let framed = true;
+  const blockTimer = setTimeout(() => {
+    try {
+      if (frame.contentDocument === null && !frame.contentWindow?.length) { /* opaque origin ⇒ likely blocked */ }
+    } catch (_) { /* cross-origin is fine */ }
+    // Heuristic: if load never fired we can't be sure; X-Frame-Options usually fires 'load' with error page.
+  }, 4000);
+  frame.addEventListener('load', () => clearTimeout(blockTimer));
+
+  // Instantiate PageAgent on THIS page with our own LLM credentials
+  const agentConfig = {
+    language: 'fa-IR',
+    ...(cfg.mode === 'openai'
+      ? { model: cfg.model, baseURL: cfg.baseURL, apiKey: cfg.apiKey }
+      : {})
+  };
+  let agent = null;
+  try {
+    agent = new window.PageAgent(agentConfig);
+    setStatus(cfg.mode === 'openai' ? 'ok' : 'warn', cfg.mode === 'openai' ? 'آماده — دستور فارسی بده' : 'مدل آزمایشی (تست)');
+  } catch (e) {
+    console.error(e);
+    setStatus('err', 'راه‌اندازی page-agent ناموفق');
+    return;
+  }
+
+  if (task) {
+    try { await agent.execute(task); } catch (e) { console.warn('task failed', e); }
+  }
+
+  // If framing is blocked, the iframe stays blank — show the helper notice
+  setTimeout(() => {
+    try {
+      const doc = frame.contentDocument;
+      const looksEmpty = !doc || (doc.body && doc.body.childElementCount === 0 && !doc.body.textContent?.trim());
+      if (looksEmpty) {
+        blocked.style.display = 'flex';
+      }
+    } catch (_) { /* cross-origin content loaded fine */ }
+  }, 6000);
+})();
+</script>
+</body>
+</html>

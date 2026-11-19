@@ -284,6 +284,16 @@ export const adminApi = {
     }),
   runCollection: () =>
     request<{ ok: boolean; started: boolean; messageFa: string }>('/collection/run', { method: 'POST' }),
+  // page-agent browser copilot (vendored alibaba/page-agent)
+  getPanelLlmConfig: () =>
+    request<{ mode: 'openai' | 'demo'; model: string; baseURL: string; apiKey: string; messageFa: string }>(
+      '/agent/llm-config'
+    ),
+  startBrowserSession: (url: string, taskFa = '') =>
+    request<{ ok: boolean; pageUrl: string; messageFa: string }>('/agent/browser/start', {
+      method: 'POST',
+      body: { url, taskFa }
+    }),
   getCollectionProgress: () =>
     request<{ running?: boolean; total?: number; processed?: number; added?: number; failed?: number; skipped?: number; log?: string[] }>(
       '/collection/progress'

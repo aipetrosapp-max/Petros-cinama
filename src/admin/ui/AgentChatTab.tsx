@@ -15,6 +15,7 @@ interface ChatMessage {
 }
 
 const QUICK_COMMANDS = [
+  'مرورگر را باز کن',
   'وضعیت کاتالوگ',
   'گزارش فیلم‌ها',
   'میزان درآمد',
@@ -42,6 +43,43 @@ export function AgentChatTab() {
   ]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
+  const [copilotActive, setCopilotActive] = useState(false);
+
+  /** Launch the vendored page-agent copilot INSIDE the admin panel (same-origin). */
+  const startPanelCopilot = async () => {
+    try {
+      // load the local vendor bundle once (never a CDN)
+      const w = window as unknown as { PageAgent?: unknown } & Record<string, unknown>;
+      if (!w.PageAgent) {
+        await new Promise<void>((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = '/vendor/page-agent.demo.js?autoInit=false';
+          script.crossOrigin = 'anonymous';
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error('بسته /vendor/page-agent.demo.js لود نشد'));
+          document.head.appendChild(script);
+        });
+      }
+      const cfg = await adminApi.getPanelLlmConfig();
+      const agentConfig: Record<string, unknown> =
+        cfg.mode === 'openai'
+          ? { language: 'fa-IR', model: cfg.model, baseURL: cfg.baseURL, apiKey: cfg.apiKey }
+          : {
+              // page-agent bundled demo credentials (evaluation only — see README warning)
+              language: 'fa-IR',
+              model: 'qwen3.8-flash',
+              baseURL: 'https://page-ag-testing-ohftxirgbn.cn-shanghai.fcapp.run',
+              apiKey: 'NA'
+            };
+      const PA = w.PageAgent as new (c: Record<string, unknown>) => { panel?: { show: () => void } };
+      const agent = new PA(agentConfig);
+      agent.panel?.show();
+      setCopilotActive(true);
+      toast.push('success', 'ایجنت مرورگر فعال شد', cfg.messageFa);
+    } catch (error) {
+      toast.push('error', 'ایجنت مرورگر راه نیفتاد', (error as Error).message);
+    }
+  };
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -120,6 +158,15 @@ export function AgentChatTab() {
 
           {/* Quick commands */}
           <div className="flex flex-wrap gap-2 border-t border-white/5 px-3 py-2">
+            <button
+              key="__panel_copilot__"
+              type="button"
+              onClick={() => void startPanelCopilot()}
+              disabled={copilotActive}
+              className="cursor-pointer rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 transition hover:bg-emerald-500/20 disabled:opacity-40"
+            >
+              {copilotActive ? '✓ ایجنت مرورگر فعال' : '🤖 کنترل پنل با ایجنت مرورگر'}
+            </button>
             {QUICK_COMMANDS.map((cmd) => (
               <button
                 key={cmd}

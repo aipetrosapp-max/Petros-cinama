@@ -918,29 +918,37 @@ async function compareCatalogWithChannel(message: string): Promise<AgentReply> {
   };
 }
 
-function launchBrowser(targetUrl: string): AgentReply {
+/**
+ * Browser tasks for agents always go through the vendored page-agent bundle
+ * (alibaba/page-agent, MIT) — no headless browser, no CDN, no credentials on disk.
+ */
+async function launchBrowser(targetUrl: string, taskFa = ''): Promise<AgentReply> {
   try {
-    const outDir = path.join(process.cwd(), 'data', 'browser_sessions');
-    const host = new URL(targetUrl).hostname.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const sessionPath = path.join(outDir, `${host}.json`);
-    const python = process.platform === 'win32' ? 'python' : 'python3';
-    const child = spawn(python, [path.join(process.cwd(), 'scripts', 'browser_login_agent.py'), targetUrl, sessionPath], {
-      detached: true,
-      stdio: 'ignore'
-    });
-    child.unref();
+    const { sanitizeAgentTargetUrl, startBrowserSession, verifyVendorBundle } = await import('./browserAgent.ts');
+    const clean = sanitizeAgentTargetUrl(targetUrl);
+    if (!clean) {
+      return { intent: 'browser', replyFa: '⛔ آدرس معتبر http/https بده (آدرس‌های لوکال/داخلی به‌دلایل امنیتی باز نمی‌شوند).' };
+    }
+    const vendor = await verifyVendorBundle();
+    if (!vendor.ok) {
+      return { intent: 'browser', replyFa: '⛔ بسته page-agent لوکال نیست. `npm install page-agent` و کپی iife به public/vendor/ لازم است.' };
+    }
+    const { pageUrl } = startBrowserSession(clean, taskFa);
     return {
       intent: 'browser',
       replyFa:
-        '🖥️ مرورگر تعاملی روی مانیتور تو باز شد. خودت یوزر/پسورد و کپچا را وارد کن. ' +
-        'بعد از بستن مرورگر، بگو «نشست را بررسی کن» تا کوکی‌های نشست خوانده شود. ' +
-        'یادآوری: استخراج لینک‌های محتوای دارای کپی‌رایت برای انتشار، خارج از محدوده کاری من است — این مرورگر برای سورس‌های مجاز شماست.'
+        `🖥️ نشست ایجنت مرورگر ساخته شد (page-agent — امن، بدون CDN):
+` +
+        `• هدف: ${clean}
+` +
+        `• باز کن: ${pageUrl}
+` +
+        `• توکن نشست یک‌بارمصرف است و ۱۵ دقیقه اعتبار دارد. داخل صفحه به ایجنت دستور فارسی بده.
+` +
+        `• یادآوری: استخراج محتوای دارای کپی‌رایت برای انتشار، خارج از محدوده کاری من است.`
     };
   } catch (err: unknown) {
-    return {
-      intent: 'browser',
-      replyFa: `⛔ باز کردن مرورگر ناموفق بود: ${(err as Error).message}. مطمئن شو پایتون و Playwright روی سرور نصب است.`
-    };
+    return { intent: 'browser', replyFa: `⛔ ساخت نشست مرورگر ناموفق بود: ${(err as Error).message}` };
   }
 }
 
@@ -1057,7 +1065,7 @@ export async function handleAdminChatMessage(rawText: string): Promise<AgentRepl
     // Any «again / resend» wording forces a resend of every title.
     return transferCatalogToChannel(text, /(دوباره|مجدد|همه)/.test(text));
   }
-  if (/مرورگر/.test(text) && url) return launchBrowser(url);
+  if (/مرورگر/.test(text) && url) return await launchBrowser(url, text.replace(url, '').trim());
 
   if (url && /اضافه کن|منتشر کن|پوش کن|پابلیش|ثبت کن|بیاور|بگذار/.test(text)) {
     return addFromLink(url, /منتشر کن|پوش کن|پابلیش/.test(text));

@@ -267,11 +267,15 @@ export function validateSubtitleTrack(input: Partial<SubtitleTrack>): string | n
 }
 
 export function validateTitle(input: Partial<TitleRecord>): string | null {
-  if (!input.title?.trim() && !input.titleFa?.trim()) {
-    return 'حداقل یکی از عنوان فارسی یا انگلیسی الزامی است.';
-  }
-  if (!input.category || !['movie', 'series', 'anime'].includes(input.category)) {
-    return 'دسته‌بندی باید یکی از movie / series / anime باشد.';
+  // Geo-only partial updates (from the inline geo control) skip full-title validation.
+  const geoOnly = 'geoPolicy' in input && Object.keys(input).length === 1;
+  if (!geoOnly) {
+    if (!input.title?.trim() && !input.titleFa?.trim()) {
+      return 'حداقل یکی از عنوان فارسی یا انگلیسی الزامی است.';
+    }
+    if (!input.category || !['movie', 'series', 'anime'].includes(input.category)) {
+      return 'دسته‌بندی باید یکی از movie / series / anime باشد.';
+    }
   }
   if (input.year !== undefined && (input.year < 1888 || input.year > 2100)) {
     return 'سال انتشار نامعتبر است.';

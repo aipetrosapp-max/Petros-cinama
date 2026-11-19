@@ -18,6 +18,13 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import fsp from 'fs/promises';
+import {
+  startBrowserSession,
+  consumeBrowserSession,
+  resolveBrowserLlmConfig,
+  sanitizeAgentTargetUrl,
+  verifyVendorBundle
+} from './browserAgent.ts';
 import type {
   AdminConfig,
   AdminCatalogFile,
@@ -314,14 +321,17 @@ function sanitizeTitle(input: Partial<TitleRecord>, existing?: TitleRecord): Tit
     seasons: seasons.map((s) => ({ ...s, titleId: s.titleId || input.id || existing?.id || '' })),
     episodes: episodes.map((e) => ({ ...e, titleId: e.titleId || input.id || existing?.id || '' })),
     downloadLinks: input.downloadLinks ?? existing?.downloadLinks ?? [],
-    geoPolicy: input.geoPolicy
-      ? {
-          mode: input.geoPolicy.mode === 'allow' ? 'allow' : 'block',
-          countries: (input.geoPolicy.countries || []).map((c) => String(c).toUpperCase().slice(0, 2)).filter(Boolean),
-          noteFa: input.geoPolicy.noteFa,
-          updatedAt: new Date().toISOString()
-        }
-      : existing?.geoPolicy,
+    geoPolicy:
+      input.geoPolicy === null
+        ? undefined
+        : input.geoPolicy
+          ? {
+              mode: input.geoPolicy.mode === 'allow' ? 'allow' : 'block',
+              countries: (input.geoPolicy.countries || []).map((c) => String(c).toUpperCase().slice(0, 2)).filter(Boolean),
+              noteFa: input.geoPolicy.noteFa,
+              updatedAt: new Date().toISOString()
+            }
+          : existing?.geoPolicy,
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };
@@ -860,6 +870,54 @@ adminRouter.post('/collection/run', requireAdminAuth, async (_req, res) => {
 
 adminRouter.get('/collection/progress', requireAdminAuth, async (_req, res) => {
   res.json(await readProgress());
+});
+
+// ---------------------------------------------------------------------------
+// Secure browser-agent sessions (page-agent, vendored locally)
+// ---------------------------------------------------------------------------
+
+adminRouter.post('/agent/browser/start', requireAdminAuth, async (req, res) => {
+  const body = requireBody(req, res);
+  if (!body) return;
+  const target = sanitizeAgentTargetUrl(String(body.url || ''));
+  if (!target) {
+    res.status(400).json({ error: 'invalid_url', messageFa: 'آدرس http/https معتبر بده (آدرس‌های لوکال/داخلی مجاز نیست).' });
+    return;
+  }
+  const taskFa = String(body.taskFa || '').slice(0, 400);
+  const vendor = await verifyVendorBundle();
+  if (!vendor.ok) {
+    res.status(503).json({ error: 'vendor_missing', messageFa: 'بسته page-agent لوکال پیدا نشد.' });
+    return;
+  }
+  const { pageUrl } = startBrowserSession(target, taskFa);
+  res.json({ ok: true, pageUrl, messageFa: 'نشست مرورگر ایجنت ساخته شد (توکن یک‌بارمصرف، ۱۵ دقیقه).' });
+});
+
+// The agent-browser page (new tab) exchanges the one-time session for LLM config.
+// In-panel copilot: admin page itself instantiates page-agent with these creds.
+adminRouter.get('/agent/llm-config', requireAdminAuth, (_req, res) => {
+  const cfg = resolveBrowserLlmConfig();
+  res.json({ mode: cfg.mode, model: cfg.model, baseURL: cfg.baseURL, apiKey: cfg.apiKey, messageFa: cfg.messageFa });
+});
+
+adminRouter.get('/agent/browser/llm-config', (req, res) => {
+  const session = String(req.query.session || '');
+  const s = consumeBrowserSession(session);
+  if (!s) {
+    res.status(403).json({ error: 'invalid_session', messageFa: 'نشست مرورگر نامعتبر یا منقضی است.' });
+    return;
+  }
+  const cfg = resolveBrowserLlmConfig();
+  res.json({
+    mode: cfg.mode,
+    model: cfg.model,
+    baseURL: cfg.baseURL,
+    apiKey: cfg.apiKey,
+    messageFa: cfg.messageFa,
+    targetUrl: s.url,
+    taskFa: s.taskFa
+  });
 });
 
 // ---------------------------------------------------------------------------

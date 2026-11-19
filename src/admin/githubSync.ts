@@ -647,7 +647,9 @@ export function buildClientCatalog(titles: TitleRecord[]): AdminCatalogFile {
     brand: 'Petros Cinema',
     platform: 'AI Petros Cinema',
     channelName: 'Aipetros',
-    streams: titles.map((t) => titleToClientStream(t, cacheRouteFor)) as never
+    streams: [...titles]
+      .sort((a, b) => Date.parse(b.createdAt || '') - Date.parse(a.createdAt || ''))
+      .map((t) => titleToClientStream(t, cacheRouteFor)) as never
   };
 }
 
