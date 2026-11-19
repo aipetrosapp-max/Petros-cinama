@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-19T14:05:27.495Z",
-  "updatedAt": "2026-11-19T14:05:27.495Z",
+  "version": "2026-11-19T14:13:19.661Z",
+  "updatedAt": "2026-11-19T14:13:19.661Z",
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
@@ -41,7 +41,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
-      "status": "draft",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T13:55:31.047Z"
@@ -13415,7 +13415,7 @@
       "posterUrl": "https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
       "backdropUrl": "",
       "year": 2017,
-      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
+      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
       "durationSec": 9840,
       "director": "Denis Villeneuve",
       "cast": [],
