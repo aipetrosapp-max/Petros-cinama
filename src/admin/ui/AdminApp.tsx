@@ -259,6 +259,9 @@ function DashboardView({
   onChanged?: () => void;
 }) {
   const toast = useToast();
+  const [linkText, setLinkText] = useState('');
+  const [linkQueue, setLinkQueue] = useState<Array<{ url: string; status: 'new' | 'dup' | 'added' | 'error'; message: string }>>([]);
+  const [addingAll, setAddingAll] = useState(false);
   const [filmQuery, setFilmQuery] = useState('');
   const [filmCat, setFilmCat] = useState<'all' | 'movie' | 'series' | 'anime'>('all');
   const [filmGroup, setFilmGroup] = useState<'all' | 'tierA' | 'tierB' | 'pending'>('all');
@@ -273,6 +276,61 @@ function DashboardView({
     } catch (error) {
       toast.push('error', 'به‌روزرسانی ناموفق', (error as Error).message);
     }
+  };
+
+  const titleHasUrl = (url: string): boolean => {
+    const u = url.toLowerCase();
+    return titles.some((t) => {
+      const urls = [
+        (t as unknown as { upstreamUrl?: string }).upstreamUrl,
+        (t as unknown as { defaultStreamUrl?: string }).defaultStreamUrl,
+        (t as unknown as { telegramUrl?: string }).telegramUrl,
+        ...((t.qualities || []) as Array<{ url?: string }>).map((q) => q.url),
+        ...((t.seasons || []) as unknown as Array<{ episodes?: Array<{ url?: string }> }>).flatMap((s) => (s.episodes || []).map((e) => e.url))
+      ];
+      return urls.some((x) => x && x.toLowerCase() === u);
+    });
+  };
+
+  const buildQueue = () => {
+    const links = Array.from(
+      new Set(
+        (linkText.match(/https?:\/\/[^\s"'<>،,]+/g) || []).map((l) => l.trim()).filter(Boolean)
+      )
+    );
+    if (links.length === 0) {
+      toast.push('info', 'لینکی پیدا نشد', 'هر خط یک لینک https:// … بنویس.');
+      return;
+    }
+    setLinkQueue(links.map((url) => ({ url, status: titleHasUrl(url) ? 'dup' : 'new', message: titleHasUrl(url) ? 'در کاتالوگ موجود است (تکراری)' : 'ثبت‌نشده' })));
+    toast.push('success', 'لیست آماده شد', `${links.length} لینک — هر کدام را جداگانه می‌توانی اضافه کنی.`);
+  };
+
+  const addOneLink = async (url: string) => {
+    setLinkQueue((prev) => prev.map((item) => (item.url === url ? { ...item, message: 'در حال افزودن…' } : item)));
+    try {
+      const res = await adminApi.addFromLink({ url });
+      setLinkQueue((prev) =>
+        prev.map((item) =>
+          item.url === url
+            ? res.duplicate
+              ? { ...item, status: 'dup', message: 'تکراری — از قبل هست' }
+              : { ...item, status: 'added', message: res.messageFa || 'اضافه شد (پیش‌نویس تا تصمیم سطح A/B)' }
+            : item
+        )
+      );
+      onChanged?.();
+    } catch (error) {
+      setLinkQueue((prev) => prev.map((item) => (item.url === url ? { ...item, status: 'error', message: (error as Error).message } : item)));
+    }
+  };
+
+  const addAllNew = async () => {
+    setAddingAll(true);
+    for (const item of linkQueue) {
+      if (item.status === 'new') await addOneLink(item.url);
+    }
+    setAddingAll(false);
   };
 
   const filmGroups = useMemo(() => {
@@ -314,6 +372,88 @@ function DashboardView({
 
   return (
     <div className="space-y-4">
+      <Panel
+        title="📥 لیست لینک‌ها — هر لینک جداگانه اضافه می‌شود"
+        subtitle="لینک‌ها را بچسبان (هر خط یک لینک)؛ لیست کن، بعد هر کدام را با دکمه «افزودن» به آرشیو بفرست"
+        actions={
+          <>
+            {linkQueue.length > 0 && (
+              <GoldButton variant="ghost" onClick={() => void addAllNew()} disabled={addingAll}>
+                {addingAll ? 'در حال افزودن همه…' : '⚡ افزودن همه جدیدها'}
+              </GoldButton>
+            )}
+            <GoldButton onClick={buildQueue} disabled={!linkText.trim()}>
+              📋 لیست کن
+            </GoldButton>
+          </>
+        }
+      >
+        <textarea
+          value={linkText}
+          onChange={(e) => setLinkText(e.target.value)}
+          rows={3}
+          dir="ltr"
+          placeholder="https://archive.org/download/…/movie.mp4\nhttps://t.me/Aipetros/12345\nhttps://cdn.site/series-s01e01.mkv"
+          className="w-full rounded-xl border border-white/12 bg-black/40 p-3 text-[11px] text-zinc-200 placeholder-zinc-600 outline-none transition focus:border-[#D4AF37]/50"
+        />
+        {linkQueue.length > 0 ? (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[640px] text-right text-[11px]">
+              <thead className="text-[10px] text-zinc-500">
+                <tr className="border-b border-white/10">
+                  <th className="py-2 pl-2 font-bold">#</th>
+                  <th className="py-2 pl-2 font-bold">لینک</th>
+                  <th className="py-2 pl-2 font-bold">وضعیت</th>
+                  <th className="py-2 font-bold">عملیات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {linkQueue.map((item, i) => (
+                  <tr key={item.url + i} className="border-b border-white/5">
+                    <td className="py-2 pl-2 text-zinc-500">{(i + 1).toLocaleString('fa-IR')}</td>
+                    <td className="max-w-[380px] truncate py-2 pl-2 font-medium text-zinc-300" dir="ltr" title={item.url}>
+                      {item.url}
+                    </td>
+                    <td className="py-2 pl-2">
+                      <Badge
+                        tone={
+                          item.status === 'added'
+                            ? 'green'
+                            : item.status === 'dup'
+                              ? 'neutral'
+                              : item.status === 'error'
+                                ? 'red'
+                                : 'gold'
+                        }
+                      >
+                        {item.message}
+                      </Badge>
+                    </td>
+                    <td className="py-2">
+                      {item.status === 'added' || item.status === 'dup' ? (
+                        <span className="text-[10px] text-zinc-500">✓ انجام شد</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => void addOneLink(item.url)}
+                          className="rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-2.5 py-1 text-[10px] font-bold text-[#F5E7B8] transition hover:bg-[#D4AF37]/25"
+                        >
+                          ➕ افزودن
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="mt-2 text-[10px] text-zinc-500">
+            هر لینک بعد از افزودن به‌صورت پیش‌نویس ذخیره می‌شود (پخش قانونی/سرور و تلگرام در حالت لوکال) و تا وقتی سطح A/B کشورها را تعیین کنی روی سایت نمایش داده نمی‌شود.
+          </p>
+        )}
+      </Panel>
+
       <Panel
         title="داشبورد کلی"
         subtitle={`نسخه کاتالوگ: ${dashboard.catalogVersion} • آخرین به‌روزرسانی: ${new Date(
