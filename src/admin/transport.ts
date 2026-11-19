@@ -71,11 +71,17 @@ export interface RepoFile {
   sha: string;
 }
 
-/** Read a JSON file from the repo (with its blob SHA for updates). */
+/** Read a JSON file from the repo (with its blob SHA for updates).
+ * Public repo → reads work without a token; writes need the owner's token. */
 export async function readRepoJson(path: string): Promise<{ data: unknown; sha: string } | null> {
+  const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
+  if (githubToken) {
+    headers.Authorization = `Bearer ${githubToken}`;
+    headers['X-GitHub-Api-Version'] = '2022-11-28';
+  }
   const res = await fetch(
     `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${REPO_BRANCH}`,
-    { headers: githubHeaders(), cache: 'no-store' }
+    { headers, cache: 'no-store' }
   );
   if (res.status === 404) return null;
   if (!res.ok) throw new GithubApiError(res.status, `خواندن ${path} از گیت‌هاب ناموفق بود (${res.status}).`);
