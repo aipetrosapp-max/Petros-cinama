@@ -3,7 +3,7 @@
  * Archive tab: movies / series / anime with seasons, episodes,
  * multi-quality streams and subtitle tracks.
  */
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Film,
   Clapperboard,
@@ -1062,6 +1062,54 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
   const [showVip, setShowVip] = useState(false);
   const [postToTelegram, setPostToTelegram] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [vipBusy, setVipBusy] = useState(false);
+  const [liveBusy, setLiveBusy] = useState(false);
+  const [vipResult, setVipResult] = useState<{ ok: boolean; host: string; count: number; loggedIn: boolean; messageFa: string } | null>(null);
+  const [sessions, setSessions] = useState<Array<{ host: string; count: number; logged_in: boolean; savedAt?: string | null; url?: string }>>([]);
+
+  const refreshSessions = async () => {
+    try {
+      const res = await adminApi.browserSessions();
+      setSessions(res.sessions || []);
+    } catch {
+      setSessions([]);
+    }
+  };
+
+  useEffect(() => {
+    if (showVip) void refreshSessions();
+  }, [showVip]);
+
+  const runVipLogin = async () => {
+    setVipBusy(true);
+    setVipResult(null);
+    try {
+      const res = await adminApi.vipLogin(url.trim(), username.trim(), password.trim());
+      setVipResult(res);
+      toast.push(res.ok ? 'success' : 'error', res.ok ? 'ورود VIP موفق' : 'ورود VIP ناموفق', res.messageFa);
+      if (res.ok) await refreshSessions();
+    } catch (error) {
+      setVipResult({ ok: false, host: '', count: 0, loggedIn: false, messageFa: (error as Error).message });
+      toast.push('error', 'ورود VIP ناموفق', (error as Error).message);
+    } finally {
+      setVipBusy(false);
+    }
+  };
+
+  const launchLiveBrowser = async () => {
+    setLiveBusy(true);
+    try {
+      const res = await adminApi.launchBrowser(url.trim());
+      toast.push('info', 'مرورگر زنده باز شد', res.messageFa);
+      setTimeout(() => {
+        setLiveBusy(false);
+        void refreshSessions();
+      }, 30_000);
+    } catch (error) {
+      toast.push('error', 'باز کردن مرورگر ناموفق', (error as Error).message);
+      setLiveBusy(false);
+    }
+  };
 
   const submit = async () => {
     const link = url.trim();
@@ -1141,26 +1189,66 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
         </GoldButton>
       </div>
       {showVip && (
-        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
-          <span className="text-[11px] font-bold text-amber-300">👤 اطلاعات VIP سایت:</span>
-          <TextInput
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="نام کاربری (Username)"
-            className="w-44 text-xs"
-            dir="ltr"
-          />
-          <TextInput
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="رمز عبور (Password)"
-            className="w-44 text-xs"
-            dir="ltr"
-          />
-          <span className="text-[10px] text-zinc-400">
-            (اگر سرور دانلود نیاز به اشتراک VIP دارد، این اطلاعات ذخیره می‌شود تا ویدیو بدون مشکل دانلود و پخش شود)
-          </span>
+        <div className="mt-3 space-y-3 rounded-xl border border-white/10 bg-white/5 p-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold text-amber-300">👤 ورود اکانت VIP و استخراج نشست:</span>
+            <TextInput
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="نام کاربری / ایمیل"
+              className="w-44 text-xs"
+              dir="ltr"
+            />
+            <TextInput
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="رمز عبور"
+              className="w-44 text-xs"
+              dir="ltr"
+            />
+            <GoldButton
+              variant="ghost"
+              disabled={!url.trim() || !username.trim() || !password.trim() || vipBusy}
+              onClick={() => void runVipLogin()}
+            >
+              {vipBusy ? 'در حال ورود و استخراج نشست…' : '🔓 ورود و استخراج نشست'}
+            </GoldButton>
+            <button
+              type="button"
+              onClick={() => void launchLiveBrowser()}
+              disabled={!url.trim() || liveBusy}
+              className="rounded-xl border border-white/12 px-3 py-2 text-[11px] font-bold text-zinc-300 transition hover:border-[#D4AF37]/40"
+            >
+              {liveBusy ? 'باز شد — در پنجره لاگین کن…' : '🖥 مرورگر زنده (لاگین دستی)'}
+            </button>
+          </div>
+          {vipResult && (
+            <div
+              className={`rounded-xl border px-3 py-2 text-[10.5px] ${
+                vipResult.ok
+                  ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200'
+                  : 'border-rose-400/40 bg-rose-500/10 text-rose-200'
+              }`}
+            >
+              {vipResult.ok
+                ? `✅ نشست ${vipResult.host} — ${vipResult.count.toLocaleString('fa-IR')} کوکی${vipResult.loggedIn ? ' • احراز هویت تشخیص داده شد' : ''}`
+                : `❌ ${vipResult.messageFa}`}
+            </div>
+          )}
+          {sessions.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10.5px] font-bold text-zinc-400">نشست‌های ذخیره‌شده:</span>
+              {sessions.map((s) => (
+                <Badge key={s.host} tone={s.logged_in ? 'green' : 'neutral'}>
+                  {s.host} • {s.count} کوکی
+                </Badge>
+              ))}
+            </div>
+          )}
+          <p className="text-[10px] leading-relaxed text-zinc-500">
+            این ورود فقط با اکانت شخصی خودت انجام می‌شود و کوکی‌ها فقط روی کامپیوتر خودت (data/browser_sessions) نگه‌داری می‌شوند — برای دانلود/بررسی لینک‌هایی که دسترسی اشتراکی‌ات را دارند. خوانده نمی‌شوند روی هیچ سرور بیرونی.
+          </p>
         </div>
       )}
     </div>

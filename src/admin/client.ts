@@ -823,6 +823,17 @@ export const adminApi = {
       body: { url }
     }),
 
+  vipLogin: (url: string, username: string, password: string) =>
+    request<{ ok: boolean; host: string; count: number; loggedIn: boolean; messageFa: string }>(
+      '/browser/vip-login',
+      { method: 'POST', body: { url, username, password } }
+    ),
+
+  browserSessions: () =>
+    request<{ ok: boolean; sessions: Array<{ host: string; count: number; logged_in: boolean; savedAt?: string | null; url?: string }> }>(
+      '/browser/sessions'
+    ),
+
   checkBrowserSession: (host: string) =>
     request<{ ok: boolean; session?: { url: string; cookie_header: string; count: number }; messageFa?: string }>(
       `/browser/session/${encodeURIComponent(host)}`

@@ -772,6 +772,99 @@ adminRouter.post('/catalog/subtitle-file', requireAdminAuth, async (req, res) =>
   });
 });
 
+adminRouter.get('/browser/sessions', requireAdminAuth, async (_req, res) => {
+  const dir = path.join(process.cwd(), 'data', 'browser_sessions');
+  try {
+    await fsp.mkdir(dir, { recursive: true });
+    const files = (await fsp.readdir(dir)).filter((f) => f.endsWith('.json'));
+    const sessions: Array<Record<string, unknown>> = [];
+    for (const f of files) {
+      try {
+        const data = JSON.parse(await fsp.readFile(path.join(dir, f), 'utf-8')) as Record<string, unknown>;
+        sessions.push({
+          host: f.replace(/\.json$/, ''),
+          count: Number(data.count || 0),
+          logged_in: Boolean(data.logged_in),
+          savedAt: data.savedAt || null,
+          url: data.url || ''
+        });
+      } catch {
+        // skip unreadable
+      }
+    }
+    res.json({ ok: true, sessions });
+  } catch (err: unknown) {
+    res.status(500).json({ error: 'read_failed', messageFa: (err as Error).message });
+  }
+});
+
+/** VIP site auto-login with the owner's credentials → extract session cookies. */
+adminRouter.post('/browser/vip-login', requireAdminAuth, async (req, res) => {
+  const siteUrl = String(req.body?.url || '').trim();
+  const username = String(req.body?.username || '').trim();
+  const password = String(req.body?.password || '').trim();
+  if (!/^https?:\/\/\//.test(siteUrl) === false && !/^https?:\/\//i.test(siteUrl)) {
+    res.status(400).json({ error: 'invalid_url', messageFa: 'آدرس سایت VIP نامعتبر است.' });
+    return;
+  }
+  if (!username || !password) {
+    res.status(400).json({ error: 'missing_credentials', messageFa: 'نام کاربری و رمز عبور اکانت VIP خودت را وارد کن.' });
+    return;
+  }
+  let host = '';
+  try {
+    host = new URL(siteUrl).hostname.replace(/[^a-zA-Z0-9.-]/g, '_');
+  } catch {
+    res.status(400).json({ error: 'invalid_url', messageFa: 'آدرس سایت VIP نامعتبر است.' });
+    return;
+  }
+  const outDir = path.join(process.cwd(), 'data', 'browser_sessions');
+  await fsp.mkdir(outDir, { recursive: true });
+  const outPath = path.join(outDir, `${host}.json`);
+
+  const python = process.platform === 'win32' ? 'python' : 'python3';
+  const scriptPath = path.join(process.cwd(), 'scripts', 'vip_auto_login.py');
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(python, [scriptPath, siteUrl, username, password, outPath], {
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
+      let stdout = '';
+      const timer = setTimeout(() => {
+        child.kill();
+        reject(new Error('timeout_120s'));
+      }, 120_000);
+      child.stdout.on('data', (d: Buffer) => (stdout += d.toString()));
+      child.on('error', (e) => {
+        clearTimeout(timer);
+        reject(e);
+      });
+      child.on('close', (code) => {
+        clearTimeout(timer);
+        if (code === 0 || stdout.trim()) resolve();
+        else reject(new Error(`python_exit_${code}`));
+      });
+    });
+    const data = JSON.parse(await fsp.readFile(outPath, 'utf-8')) as Record<string, unknown>;
+    res.json({
+      ok: Boolean(data.ok),
+      host,
+      count: Number(data.count || 0),
+      loggedIn: Boolean(data.logged_in),
+      messageFa: String(data.message || 'نشست استخراج شد.')
+    });
+  } catch (err: unknown) {
+    const msg = (err as Error).message;
+    res.status(500).json({
+      error: 'vip_login_failed',
+      messageFa: msg.includes('timeout')
+        ? 'ورود بیش از ۲ دقیقه طول کشید — سایت کند است یا فرم متفاوت است. دکمه «مرورگر زنده» را امتحان کن.'
+        : `اجرای مرورگر ناموفق بود: ${msg}`
+    });
+  }
+});
+
 adminRouter.post('/browser/launch', requireAdminAuth, async (req, res) => {
   const targetUrl = String(req.body?.url || '').trim();
   if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
