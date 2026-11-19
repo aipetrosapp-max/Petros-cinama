@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-19T12:02:59.106Z",
-  "updatedAt": "2026-11-19T12:02:59.106Z",
+  "version": "2026-11-19T12:05:48.693Z",
+  "updatedAt": "2026-11-19T12:05:48.693Z",
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
@@ -11751,7 +11751,7 @@
           "TH"
         ],
         "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
+        "updatedAt": "2026-11-19T12:05:48.514Z"
       },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
@@ -12640,7 +12640,7 @@
           "TH"
         ],
         "noteFa": "در کشورهای فهرست‌شده پخش نمی‌شود",
-        "updatedAt": "2026-11-19T12:02:59.013Z"
+        "updatedAt": "2026-11-19T12:05:48.514Z"
       },
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
@@ -13872,7 +13872,7 @@
       "posterUrl": "https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
       "backdropUrl": "",
       "year": 2017,
-      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
+      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
       "durationSec": 9840,
       "director": "Denis Villeneuve",
       "cast": [],
