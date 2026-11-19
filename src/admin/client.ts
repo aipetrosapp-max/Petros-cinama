@@ -139,7 +139,7 @@ function makeId(title: string): string {
 
 function dashboardFrom(catalog: CatalogFile, config: AdminConfig): DashboardSummary {
   const titles = catalog.streams || [];
-  const byCategory: Record<string, number> = {};
+  const byCategory: Record<string, number> = { movie: 0, series: 0, anime: 0 };
   let qualities = 0;
   let subtitles = 0;
   let seasons = 0;
@@ -619,9 +619,9 @@ export const adminApi = {
       });
       return res;
     } catch (err: unknown) {
-      // If server returned 404 or 405 (e.g. GitHub Pages static host), use client-side sha256 authentication
+      // If server returned 404/405/501 (e.g. GitHub Pages or a static file server), use client-side sha256 authentication
       const isStaticOrDisallowed =
-        err instanceof AdminApiError && (err.status === 405 || err.status === 404);
+        err instanceof AdminApiError && (err.status === 405 || err.status === 404 || err.status === 501);
 
       if (isStaticOrDisallowed) {
         // Precomputed SHA-256 for Ped12345@
