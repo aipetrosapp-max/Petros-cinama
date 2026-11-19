@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "manifestVersion": "mwniscpt",
+  "manifestVersion": "mwnitqhf",
   "features": {
     "donationEnabled": true,
     "cryptoPaymentEnabled": true,
@@ -69,6 +69,6 @@
       "updatedAt": "2026-11-18T21:12:02.121Z"
     }
   ],
-  "updatedAt": "2026-11-19T12:22:02.849Z",
+  "updatedAt": "2026-11-19T12:23:07.347Z",
   "subtitleFiles": []
 }
