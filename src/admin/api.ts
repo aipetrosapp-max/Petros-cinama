@@ -1197,32 +1197,72 @@ function cookieForHost(url: string): string {
   }
 }
 
+/** Resolve a real filename for a source URL: basename → provided name →
+ * Content-Disposition probe (with the owner's session cookies). */
+async function resolveFileName(url: string, provided: string): Promise<string> {
+  if (provided) return provided;
+  try {
+    const u = new URL(url);
+    const base = decodeURIComponent(u.pathname.split('/').pop() || '');
+    if (base && /\.[a-z0-9]{2,4}$/i.test(base)) return base;
+    for (const key of ['filename', 'file', 'name', 'title']) {
+      const v = u.searchParams.get(key);
+      if (v) return decodeURIComponent(v);
+    }
+  } catch {
+    // fall through to probe
+  }
+  try {
+    const headers: Record<string, string> = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    };
+    const cookie = cookieForHost(url);
+    if (cookie) headers.Cookie = cookie;
+    const res = await fetch(url, { method: 'HEAD', headers, signal: AbortSignal.timeout(12000) });
+    const cd = res.headers.get('content-disposition') || '';
+    const m = /filename\*?=(?:UTF-8'')?"?([^";\r\n]+)/i.exec(cd);
+    if (m && m[1]) return decodeURIComponent(m[1].replace(/^"|"$/g, ''));
+    const ct = (res.headers.get('content-type') || '').split(';')[0];
+    const ext = ct.includes('mp4') ? '.mp4' : ct.includes('matroska') || ct.includes('mkv') ? '.mkv' : ct.includes('webm') ? '.webm' : '.mp4';
+    let host = '';
+    try {
+      host = new URL(url).hostname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    } catch {
+      host = 'source';
+    }
+    return `download-${host}${ext}`;
+  } catch {
+    return `download-${Date.now().toString(36)}.mp4`;
+  }
+}
+
 adminRouter.post('/telegram/transfer', requireAdminAuth, async (req, res) => {
   const body = requireBody(req, res);
   if (!body) return;
   const rawItems = Array.isArray(body.items) ? body.items : [];
-  const items = rawItems
-    .map((it: unknown, i: number) => {
-      const rec = (it || {}) as Record<string, unknown>;
-      const url = String(rec.url || '').trim();
-      if (!/^https?:\/\//i.test(url)) return null;
-      const fallbackName = (() => {
-        try {
-          return decodeURIComponent(new URL(url).pathname.split('/').pop() || '') || `file-${i + 1}.mp4`;
-        } catch {
-          return `file-${i + 1}.mp4`;
-        }
-      })();
-      return {
-        id: `file-${Date.now().toString(36)}-${i}`,
-        title: String(rec.name || '').trim() || fallbackName,
-        url,
-        watchUrl: '',
-        // attach the owner's VIP session for this host automatically (if saved)
-        ...(cookieForHost(url) ? { cookieHeader: cookieForHost(url) } : {})
-      };
-    })
-    .filter(Boolean);
+  const items: Array<Record<string, string>> = [];
+  const rawList = rawItems.map((it: unknown, i: number) => {
+    const rec = (it || {}) as Record<string, unknown>;
+    const url = String(rec.url || '').trim();
+    if (/^https?:\/\//i.test(url)) return { rec, url, i };
+    return null;
+  }).filter(Boolean) as Array<{ rec: Record<string, unknown>; url: string; i: number }>;
+  if (rawList.length === 0) {
+    res.status(400).json({ error: 'no_items', messageFa: 'هیچ لینک معتبری برای ارسال انتخاب نشده است.' });
+    return;
+  }
+  for (const { rec, url, i } of rawList) {
+    const provided = String(rec.name || '').trim();
+    const resolved = await resolveFileName(url, provided);
+    items.push({
+      id: `file-${Date.now().toString(36)}-${i}`,
+      title: resolved,
+      url,
+      watchUrl: '',
+      // attach the owner's VIP session for this host automatically (if saved)
+      ...(cookieForHost(url) ? { cookieHeader: cookieForHost(url) } : {})
+    });
+  }
   if (items.length === 0) {
     res.status(400).json({ error: 'no_items', messageFa: 'هیچ لینک معتبری برای ارسال انتخاب نشده است.' });
     return;

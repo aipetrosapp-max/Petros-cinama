@@ -64,6 +64,23 @@ def write_all_status(status: str, error: str) -> None:
         pass
 
 
+MEDIA_EXTS = (".mp4", ".mkv", ".webm", ".m4v", ".mov", ".avi")
+
+
+def filename_from_title(title: str, url: str, fallback: str) -> str:
+    """Real filename: URL basename if it is a media file, else the resolved title."""
+    try:
+        path_base = os.path.basename(urllib.parse.urlparse(url).path)
+        name = urllib.parse.unquote(path_base) if path_base else ""
+    except Exception:
+        name = ""
+    if not name or not name.lower().endswith(MEDIA_EXTS):
+        name = (title or fallback or "").strip()
+    if not name.lower().endswith(MEDIA_EXTS):
+        name += ".mp4"
+    return name.replace(os.sep, "_")[:120]
+
+
 def filename_from_url(url: str, fallback_id: str) -> str:
     try:
         name = os.path.basename(urllib.parse.urlparse(url).path)
@@ -204,7 +221,7 @@ async def main() -> None:
         status[item_id] = entry
         save_json(STATUS_FILE, status)
 
-        fname = filename_from_url(url, item_id)
+        fname = filename_from_title(title, url, item_id)
         local_path = os.path.join(TEMP_DIR, fname)
 
         last_write = [0.0]

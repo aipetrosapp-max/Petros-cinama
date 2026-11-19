@@ -21,6 +21,27 @@ QUALITY_RE = re.compile(r"(480p|720p|1080p|2160p|4k|hdr|x265|x264|hevc|bluray|we
 LINK_TEXT_RE = re.compile(r"(دانلود|کیفیت|دوبله|زیرنویس|دانلود فیلم|download|episode|قسمت|فصل|season|series|movie)", re.I)
 
 
+MEDIA_EXTS = (".mp4", ".mkv", ".webm", ".m4v", ".mov", ".avi", ".m3u8", ".mpd")
+
+
+def derive_name(url: str, text: str) -> str:
+    """Best-effort display name: URL basename → ?filename=… → link text → ''."""
+    try:
+        parsed = urllib.parse.urlparse(url)
+        base = urllib.parse.unquote((parsed.path or "").split("/")[-1]) if parsed.path else ""
+        if base:
+            return base[:90]
+        qs = urllib.parse.parse_qs(parsed.query or "")
+        for key in ("filename", "file", "name", "title", "f", "id"):
+            if key in qs and qs[key] and qs[key][0]:
+                return str(qs[key][0])[:90]
+    except Exception:
+        pass
+    t = (text or "").strip()
+    if t:
+        return t[:90]
+    return ""
+
 def extract(page_url: str, session_path: str, out_path: str, full: bool = False) -> dict:
     sess = {}
     try:
@@ -115,14 +136,9 @@ def extract(page_url: str, session_path: str, out_path: str, full: bool = False)
     # owner can see what he is sending before ticking anything.
     probed = 0
     for l in links:
-        try:
-            name = l["url"].split("?")[0].split("/")[-1]
-            l["name"] = urllib.parse.unquote(name) or l["url"][:60]
-            q = QUALITY_RE.search(l["name"])
-            l["quality"] = q.group(0) if q else ""
-        except Exception:
-            l["name"] = l["url"][:60]
-            l["quality"] = ""
+        l["name"] = derive_name(l["url"], l.get("text", "")) or l["url"][:60]
+        q = QUALITY_RE.search(l["name"])
+        l["quality"] = q.group(0) if q else ""
         if probed < 60 and l["type"] in ("direct", "stream"):
             probed += 1
             try:
@@ -130,6 +146,13 @@ def extract(page_url: str, session_path: str, out_path: str, full: bool = False)
                 clen = head.headers.get("content-length")
                 l["size"] = int(clen) if clen and clen.isdigit() else None
                 l["http"] = head.status
+                cd = head.headers.get("content-disposition", "")
+                if cd:
+                    pat = chr(102)+"ilename*?=(?:UTF-8"+chr(39)*2+"|"+chr(34)+"?)?([^;" + chr(13) + chr(10) + chr(34) + "]+)"
+                    m = re.search(pat, cd, re.I)
+                    if m and m.group(1):
+                        name_raw = m.group(1).strip(chr(34))
+                        l["name"] = urllib.parse.unquote(name_raw)[:90]
             except Exception:
                 l["size"] = None
 
