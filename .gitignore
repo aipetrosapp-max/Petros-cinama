@@ -33,3 +33,6 @@ scripts/growth_swarm_state.json
 growth-engine/**/auth_state*.json
 state.json
 run_local_server.bat
+
+# Browser cookie vaults (per-host login sessions — sensitive)
+data/browser_cookies/

@@ -626,6 +626,7 @@ export function titleToClientStream(
     geoPolicy: title.geoPolicy
       ? { mode: title.geoPolicy.mode, countries: (title.geoPolicy.countries || []).map((c) => c.toUpperCase().slice(0, 2)), noteFa: title.geoPolicy.noteFa, updatedAt: title.geoPolicy.updatedAt }
       : undefined,
+    geoPending: title.geoPending === true ? true : undefined,
     subtitleUrl: (title.subtitles || []).find((s) => s.url)?.url,
     status: title.status,
     playbackStatus: playableUrl ? 'available' : 'unavailable',
@@ -638,7 +639,26 @@ export function titleToClientStream(
   };
 }
 
-export function buildClientCatalog(titles: TitleRecord[]): AdminCatalogFile {
+/**
+ * Published streams = newest-first, minus titles still awaiting the owner's
+ * geo decision (geoPending). Pending titles live only on the server + Telegram.
+ */
+export function buildClientStreams(
+  titles: TitleRecord[],
+  cacheRouteFor: (id: string) => string
+) {
+  const published = [...titles]
+    .filter((t) => t.geoPending !== true)
+    .sort((a, b) => Date.parse(b.createdAt || '') - Date.parse(a.createdAt || ''))
+    .map((t) => titleToClientStream(t, cacheRouteFor));
+  return published;
+}
+
+/**
+ * Full manifest build for the live site — includes every published title but
+ * still hides geoPending ones (owner's A/B decision pending).
+ */
+export function buildPublishedManifest(titles: TitleRecord[]): AdminCatalogFile {
   const cfg = getRepoConfig();
   const cacheRouteFor = (id: string) => `/api/stream/cache/${id}`;
   return {
@@ -648,8 +668,24 @@ export function buildClientCatalog(titles: TitleRecord[]): AdminCatalogFile {
     platform: 'AI Petros Cinema',
     channelName: 'Aipetros',
     streams: [...titles]
+      .filter((t) => t.geoPending !== true)
       .sort((a, b) => Date.parse(b.createdAt || '') - Date.parse(a.createdAt || ''))
       .map((t) => titleToClientStream(t, cacheRouteFor)) as never
+  };
+}
+
+export function buildClientCatalog(titles: TitleRecord[]): AdminCatalogFile {
+  const cfg = getRepoConfig();
+  const cacheRouteFor = (id: string) => `/api/stream/cache/${id}`;
+  return {
+    version: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    brand: 'Petros Cinema',
+    platform: 'AI Petros Cinema',
+    channelName: 'Aipetros',
+    // GEO DECISION LAW: geoPending titles stay in the LOCAL catalog (server) but
+    // are excluded from the *published* client manifest until the owner decides.
+    streams: buildClientStreams(titles, cacheRouteFor) as never
   };
 }
 

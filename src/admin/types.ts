@@ -103,6 +103,8 @@ export interface TitleRecord {
   downloadLinks?: Array<{ id: string; label: string; url: string; sizeBytes?: number }>;
   /** Two-tier geo policy (admin-only): block = hidden in listed countries; allow = visible ONLY in listed countries. */
   geoPolicy?: { mode: 'block' | 'allow'; countries: string[]; noteFa?: string; updatedAt?: string };
+  /** Fresh ingest from a URL waits for the owner's A/B country decision before the site shows it. */
+  geoPending?: boolean;
   createdAt: string;
   updatedAt: string;
 }

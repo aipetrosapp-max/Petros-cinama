@@ -324,7 +324,7 @@ async function setGeoPolicyForTitles(text: string, mode: 'block' | 'allow'): Pro
     intent: 'geo_policy_set',
     replyFa:
       `🌍 اعمال شد (${mode === 'block' ? 'ممنوع در' : 'فقط مجاز در'} ${codes.join('، ')}):\n` +
-      result.changedTitles.map((t) => `• «${t}»`).join('\n') +
+      result.changedTitles.map((t: string) => `• «${t}»`).join('\n') +
       `\n\n${publish.replyFa}`
   };
 }
@@ -338,7 +338,7 @@ async function clearGeoPolicyForTitles(text: string): Promise<AgentReply> {
   const publish = await publishEverything('geo policy cleared via admin chat agent');
   return {
     intent: 'geo_policy_cleared',
-    replyFa: `🌍 قید جغرافیایی برداشته شد از:\n${result.changedTitles.map((t) => `• «${t}»`).join('\n')}\n\n${publish.replyFa}`
+    replyFa: `🌍 قید جغرافیایی برداشته شد از:\n${result.changedTitles.map((t: string) => `• «${t}»`).join('\n')}\n\n${publish.replyFa}`
   };
 }
 
@@ -346,26 +346,34 @@ async function publishEverything(note?: string): Promise<AgentReply> {
   const catalog = await readLocalCatalog();
   const config = await readLocalConfig();
   const titles = (catalog.streams || []) as unknown as TitleRecord[];
-  const clientCatalog = buildClientCatalog(titles);
+  const { buildClientCatalog } = await import('./githubSync.ts');
+  const { buildPublishedManifest } = await import('./githubSync.ts');
+
+  // LOCAL catalog keeps every title (including geoPending drafts).
+  const localClient = buildClientCatalog(titles);
+  // PUBLISHED manifest excludes titles awaiting the owner's geo decision.
+  const publishedCatalog = buildPublishedManifest(titles);
+  const pendingCount = titles.filter((t) => t.geoPending === true).length;
+
   const manifestVersion = `${Date.now().toString(36)}`;
   config.manifestVersion = manifestVersion;
   config.updatedAt = new Date().toISOString();
-  await writeLocalCatalog(clientCatalog);
+  await writeLocalCatalog(localClient);
   await writeLocalConfig(config);
   const cfg = getRepoConfig();
   const commit = await commitFiles(
     [
-      { path: cfg.catalogPath, content: JSON.stringify(clientCatalog, null, 2) },
+      { path: cfg.catalogPath, content: JSON.stringify(publishedCatalog, null, 2) },
       { path: cfg.configPath, content: JSON.stringify(config, null, 2) }
     ],
-    buildCommitMessage(note?.trim() || `update catalog (${titles.length} titles) via admin chat agent`)
+    buildCommitMessage(note?.trim() || `update catalog (${publishedCatalog.streams.length}/${titles.length} titles) via admin chat agent`)
   );
   return {
     intent: 'publish',
     replyFa: commit.ok
-      ? `🚀 منتشر شد: مانیفست نسخه ${manifestVersion} با ${titles.length} عنوان روی برنچ ${cfg.branch} پوش شد. همه دستگاه‌ها در چرخه همگام‌سازی خودکار دریافت می‌کنند.`
-      : `⚠️ ذخیره محلی انجام شد ولی push ناموفق بود (${commit.message}). توکن گیت‌هاب (GITHUB_TOKEN) را در تب «ولت و توکن‌ها» چک کن و دوباره «منتشر کن» را بگو.`,
-    data: { commit, manifestVersion, count: titles.length }
+      ? `🚀 منتشر شد: مانیفست نسخه ${manifestVersion} با ${publishedCatalog.streams.length} عنوان روی برنچ ${cfg.branch} پوش شد.${pendingCount > 0 ? ` (${pendingCount} عنوان در انتظار تصمیم جغرافیایی فقط روی سرور ماند)` : ''}` :
+      `⚠️ ذخیره محلی انجام شد ولی push ناموفق بود (${commit.message}). توکن گیت‌هاب (GITHUB_TOKEN) را در تب «ولت و توکن‌ها» چک کن و دوباره «منتشر کن» را بگو.`,
+    data: { commit, manifestVersion, count: publishedCatalog.streams.length, pending: pendingCount }
   };
 }
 
@@ -405,9 +413,12 @@ async function addFromLink(url: string, publish: boolean): Promise<AgentReply> {
     title: guess.title,
     titleFa: guess.title,
     category: 'movie' as const,
-    status: 'published' as const,
+    // SERVER+TELEGRAM FIRST: fresh URL ingests wait for the owner's A/B country
+    // decision — the client manifest filter keeps them off the public site.
+    status: 'draft' as const,
+    geoPending: true,
     ...(guess.year ? { year: guess.year } : {}),
-    featured: publish,
+    featured: false,
     qualities: [{ id: makeLocalId('q'), quality: '1080p', url, format: 'direct_mp4' as const }],
     subtitles: [],
     seasons: [],
@@ -424,17 +435,27 @@ async function addFromLink(url: string, publish: boolean): Promise<AgentReply> {
   catalog.updatedAt = new Date().toISOString();
   await writeLocalCatalog(catalog);
 
-  if (!publish) {
-    return {
-      intent: 'add',
-      replyFa: `✅ «${guess.title}» با لینک تست‌شده (HTTP 206 ✓) به کاتالوگ اضافه شد (پیش‌نویس). هر وقت خواستی بگو «منتشر کن» تا روی سایت پوش شود.`
-    };
-  }
+  // Telegram-first storage: the film is archived in the owner's channel immediately.
+  const { publishToTelegramChannel } = await import('./telegramPublish.ts');
+  const channelRes = await publishToTelegramChannel(url, guess.title, url);
 
-  const published = await publishEverything(`add ${guess.title} via admin chat agent`);
+  const pendingCount = titles.filter((t) => t.geoPending === true).length;
   return {
     intent: 'add',
-    replyFa: `✅ «${guess.title}» اعتبارسنجی شد (پخش مستقیم MP4 ✓) و ${published.replyFa}`
+    replyFa:
+      `📥 «${guess.title}» اعتبارسنجی شد (HTTP 206 ✓) و فقط روی **سرور** ذخیره شد:
+` +
+      `• وضعیت: پیش‌نویس + در انتظار تصمیم جغرافیایی (سطح A یا B)
+` +
+      `• تلگرام: ${channelRes.ok ? '✅ به کانال ذخیره فرستاده شد' : '⛔ ' + channelRes.messageFa}
+` +
+      `• روی سایت عمومی منتشر **نشده**.
+` +
+      `
+انتخاب سطح: «سطح A برای ${guess.title}» (نمایش در همه کشورها) یا «کشورهای US،DE برای ${guess.title}» (سطح B)
+` +
+      (pendingCount > 1 ? `
+⏳ ${pendingCount} عنوان در انتظار تصمیم جغرافیایی.` : '')
   };
 }
 
@@ -922,6 +943,80 @@ async function compareCatalogWithChannel(message: string): Promise<AgentReply> {
  * Browser tasks for agents always go through the vendored page-agent bundle
  * (alibaba/page-agent, MIT) — no headless browser, no CDN, no credentials on disk.
  */
+/** Host key for the per-source cookie vault (data/browser_cookies/<host>.json). */
+function hostKeyOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/[^a-zA-Z0-9.-]/g, '_').toLowerCase();
+  } catch {
+    return 'unknown';
+  }
+}
+
+/**
+ * Owner's cookie flow: open a real headed browser for a source, let the owner
+ * log in, then persist cookies to data/browser_cookies/<host>.json (gitignored).
+ * Later source checks reuse these cookies — no credentials ever leave the server.
+ */
+async function captureCookiesForSource(targetUrl: string): Promise<AgentReply> {
+  const { sanitizeAgentTargetUrl } = await import('./browserAgent.ts');
+  const clean = sanitizeAgentTargetUrl(targetUrl);
+  if (!clean) {
+    return { intent: 'cookies', replyFa: '⛔ آدرس معتبر http/https بده (آدرس‌های لوکال/داخلی مجاز نیست).' };
+  }
+  const host = hostKeyOf(clean);
+  const outDir = path.join(process.cwd(), 'data', 'browser_cookies');
+  fs.mkdirSync(outDir, { recursive: true });
+  const sessionPath = path.join(outDir, `${host}.json`);
+  const python = process.platform === 'win32' ? 'python' : 'python3';
+  const child = spawn(python, [path.join(process.cwd(), 'scripts', 'browser_login_agent.py'), clean, sessionPath], {
+    detached: true,
+    stdio: 'ignore'
+  });
+  child.unref();
+  return {
+    intent: 'cookies',
+    replyFa:
+      `🍪 مرورگر واقعی برای «${host}» باز شد — لاگین/کپچا را خودت داخل آن انجام بده و بعد مرورگر را ببند.
+` +
+      `• کوکی‌ها بعد از بستن مرورگر به ${'`'}data/browser_cookies/${host}.json${'`'} ذخیره می‌شوند (gitignored).
+` +
+      `• بعدش بگو «با کوکی‌های ${host} لینک … را چک کن» تا لینک‌های VIP آن سورس با کوکی اعتبارسنجی شوند.
+` +
+      `• یادآوری: استخراج محتوای دارای کپی‌رایت برای انتشار، خارج از محدوده کاری من است.`
+  };
+}
+
+/** Probe a media URL using the stored cookie header of a captured source. */
+async function probeWithCookies(targetUrl: string, host: string): Promise<AgentReply> {
+  const cookieFile = path.join(process.cwd(), 'data', 'browser_cookies', `${hostKeyOf(host)}.json`);
+  if (!fs.existsSync(cookieFile)) {
+    return { intent: 'cookies', replyFa: `⛔ برای «${host}» کوکی ذخیره نشده. اول: «مرورگر را باز کن و کوکی‌های ${host} را ذخیره کن»` };
+  }
+  try {
+    const session = JSON.parse(fs.readFileSync(cookieFile, 'utf8'));
+    const cookieHeader = session.cookie_header || '';
+    const res = await fetch(targetUrl, {
+      headers: { Range: 'bytes=0-0', Cookie: cookieHeader, 'User-Agent': session.user_agent || 'Mozilla/5.0 PetrosCinemaCookieProbe' },
+      signal: AbortSignal.timeout(15000),
+      redirect: 'follow'
+    });
+    const status = res.status;
+    const type = (res.headers.get('content-type') || '').toLowerCase();
+    const playable = (status === 200 || status === 206) && !type.includes('text/html');
+    return {
+      intent: 'cookies',
+      replyFa:
+        `🔍 تست با کوکی‌های «${hostKeyOf(host)}»:
+` +
+        `• HTTP ${status} | نوع: ${type || 'نامشخص'}
+` +
+        (playable ? `✅ این لینک با کوکی قابل پخش است — می‌توانی اضافه‌اش کنی (اگر قانون پخش را رد کند، پخش‌شدنی گیت‌وی‌دار است و طبق قانون منتشر نمی‌شود).` : `⛔ قابل پخش مستقیم نیست (احتمالاً صفحه HTML یا خطا).`)
+    };
+  } catch (err: unknown) {
+    return { intent: 'cookies', replyFa: `⛔ تست با کوکی ناموفق: ${(err as Error).message}` };
+  }
+}
+
 async function launchBrowser(targetUrl: string, taskFa = ''): Promise<AgentReply> {
   try {
     const { sanitizeAgentTargetUrl, startBrowserSession, verifyVendorBundle } = await import('./browserAgent.ts');
@@ -952,6 +1047,92 @@ async function launchBrowser(targetUrl: string, taskFa = ''): Promise<AgentReply
   }
 }
 
+/**
+ * The admin actions exposed to the ADK brain as FunctionTools. Each one maps
+ * to a real server operation — the model decides the chain, the code executes.
+ */
+function buildAdkActions() {
+  return [
+    {
+      name: 'catalog_status',
+      description: 'گزارش وضعیت کاتالوگ (تعداد، پیش‌نویس، در انتظار تصمیم جغرافیایی)',
+      execute: async () => {
+        const r = await buildStatusSummary();
+        return r.replyFa;
+      }
+    },
+    {
+      name: 'health_report',
+      description: 'گزارش سلامت لینک‌های استریم (تست HTTP زنده)',
+      execute: async () => {
+        const r = await buildHealthReport();
+        return r.replyFa;
+      }
+    },
+    {
+      name: 'add_from_link',
+      description: 'افزودن فیلم از لینک مستقیم MP4/HLS — فقط روی سرور (پیش‌نویس) و کانال تلگرام؛ نمایش در سایت پس از تصمیم سطح A/B',
+      execute: async (args: Record<string, unknown>) => {
+        const url = String(args.url || '');
+        const r = await addFromLink(url, false);
+        return r.replyFa;
+      }
+    },
+    {
+      name: 'set_geo_tier',
+      description: 'تعیین سطح جغرافیایی: tier=A (همه کشورها) یا tier=B با کشورها (ممنوع در/فقط مجاز در)',
+      execute: async (args: Record<string, unknown>) => {
+        const tier = String(args.tier || 'A').toUpperCase();
+        const title = String(args.title || '');
+        const { applyTierA, applyPolicyToMatchingTitles } = await import('./agentUtils.ts');
+        if (tier === 'A') {
+          const r = await applyTierA(`سطح A برای ${title}`);
+          await publishEverything('tier A via ADK');
+          return r.changedTitles.length ? `سطح A اعمال شد: ${r.changedTitles.join('، ')}` : 'عنوانی مطابق پیدا نشد';
+        }
+        const codes = extractCountryCodes(String(args.countries || ''));
+        if (codes.length === 0) return 'کد کشور معتبر پیدا نشد (US/DE/IR…)';
+        const r = await applyPolicyToMatchingTitles(`کشورهای ${codes.join('،')} برای ${title}`, { mode: 'block', countries: codes });
+        await publishEverything('tier B via ADK');
+        return r.changedTitles.length ? `سطح B (ممنوع در ${codes.join('،')}): ${r.changedTitles.join('، ')}` : 'عنوانی مطابق پیدا نشد';
+      }
+    },
+    {
+      name: 'publish_site',
+      description: 'انتشار مانیفست کاتالوگ روی گیت‌هاب (سایت عمومی)',
+      execute: async () => {
+        const r = await publishEverything('publish via ADK agent');
+        return r.replyFa;
+      }
+    },
+    {
+      name: 'open_browser_agent',
+      description: 'ساخت نشست ایجنت مرورگر امن (page-agent محلی) برای یک آدرس',
+      execute: async (args: Record<string, unknown>) => {
+        const r = await launchBrowser(String(args.url || ''), String(args.taskFa || ''));
+        return r.replyFa;
+      }
+    },
+    {
+      name: 'capture_source_cookies',
+      description: 'باز کردن مرورگر واقعی برای لاگین سورس و ذخیره کوکی‌های آن هاست',
+      execute: async (args: Record<string, unknown>) => {
+        const r = await captureCookiesForSource(String(args.url || ''));
+        return r.replyFa;
+      }
+    },
+    {
+      name: 'run_collection',
+      description: 'اجرای/ادامه کالکشن پابلیک‌دومین (پس‌زمینه)',
+      execute: async () => {
+        const { startCollectionRun } = await import('./collectionStore.ts');
+        const r = await startCollectionRun();
+        return r.messageFa;
+      }
+    }
+  ];
+}
+
 /** Main local intent router. Every action is triggered by the owner's message. */
 export async function handleAdminChatMessage(rawText: string): Promise<AgentReply> {
   const text = normalizeFa(rawText);
@@ -960,6 +1141,23 @@ export async function handleAdminChatMessage(rawText: string): Promise<AgentRepl
   }
 
   const url = firstUrl(rawText);
+
+  // ── ADK brain (https://adk.dev) — activates automatically when an LLM key exists.
+  // The deterministic router below stays authoritative whenever ADK is offline.
+  try {
+    const { getOrCreateAdkAgent, runAdkTurn, adkStatus } = await import('./adkAgent.ts');
+    const handle = getOrCreateAdkAgent(buildAdkActions());
+    if (handle) {
+      const { reply } = await runAdkTurn(handle, 'admin-chat', rawText);
+      if (reply && reply.trim()) return { intent: 'adk', replyFa: reply.trim() };
+    } else if (/(راهنما|وضعیت ایجنت)/.test(text)) {
+      // surface ADK state once so the owner knows which brain answered
+      const st = adkStatus();
+      void st; // deterministic help already includes it below
+    }
+  } catch (error) {
+    console.warn('[ADK] brain error — falling back to rule router:', (error as Error).message);
+  }
 
   if (/(راهنما|کمک|دستورها|چه کار .*می تونی)/.test(text)) return buildHelp();
   if (/^(سلام|درود|هی|های)([\s!\u060C.,؟?]|$)/.test(text) && text.length < 30) {
@@ -979,6 +1177,20 @@ export async function handleAdminChatMessage(rawText: string): Promise<AgentRepl
   // Direct link → real file in the channel (channel-first mode)
   if (url && /کانال/.test(text) && /(فایل|بفرست|دانلود)/.test(text)) {
     return transferDirectLinkToChannel(url);
+  }
+  // Tier A decision: «سطح A برای <عنوان>» → show everywhere (clears pending)
+  if (/(سطح [Aa]|سطح الف|سطح  الف|همه کشورها)/.test(text) && /(برای|را)/.test(text)) {
+    const { applyTierA } = await import('./agentUtils.ts');
+    const result = await applyTierA(text);
+    if (result.matched === 0) {
+      return { intent: 'geo_no_match', replyFa: '❌ عنوانی مطابق متن پیدا نشد — بخشی از عنوان دقیق را بنویس.' };
+    }
+    const publish = await publishEverything('tier A decision via admin chat agent');
+    return {
+      intent: 'geo_tier_a',
+      replyFa:
+        `🌍 سطح A اعمال شد (نمایش در همه کشورها):\n${result.changedTitles.map((t: string) => `• «${t}»`).join('\n')}\n\n${publish.replyFa}`
+    };
   }
   if (/(پابلیک دومین|حق نشر ندارد|بدون کپی|کالکشن کلاسیک|فیلم‌های کلاسیک)/.test(text) && /(اضافه|بیاور|اجرای|کالکشن)/.test(text)) {
     return addPublicDomainCollection();
@@ -1065,7 +1277,22 @@ export async function handleAdminChatMessage(rawText: string): Promise<AgentRepl
     // Any «again / resend» wording forces a resend of every title.
     return transferCatalogToChannel(text, /(دوباره|مجدد|همه)/.test(text));
   }
-  if (/مرورگر/.test(text) && url) return await launchBrowser(url, text.replace(url, '').trim());
+  // Cookie vault flow (owner logs in once per source; cookies persist locally)
+  if (/(کوکی|کوکی ها|کوکی‌ها)/.test(text) && url) {
+    if (/(چک|بررسی|تست)/.test(text)) {
+      const m = text.match(/کوکی(?:\s|های)?\s*(?:های\s*)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/) || text.match(/کوکی‌های\s*([a-zA-Z0-9.-]+)/);
+      const host = m ? m[1] : new URL(url).hostname;
+      return await probeWithCookies(url, host);
+    }
+    return await captureCookiesForSource(url);
+  }
+  if (/(ذخیره کوکی|کوکی ذخیره|کوکی‌ها را ذخیره)/.test(text) && !url) {
+    return { intent: 'cookies', replyFa: '🍪 لینک سورس را هم بفرست: «مرورگر را باز کن <url> و کوکی‌ها را ذخیره کن»' };
+  }
+  if (/مرورگر/.test(text) && url) {
+    if (/(کوکی|ذخیره کوکی)/.test(text)) return await captureCookiesForSource(url);
+    return await launchBrowser(url, text.replace(url, '').trim());
+  }
 
   if (url && /اضافه کن|منتشر کن|پوش کن|پابلیش|ثبت کن|بیاور|بگذار/.test(text)) {
     return addFromLink(url, /منتشر کن|پوش کن|پابلیش/.test(text));

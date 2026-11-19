@@ -332,6 +332,10 @@ function sanitizeTitle(input: Partial<TitleRecord>, existing?: TitleRecord): Tit
               updatedAt: new Date().toISOString()
             }
           : existing?.geoPolicy,
+    geoPending:
+      input.geoPolicy === null || input.geoPolicy !== undefined
+        ? false
+        : (existing?.geoPending ?? false),
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };

@@ -19,6 +19,7 @@ interface GeoStreamLike {
   title: string;
   titleFa?: string;
   geoPolicy?: { mode: 'block' | 'allow'; countries: string[]; noteFa?: string; updatedAt?: string };
+  geoPending?: boolean;
 }
 
 function normKey(s: string): string {
@@ -63,6 +64,7 @@ export async function applyPolicyToMatchingTitles(
       noteFa: policy.mode === 'block' ? 'در کشورهای فهرست‌شده پخش نمی‌شود' : 'فقط در کشورهای فهرست‌شده قابل مشاهده است',
       updatedAt: new Date().toISOString()
     };
+    s.geoPending = false;
     changedTitles.push(s.titleFa || s.title);
   }
   if (changedTitles.length > 0) {
@@ -81,6 +83,27 @@ export async function clearPolicyFromMatchingTitles(message: string): Promise<{ 
     if (!s.geoPolicy) continue;
     if (!matchesMessage(s, message)) continue;
     delete s.geoPolicy;
+    changedTitles.push(s.titleFa || s.title);
+  }
+  if (changedTitles.length > 0) {
+    catalog.updatedAt = new Date().toISOString();
+    await writeLocalCatalog(catalog);
+  }
+  return { matched: changedTitles.length, changedTitles };
+}
+
+/** Tier A decision: title becomes visible in every country (clears geoPending). */
+export async function applyTierA(message: string): Promise<{ matched: number; changedTitles: string[] }> {
+  const { readLocalCatalog, writeLocalCatalog } = await import('./githubSync.ts');
+  const catalog = await readLocalCatalog();
+  const streams = (catalog.streams || []) as unknown as GeoStreamLike[];
+  const changedTitles: string[] = [];
+  for (const s of streams) {
+    if (s.geoPending !== true && s.geoPolicy) continue; // only pending or tier-B entries need a decision
+    if (s.geoPending !== true) continue;
+    if (!matchesMessage(s, message)) continue;
+    delete s.geoPolicy;
+    s.geoPending = false;
     changedTitles.push(s.titleFa || s.title);
   }
   if (changedTitles.length > 0) {
