@@ -881,13 +881,10 @@ adminRouter.post('/browser/vip-links', requireAdminAuth, async (req, res) => {
     return;
   }
   const sessionPath = path.join(process.cwd(), 'data', 'browser_sessions', `${host}.json`);
-  if (!fs.existsSync(sessionPath)) {
-    res.status(400).json({
-      error: 'no_session',
-      messageFa: `برای ${host} نشستی ذخیره نشده — اول از بخش VIP لاگین کن تا کوکی‌ها استخراج شود.`
-    });
-    return;
-  }
+  // NOTE: a session is NOT required — public pages extract fine without it.
+  // The extractor reports withSession=false so the UI can suggest VIP login
+  // only when the page looks auth-gated (zero files found).
+  const hasSession = fs.existsSync(sessionPath);
   const outDir = path.join(process.cwd(), 'data', 'browser_sessions');
   const outPath = path.join(outDir, `${host}-links.json`);
   const python = process.platform === 'win32' ? 'python' : 'python3';

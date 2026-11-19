@@ -51,6 +51,7 @@ export function SourcesTab() {
   const [transferItems, setTransferItems] = useState<Array<{ id: string; title: string; status: string; progressPct: number; error: string }>>([]);
   const [transferState, setTransferState] = useState<Record<string, { status: string; progressPct: number; error: string }>>({});
   const [fileQuery, setFileQuery] = useState('');
+  const [extractMessage, setExtractMessage] = useState<{ ok: boolean; text: string } | null>(null);
 
   const visibleFiles = useMemo(() => {
     const q = fileQuery.trim().toLowerCase();
@@ -80,6 +81,7 @@ export function SourcesTab() {
     setExtractedFiles([]);
     setSelectedForTelegram([]);
     setFileQuery('');
+    setExtractMessage(null);
     try {
       // full=true → the WHOLE link list of the page, not just the obvious media ones
       const res = await adminApi.vipExtractLinks(sourcePageUrl.trim(), true);
@@ -89,16 +91,21 @@ export function SourcesTab() {
         const all = [...media, ...rest];
         setExtractedFiles(all);
         setSelectedForTelegram(media.map((l) => l.url));
-        toast.push(
-          'success',
-          'کل لیست لینک‌های صفحه آماده شد',
-          `${all.length} لینک: ${media.length.toLocaleString('fa-IR')} فایل قابل ارسال + ${rest.length.toLocaleString('fa-IR')} لینک دیگر — هرکدام را خواستی تیک بزن.`
-        );
+        if (all.length === 0) {
+          setExtractMessage({
+            ok: false,
+            text: res.withSession
+              ? 'هیچ لینکی پیدا نشد — صفحه ممکن است خالی یا محافظت‌شده باشد.'
+              : 'هیچ فایلی پیدا نشد و نشستی هم وجود نداشت — این صفحه احتمالاً لاگین می‌خواهد. از پنل VIP بالای همین صفحه لاگین کن و دوباره استخراج کن.'
+          });
+        } else {
+          toast.push('success', 'کل لیست لینک‌های صفحه آماده شد', `${all.length} لینک: ${media.length.toLocaleString('fa-IR')} فایل قابل ارسال + ${rest.length.toLocaleString('fa-IR')} لینک دیگر.`);
+        }
       } else {
-        toast.push('info', 'فایلی پیدا نشد', res.messageFa);
+        setExtractMessage({ ok: false, text: res.messageFa });
       }
     } catch (error) {
-      toast.push('error', 'استخراج ناموفق', (error as Error).message);
+      setExtractMessage({ ok: false, text: (error as Error).message });
     } finally {
       setExtractingFiles(false);
     }
@@ -384,6 +391,18 @@ export function SourcesTab() {
             {sendingToTelegram ? 'در حال ارسال…' : `📤 ارسال ${selectedForTelegram.length.toLocaleString('fa-IR')} فایل تیک‌خورده به تلگرام`}
           </GoldButton>
         </div>
+
+        {extractMessage ? (
+          <div
+            className={`mt-3 rounded-xl border px-3 py-2 text-[10.5px] ${
+              extractMessage.ok
+                ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200'
+                : 'border-rose-400/40 bg-rose-500/10 text-rose-200'
+            }`}
+          >
+            {extractMessage.ok ? '✅' : '⚠️'} {extractMessage.text}
+          </div>
+        ) : null}
 
         {extractedFiles.length > 0 ? (
           <div className="mt-3 space-y-2">
