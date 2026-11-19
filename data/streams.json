@@ -1,6 +1,6 @@
 {
-  "version": "2026-11-19T12:23:57.986Z",
-  "updatedAt": "2026-11-19T12:23:57.986Z",
+  "version": "2026-11-19T12:24:28.545Z",
+  "updatedAt": "2026-11-19T12:24:28.545Z",
   "brand": "Petros Cinema",
   "platform": "AI Petros Cinema",
   "channelName": "Aipetros",
@@ -48,6 +48,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:57:01.396Z"
@@ -95,6 +96,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:56.793Z"
@@ -142,6 +144,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:48.592Z"
@@ -189,6 +192,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:41.025Z"
@@ -236,6 +240,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:27.199Z"
@@ -283,6 +288,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:22.666Z"
@@ -347,6 +353,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/The_Wasp_Women.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:17.981Z"
@@ -411,6 +418,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/phantom_ship.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:13.210Z"
@@ -458,6 +466,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:08.072Z"
@@ -512,6 +521,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:56:03.633Z"
@@ -576,6 +586,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/border_patrolman.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:58.429Z"
@@ -630,6 +641,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:53.566Z"
@@ -694,6 +706,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Phantom_From_Space.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:48.138Z"
@@ -758,6 +771,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/american_empire.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:43.031Z"
@@ -822,6 +836,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/hot_rod_girl_1956.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:37.640Z"
@@ -876,6 +891,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:31.390Z"
@@ -923,6 +939,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:18.341Z"
@@ -987,6 +1004,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/dick_tracy_detctive.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:13.280Z"
@@ -1051,6 +1069,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/killer_diller.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:06.498Z"
@@ -1115,6 +1134,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/SonofHerculesTheLandofDarkness.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:55:00.990Z"
@@ -1179,6 +1199,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Jamaica_Inn.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:55.738Z"
@@ -1243,6 +1264,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Bluebeard.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:49.280Z"
@@ -1297,6 +1319,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:44.447Z"
@@ -1351,6 +1374,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:34.037Z"
@@ -1415,6 +1439,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Attack_From_Space.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:28.891Z"
@@ -1479,6 +1504,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/made_for_each_other_film.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:23.907Z"
@@ -1543,6 +1569,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/transatlantic_tunnel.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:17.934Z"
@@ -1607,6 +1634,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/GulliversTravels720p_652.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:13.342Z"
@@ -1671,6 +1699,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/The_Wonderful_Wizard_of_Oz.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:08.169Z"
@@ -1711,6 +1740,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:04.261Z"
@@ -1768,6 +1798,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/miss_london_ltd_1943.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:54:00.990Z"
@@ -1832,6 +1863,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/last_of_the_mohicans_1920.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:56.559Z"
@@ -1896,6 +1928,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/till_the_clouds_roll_by.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:50.053Z"
@@ -1943,6 +1976,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:44.554Z"
@@ -1997,6 +2031,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:39.990Z"
@@ -2051,6 +2086,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:34.680Z"
@@ -2098,6 +2134,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:29.342Z"
@@ -2162,6 +2199,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/DeepRed1975.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:24.878Z"
@@ -2226,6 +2264,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/TheGreatTrainRobbery_555.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:19.611Z"
@@ -2283,6 +2322,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/fantastic-planet__1973.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:14.671Z"
@@ -2330,6 +2370,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:10.072Z"
@@ -2384,6 +2425,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:05.564Z"
@@ -2438,6 +2480,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:53:00.363Z"
@@ -2492,6 +2535,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:55.345Z"
@@ -2539,6 +2583,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:49.117Z"
@@ -2586,6 +2631,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:44.237Z"
@@ -2633,6 +2679,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:39.842Z"
@@ -2687,6 +2734,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:34.328Z"
@@ -2741,6 +2789,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:29.489Z"
@@ -2805,6 +2854,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Horror_Express.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:24.399Z"
@@ -2869,6 +2919,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Grave_of_the_Vampire_movie.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:19.053Z"
@@ -2933,6 +2984,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/rogues_tavern.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:09.309Z"
@@ -2997,6 +3049,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Hemp_for_victory_1942.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:52:04.350Z"
@@ -3061,6 +3114,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/King_of_the_Zombies.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:59.236Z"
@@ -3125,6 +3179,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Hercules_and_the_Tyrants_of_Babylon.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:54.335Z"
@@ -3189,6 +3244,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/We_Dive_at_Dawn_1943.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:42.344Z"
@@ -3253,6 +3309,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/rhythm_blues_review.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:37.129Z"
@@ -3317,6 +3374,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/MushAndMilk.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:31.859Z"
@@ -3381,6 +3439,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/beneath_the_12-mile_reef.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:26.580Z"
@@ -3445,6 +3504,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Destroy_All_Planets.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:21.672Z"
@@ -3502,6 +3562,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/A_Man_Betrayed_movie.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:16.903Z"
@@ -3549,6 +3610,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:12.539Z"
@@ -3613,6 +3675,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/oliver_twist.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:08.022Z"
@@ -3677,6 +3740,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/In_Which_We_Serve.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:51:02.242Z"
@@ -3741,6 +3805,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/things_to_come_ipod.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:57.193Z"
@@ -3805,6 +3870,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/TheMemphisBelleAStoryofaFlyingFortress.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:52.020Z"
@@ -3869,6 +3935,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/2_weeks_to_live.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:41.497Z"
@@ -3933,6 +4000,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Bird_of_Paradise_1932.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:37.883Z"
@@ -3997,6 +4065,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/road_to_happiness.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:28.101Z"
@@ -4051,6 +4120,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:22.993Z"
@@ -4115,6 +4185,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Rifle_Marksmanship_with_M1_Rifle_Part_1.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:17.856Z"
@@ -4155,6 +4226,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:11.973Z"
@@ -4202,6 +4274,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:07.311Z"
@@ -4256,6 +4329,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:50:03.541Z"
@@ -4320,6 +4394,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/AtomAgeVampire.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:58.635Z"
@@ -4367,6 +4442,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:53.813Z"
@@ -4421,6 +4497,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:49.593Z"
@@ -4485,6 +4562,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/HerculesUnchained.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:44.904Z"
@@ -4539,6 +4617,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:39.844Z"
@@ -4593,6 +4672,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:23.831Z"
@@ -4647,6 +4727,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:15.098Z"
@@ -4704,6 +4785,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/HouseOnBareMountain.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:10.133Z"
@@ -4758,6 +4840,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:05.901Z"
@@ -4822,6 +4905,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/HolyGhostPeople.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:49:00.416Z"
@@ -4886,6 +4970,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/FirstSpaceshipOnVenusMPEG.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:53.061Z"
@@ -4933,6 +5018,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:48.138Z"
@@ -4997,6 +5083,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Phantom_Planet.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:43.510Z"
@@ -5051,6 +5138,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:38.750Z"
@@ -5098,6 +5186,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:33.654Z"
@@ -5162,6 +5251,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/she_gods_of_shark_reef.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:25.779Z"
@@ -5209,6 +5299,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:15.835Z"
@@ -5263,6 +5354,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:11.548Z"
@@ -5327,6 +5419,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Death_Rides_A_Horse_pan_and_scan.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:04.406Z"
@@ -5391,6 +5484,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/west_of_the_divide.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:48:00.925Z"
@@ -5445,6 +5539,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:56.046Z"
@@ -5499,6 +5594,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:50.615Z"
@@ -5563,6 +5659,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/nightmare_castle.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:45.613Z"
@@ -5617,6 +5714,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:36.792Z"
@@ -5671,6 +5769,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:31.303Z"
@@ -5735,6 +5834,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/dishonored_lady.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:22.764Z"
@@ -5799,6 +5899,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/girl_o_my_dreams.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:17.670Z"
@@ -5856,6 +5957,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/BehindGreenLights_high_Q_mp4.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:12.467Z"
@@ -5920,6 +6022,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Assignment_Outer_Space.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:06.502Z"
@@ -5974,6 +6077,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:47:01.542Z"
@@ -6038,6 +6142,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/YoungandInnocentTheGirlWasYoung.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:56.130Z"
@@ -6085,6 +6190,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:50.842Z"
@@ -6149,6 +6255,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/jack_and_the_beanstalk_ipod.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:46.341Z"
@@ -6213,6 +6320,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/the_gorilla.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:40.460Z"
@@ -6267,6 +6375,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:35.117Z"
@@ -6331,6 +6440,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Scrooge_1935.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:29.794Z"
@@ -6395,6 +6505,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/They_Made_Me_A_Criminal_1939.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:24.827Z"
@@ -6459,6 +6570,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/In_The_Year_2889.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:19.608Z"
@@ -6523,6 +6635,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/brideless_groom.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:14.474Z"
@@ -6587,6 +6700,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/slave_in_bondage.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:09.391Z"
@@ -6641,6 +6755,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:46:00.890Z"
@@ -6705,6 +6820,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/private_snuffy_smith.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:55.800Z"
@@ -6769,6 +6885,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/sing_a_song_of_six_pants.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:51.005Z"
@@ -6833,6 +6950,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/WhiteZombie.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:45.693Z"
@@ -6890,6 +7008,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/rock_rock_rock.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:40.485Z"
@@ -6954,6 +7073,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Hitch_Hiker.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:36.503Z"
@@ -7018,6 +7138,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Saint_Louis_Bank_Robbery.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:31.505Z"
@@ -7072,6 +7193,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:26.169Z"
@@ -7136,6 +7258,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/night_of_the_living_dead_dvd.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:21.103Z"
@@ -7200,6 +7323,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/planet_outlaws_ipod.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:17.519Z"
@@ -7254,6 +7378,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:12.295Z"
@@ -7318,6 +7443,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Please_Murder_Me_movie.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:07.024Z"
@@ -7372,6 +7498,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:45:02.702Z"
@@ -7436,6 +7563,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Martha_Ivers_movie.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:57.315Z"
@@ -7500,6 +7628,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/disorder_in_the_court.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:51.716Z"
@@ -7547,6 +7676,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:46.365Z"
@@ -7611,6 +7741,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/markofzorro-1920.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:41.753Z"
@@ -7675,6 +7806,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/angel_on_my_shoulder.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:36.380Z"
@@ -7739,6 +7871,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Horror_Hotel.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:31.372Z"
@@ -7786,6 +7919,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:26.280Z"
@@ -7850,6 +7984,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/behave_yourself_ipod.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:22.606Z"
@@ -7897,6 +8032,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:17.371Z"
@@ -7951,6 +8087,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:13.440Z"
@@ -8005,6 +8142,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:07.871Z"
@@ -8069,6 +8207,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/the_big_show.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:44:02.536Z"
@@ -8123,6 +8262,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:57.368Z"
@@ -8170,6 +8310,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:52.356Z"
@@ -8234,6 +8375,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/texas_terror_1935.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:47.252Z"
@@ -8288,6 +8430,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:34.902Z"
@@ -8335,6 +8478,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:29.630Z"
@@ -8389,6 +8533,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:25.328Z"
@@ -8453,6 +8598,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/AfricaScreams.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:19.928Z"
@@ -8517,6 +8663,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/JailBait.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:14.321Z"
@@ -8564,6 +8711,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:08.972Z"
@@ -8618,6 +8766,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:43:04.569Z"
@@ -8682,6 +8831,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/inner_sanctum.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:59.485Z"
@@ -8736,6 +8886,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:54.676Z"
@@ -8790,6 +8941,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:44.407Z"
@@ -8837,6 +8989,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:39.464Z"
@@ -8884,6 +9037,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:35.907Z"
@@ -8931,6 +9085,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:32.082Z"
@@ -8985,6 +9140,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:27.426Z"
@@ -9049,6 +9205,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Hitchcock_Secret_Agent.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:21.576Z"
@@ -9113,6 +9270,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Santa_Fe_Trail_movie.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:16.347Z"
@@ -9177,6 +9335,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/mr_robinson_crusoe.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:06.053Z"
@@ -9241,6 +9400,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/ChildBride.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:42:01.549Z"
@@ -9305,6 +9465,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/teenagers_from_outerspace.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:55.859Z"
@@ -9369,6 +9530,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/amazing_adventure.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:50.865Z"
@@ -9433,6 +9595,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/iron_mask.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:45.680Z"
@@ -9480,6 +9643,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:40.697Z"
@@ -9544,6 +9708,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/TheGhoul.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:36.151Z"
@@ -9591,6 +9756,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:31.430Z"
@@ -9645,6 +9811,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:41:26.839Z"
@@ -9692,6 +9859,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:38:05.626Z"
@@ -9756,6 +9924,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/secret_weapon.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:38:02.545Z"
@@ -9820,6 +9989,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Teaserama.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:57.109Z"
@@ -9874,6 +10044,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:52.890Z"
@@ -9931,6 +10102,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Quicksand_clear.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:48.693Z"
@@ -9995,6 +10167,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/tarzan_and_the_green_goddess.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:45.229Z"
@@ -10059,6 +10232,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Cyrano_DeBergerac.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:39.136Z"
@@ -10123,6 +10297,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/impact.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:28.446Z"
@@ -10187,6 +10362,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/little_princess.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:18.780Z"
@@ -10234,6 +10410,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:37:02.692Z"
@@ -10298,6 +10475,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/TheFlyingDeuces.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:36:50.684Z"
@@ -10352,6 +10530,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:36:30.478Z"
@@ -10416,6 +10595,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/royal_wedding.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:36:02.845Z"
@@ -10470,6 +10650,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:35:46.278Z"
@@ -10517,6 +10698,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:35:36.743Z"
@@ -10581,6 +10763,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Killers_from_space.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:35:26.212Z"
@@ -10645,6 +10828,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/lost_world.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:35:00.043Z"
@@ -10699,6 +10883,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:34:50.838Z"
@@ -10746,6 +10931,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:34:18.107Z"
@@ -10810,6 +10996,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/gullivers_travels1939.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:34:11.853Z"
@@ -10874,6 +11061,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/my_favorite_brunette.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:33:39.890Z"
@@ -10928,6 +11116,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:33:14.327Z"
@@ -10992,6 +11181,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/tarzans_revenge.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:33:09.596Z"
@@ -11046,6 +11236,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:33:05.161Z"
@@ -11119,6 +11310,7 @@
         "updatedAt": "2026-11-19T12:10:37.395Z"
       },
       "subtitleUrl": "./subtitles/TheStranger_0.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:33:00.778Z"
@@ -11183,6 +11375,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/suddenly.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:53.936Z"
@@ -11237,6 +11430,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:49.152Z"
@@ -11301,6 +11495,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/dressed_to_kill.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:44.682Z"
@@ -11365,6 +11560,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/abraham_lincoln.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:40.094Z"
@@ -11422,6 +11618,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/BloodyPitOfHorror.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:35.013Z"
@@ -11486,6 +11683,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/nazi_concentration_camps.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:31.263Z"
@@ -11540,6 +11738,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:26.440Z"
@@ -11604,6 +11803,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/utopia.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:22.003Z"
@@ -11658,6 +11858,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:17.564Z"
@@ -11722,6 +11923,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/VoyagetothePlanetofPrehistoricWomen.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:13.088Z"
@@ -11776,6 +11978,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:08.538Z"
@@ -11840,6 +12043,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/charlie_chaplin_film_fest.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:32:02.858Z"
@@ -11904,6 +12108,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/angel_and_the_badman.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:07:59.090Z"
@@ -11977,6 +12182,7 @@
         "updatedAt": "2026-11-19T12:10:37.395Z"
       },
       "subtitleUrl": "./subtitles/TheStranger_0.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:56.118Z"
@@ -12041,6 +12247,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Detour.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:53.312Z"
@@ -12105,6 +12312,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/suddenly.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:50.170Z"
@@ -12152,6 +12360,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:46.980Z"
@@ -12216,6 +12425,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/gullivers_travels1939.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:44.408Z"
@@ -12280,6 +12490,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/CarnivalOfSouls_ipod.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:41.702Z"
@@ -12334,6 +12545,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T10:06:20.070Z"
@@ -12398,6 +12610,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/Sabotage_1936.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:59.416Z"
@@ -12462,6 +12675,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/lost_world.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:42.532Z"
@@ -12526,6 +12740,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/amazing_mr_x.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:39.859Z"
@@ -12580,6 +12795,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:37.526Z"
@@ -12627,6 +12843,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:18.570Z"
@@ -12674,6 +12891,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:53:15.827Z"
@@ -12721,6 +12939,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:52:55.903Z"
@@ -12785,6 +13004,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/TheRedHouse.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:52:04.604Z"
@@ -12849,6 +13069,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/ScarletStreet.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:52:01.692Z"
@@ -12913,6 +13134,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/penny_serenade.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:51:59.213Z"
@@ -12977,6 +13199,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/his_girl_friday.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:45:00.341Z"
@@ -13031,6 +13254,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:45:00.341Z"
@@ -13071,6 +13295,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:32:36.787Z"
@@ -13135,6 +13360,7 @@
       "seasons": [],
       "episodes": [],
       "subtitleUrl": "./subtitles/The_House_On_Haunted_Hill.en.vtt",
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:32:35.295Z"
@@ -13149,7 +13375,7 @@
       "posterUrl": "https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
       "backdropUrl": "",
       "year": 2017,
-      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
+      "rating": "8.0/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10/10",
       "durationSec": 9840,
       "director": "Denis Villeneuve",
       "cast": [],
@@ -13187,6 +13413,7 @@
       "subtitleStatus": "not_registered",
       "seasons": [],
       "episodes": [],
+      "status": "published",
       "playbackStatus": "available",
       "playbackStatusReason": "Verified direct media published through the Master Admin Panel.",
       "updatedAt": "2026-11-19T09:11:34.863Z"
