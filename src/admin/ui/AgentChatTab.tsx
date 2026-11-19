@@ -61,16 +61,18 @@ export function AgentChatTab() {
         });
       }
       const cfg = await adminApi.getPanelLlmConfig();
-      const agentConfig: Record<string, unknown> =
-        cfg.mode === 'openai'
-          ? { language: 'fa-IR', model: cfg.model, baseURL: cfg.baseURL, apiKey: cfg.apiKey }
-          : {
-              // page-agent bundled demo credentials (evaluation only — see README warning)
-              language: 'fa-IR',
-              model: 'qwen3.8-flash',
-              baseURL: 'https://page-ag-testing-ohftxirgbn.cn-shanghai.fcapp.run',
-              apiKey: 'NA'
-            };
+      // SECURITY LAW: the copilot talks ONLY to the owner's local LLM gateway
+      // (LOCAL_LLM_BASE_URL). Never any third-party AI cloud or demo endpoint.
+      if (cfg.mode !== 'openai' || !cfg.baseURL) {
+        toast.push('info', 'مدل لوکال تنظیم نشده', 'برای ایجنت مرورگر، LOCAL_LLM_BASE_URL را روی سرور ست کن — اتصال به هیچ سرویس AI بیرونی مجاز نیست.');
+        return;
+      }
+      const agentConfig: Record<string, unknown> = {
+        language: 'fa-IR',
+        model: cfg.model,
+        baseURL: cfg.baseURL,
+        apiKey: cfg.apiKey
+      };
       const PA = w.PageAgent as new (c: Record<string, unknown>) => { panel?: { show: () => void } };
       const agent = new PA(agentConfig);
       agent.panel?.show();

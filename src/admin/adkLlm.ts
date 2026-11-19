@@ -8,7 +8,8 @@
  * LLM: any OpenAI-compatible endpoint via `OpenAiCompatLlm` (Gemini's
  * OpenAI-compat URL, OpenAI, or a local gateway). When no key is configured
  * the deterministic rule-based router in agent.ts stays authoritative —
- * the ADK brain activates automatically as soon as GEMINI_API_KEY exists.
+ * the ADK brain activates as soon as LOCAL_LLM_BASE_URL (the owner's own
+ * local gateway) is configured.
  */
 
 import { BaseLlm } from '@google/adk';
@@ -165,25 +166,34 @@ export class OpenAiCompatLlm extends BaseLlm {
 }
 
 export function isAdkLlmConfigured(): boolean {
-  return Boolean((process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim());
+  return Boolean(buildLocalLlmConfig());
+}
+
+export interface LocalLlmConfig {
+  model: string;
+  baseURL: string;
+  apiKey: string;
+}
+
+/**
+ * The ONLY allowed LLM endpoint is the owner's own local gateway/server
+ * (Ollama, vLLM, LM Studio, llama.cpp, or the owner's self-hosted proxy).
+ * Petros agents must NEVER connect to Gemini/OpenAI/DashScope or any
+ * third-party AI cloud. Configure: LOCAL_LLM_BASE_URL (required),
+ * LOCAL_LLM_MODEL, LOCAL_LLM_API_KEY (optional).
+ */
+export function buildLocalLlmConfig(): LocalLlmConfig | null {
+  const baseURL = (process.env.LOCAL_LLM_BASE_URL || '').trim();
+  if (!baseURL) return null;
+  return {
+    model: (process.env.LOCAL_LLM_MODEL || 'local-model').trim(),
+    baseURL: baseURL.replace(/\/+$/, ''),
+    apiKey: (process.env.LOCAL_LLM_API_KEY || 'NA').trim()
+  };
 }
 
 export function buildAdkLlm(): OpenAiCompatLlm | null {
-  const gemini = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
-  if (gemini) {
-    return new OpenAiCompatLlm({
-      model: (process.env.ADK_MODEL || 'gemini-2.0-flash').trim(),
-      baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai',
-      apiKey: gemini
-    });
-  }
-  const openai = (process.env.OPENAI_API_KEY || '').trim();
-  if (openai) {
-    return new OpenAiCompatLlm({
-      model: (process.env.ADK_MODEL || 'gpt-4o-mini').trim(),
-      baseURL: (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').trim(),
-      apiKey: openai
-    });
-  }
-  return null;
+  const cfg = buildLocalLlmConfig();
+  if (!cfg) return null;
+  return new OpenAiCompatLlm(cfg);
 }

@@ -332,15 +332,9 @@ class DynamicStreamSyncService {
 
 export const dynamicStreamSync = new DynamicStreamSyncService();
 
-const DEFAULT_CINEMA_POSTERS = [
-  'https://image.tmdb.org/t/p/w780/gKkl37BQuKTanygYQG1pyYgLVgf.jpg', // Interstellar
-  'https://image.tmdb.org/t/p/w780/2H1TmgdfNbfKlUkIYwODGe94LEv.jpg', // X-Men Apocalypse
-  'https://image.tmdb.org/t/p/w780/d5NXSklXo0qyIYkgV94XAgMIckC.jpg', // Dune
-  'https://image.tmdb.org/t/p/w780/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg', // Oppenheimer
-  'https://image.tmdb.org/t/p/w780/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg', // Blade Runner 2049
-  'https://image.tmdb.org/t/p/w780/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg', // Inception
-  'https://image.tmdb.org/t/p/w780/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg'  // The Matrix
-];
+// CONNECTION LAW: no external image CDN (TMDB removed). Fallback posters are
+// locally generated deterministic art from posterRegistry.
+const DEFAULT_CINEMA_POSTERS: string[] = [];
 
 /**
  * Legacy guard: a stream whose playable links only point at the local rolling

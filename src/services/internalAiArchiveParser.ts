@@ -208,76 +208,12 @@ export function extractBilingualTitles(raw: string): { bestEn: string; bestFa: s
 }
 
 /**
- * Live IMDb/OMDb Metadata Enrichment Engine
+ * IMDb/OMDb Metadata Enrichment — DISABLED BY CONNECTION LAW.
+ * The Petros system connects only to the owner's local services and GitHub.
+ * No third-party metadata cloud (omdbapi.com) is contacted; the caller falls
+ * back to local/archive.org-derived metadata.
  */
-export async function fetchImdbMetadata(query: string, releaseYear?: number): Promise<ImdbMetadata | null> {
-  const { bestEn } = extractBilingualTitles(query);
-  let cleanQuery = bestEn;
-
-  if (cleanQuery.includes('60929')) {
-    cleanQuery = 'X-Men: Apocalypse';
-  }
-  if (/مردان\s*ایکس/i.test(cleanQuery)) {
-    cleanQuery = cleanQuery.replace(/مردان\s*ایکس/gi, 'X-Men');
-  }
-  if (/\bx-?man\b/i.test(cleanQuery)) {
-    cleanQuery = cleanQuery.replace(/\bx-?man\b/gi, 'X-Men');
-  }
-
-  cleanQuery = cleanQuery
-    .replace(/[\(\)\[\]]/g, ' ')
-    .replace(/\b(?:1080p|720p|480p|4k|2160p|bluray|web-dl|webrip|hdr|farsi|persian|dub|sub|telegram|post|channel|#\d+)\b/gi, '')
-    .replace(/\b(19\d{2}|20\d{2})\b/g, '') // remove year from title search query
-    .replace(/[:\-_]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  if (!cleanQuery || cleanQuery.length < 2) return null;
-
-  try {
-    let url = `https://www.omdbapi.com/?t=${encodeURIComponent(cleanQuery)}&apikey=trilogy`;
-    if (releaseYear) {
-      url += `&y=${releaseYear}`;
-    }
-
-    let resp = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!resp.ok) return null;
-
-    let data = await resp.json();
-
-    // Fallback: If exact match failed, try search query (?s=...)
-    if (!data || data.Response !== 'True') {
-      const searchUrl = `https://www.omdbapi.com/?s=${encodeURIComponent(cleanQuery)}&apikey=trilogy`;
-      const searchResp = await fetch(searchUrl, { headers: { Accept: 'application/json' } });
-      if (searchResp.ok) {
-        const searchData = await searchResp.json();
-        if (searchData && searchData.Search && searchData.Search.length > 0) {
-          const firstImdbId = searchData.Search[0].imdbID;
-          const detailResp = await fetch(`https://www.omdbapi.com/?i=${firstImdbId}&apikey=trilogy`);
-          if (detailResp.ok) {
-            data = await detailResp.json();
-          }
-        }
-      }
-    }
-
-    if (data && data.Response === 'True') {
-      const isAnime = data.Genre && data.Genre.toLowerCase().includes('animation');
-      return {
-        title: data.Title || cleanQuery,
-        year: parseInt(data.Year, 10) || releaseYear,
-        imdbRating: data.imdbRating !== 'N/A' ? data.imdbRating : '7.5',
-        poster: data.Poster && data.Poster !== 'N/A' ? data.Poster : undefined,
-        plot: data.Plot && data.Plot !== 'N/A' ? data.Plot : undefined,
-        director: data.Director && data.Director !== 'N/A' ? data.Director : undefined,
-        actors: data.Actors && data.Actors !== 'N/A' ? data.Actors : undefined,
-        genre: data.Genre,
-        type: isAnime ? 'anime' : (data.Type === 'series' ? 'series' : 'movie')
-      };
-    }
-  } catch (err) {
-    console.warn('[IMDb Engine] Metadata lookup failed, using fallback:', err);
-  }
+export async function fetchImdbMetadata(_query: string, _releaseYear?: number): Promise<ImdbMetadata | null> {
   return null;
 }
 

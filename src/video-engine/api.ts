@@ -79,14 +79,8 @@ async function ensureLiveCatalogPopulated() {
     }
   }
 
-  if (db.videos.length === 0) {
-    const liveVideos = await fetchLiveVideosFromApi('pov', 40, 'cat-featured');
-    if (liveVideos.length > 0) {
-      db.videos = liveVideos;
-      lastCatalogVerifyTs = Date.now();
-      writeDatabase(db);
-    }
-  }
+  // CONNECTION LAW: no external scraping (eporner or any third-party server).
+  // The live catalog is filled ONLY by the owner from local/telegram sources.
   return db;
 }
 

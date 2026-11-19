@@ -650,24 +650,9 @@ function saveTranslationCache(cache: TranslationCache): void {
   }
 }
 
-async function fetchPublicTranslation(targetLang: string, text: string): Promise<string | null> {
-  try {
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(
-      targetLang
-    )}&dt=t&q=${encodeURIComponent(text)}`;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const data = (await res.json()) as unknown[];
-    if (!Array.isArray(data) || !Array.isArray(data[0])) return null;
-    const segments = data[0] as unknown[][];
-    const translated = segments
-      .map((seg) => (typeof seg?.[0] === 'string' ? seg[0] : ''))
-      .join('')
-      .trim();
-    return translated || null;
-  } catch {
-    return null;
-  }
+async function fetchPublicTranslation(_targetLang: string, _text: string): Promise<string | null> {
+  // CONNECTION LAW: no external translation cloud. Local dictionary only.
+  return null;
 }
 
 async function fetchBatchServerTranslation(

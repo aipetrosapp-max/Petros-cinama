@@ -190,29 +190,13 @@ class GlobalCinemaAgent {
 
     this.isFetching = true;
     try {
-      const [moviesRes, seriesRes] = await Promise.allSettled([
-        fetch('https://v3-cinemeta.strem.io/catalog/movie/top.json', { headers: { Accept: 'application/json' } }),
-        fetch('https://v3-cinemeta.strem.io/catalog/series/top.json', { headers: { Accept: 'application/json' } })
-      ]);
+      // CONNECTION LAW: no external metadata cloud (cinemeta removed) — local only.
+      const moviesRes: PromiseSettledResult<Response> = { status: 'rejected', reason: new Error('connection-law') };
+      const seriesRes: PromiseSettledResult<Response> = { status: 'rejected', reason: new Error('connection-law') };
 
       const items: PrototypeMediaItem[] = [];
 
-      if (moviesRes.status === 'fulfilled' && moviesRes.value.ok) {
-        const movieData = await moviesRes.value.json();
-        const movies: CinemetaMetaItem[] = movieData?.metas || [];
-        movies.forEach((m, idx) => {
-          items.push(mapCinemetaToPrototypeItem({ ...m, type: 'movie' }, idx));
-        });
-      }
-
-      if (seriesRes.status === 'fulfilled' && seriesRes.value.ok) {
-        const seriesData = await seriesRes.value.json();
-        const series: CinemetaMetaItem[] = seriesData?.metas || [];
-        series.forEach((s, idx) => {
-          items.push(mapCinemetaToPrototypeItem({ ...s, type: 'series' }, idx + 50));
-        });
-      }
-
+      // (external catalog sync removed by connection law — items stay local)
       if (items.length > 0) {
         this.inMemoryCache = items;
         this.lastFetchTime = Date.now();
@@ -235,80 +219,9 @@ class GlobalCinemaAgent {
     if (!clean || clean.length < 2) return [];
 
     try {
-      const [cinemetaMovieRes, cinemetaSeriesRes, tvmazeRes] = await Promise.allSettled([
-        fetch(`https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURIComponent(clean)}.json`),
-        fetch(`https://v3-cinemeta.strem.io/catalog/series/top/search=${encodeURIComponent(clean)}.json`),
-        fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(clean)}`)
-      ]);
-
+      // CONNECTION LAW: no external metadata agents (cinemeta/tvmaze removed).
+      // Global search answers from the local/telegram catalog only.
       const results: PrototypeMediaItem[] = [];
-      const seenTitles = new Set<string>();
-
-      // Cinemeta Movies
-      if (cinemetaMovieRes.status === 'fulfilled' && cinemetaMovieRes.value.ok) {
-        const data = await cinemetaMovieRes.value.json();
-        const metas: CinemetaMetaItem[] = data?.metas || [];
-        metas.forEach((m, idx) => {
-          const key = `${m.name}-${m.year}`.toLowerCase();
-          if (!seenTitles.has(key)) {
-            seenTitles.add(key);
-            results.push(mapCinemetaToPrototypeItem({ ...m, type: 'movie' }, idx));
-          }
-        });
-      }
-
-      // Cinemeta Series
-      if (cinemetaSeriesRes.status === 'fulfilled' && cinemetaSeriesRes.value.ok) {
-        const data = await cinemetaSeriesRes.value.json();
-        const metas: CinemetaMetaItem[] = data?.metas || [];
-        metas.forEach((s, idx) => {
-          const key = `${s.name}-${s.year}`.toLowerCase();
-          if (!seenTitles.has(key)) {
-            seenTitles.add(key);
-            results.push(mapCinemetaToPrototypeItem({ ...s, type: 'series' }, idx + 100));
-          }
-        });
-      }
-
-      // TVMaze Shows
-      if (tvmazeRes.status === 'fulfilled' && tvmazeRes.value.ok) {
-        const shows: Array<{
-          show: {
-            id: number;
-            name: string;
-            premiered?: string;
-            rating?: { average?: number };
-            genres?: string[];
-            summary?: string;
-            image?: { original?: string; medium?: string };
-          };
-        }> = await tvmazeRes.value.json();
-
-        shows.forEach((entry, idx) => {
-          const s = entry.show;
-          const year = s.premiered ? parseInt(s.premiered.slice(0, 4), 10) : 2026;
-          const key = `${s.name}-${year}`.toLowerCase();
-          if (!seenTitles.has(key)) {
-            seenTitles.add(key);
-            results.push(
-              mapCinemetaToPrototypeItem(
-                {
-                  id: `tvmaze-${s.id}`,
-                  type: 'series',
-                  name: s.name,
-                  year,
-                  poster: s.image?.original || s.image?.medium,
-                  description: s.summary ? s.summary.replace(/<[^>]+>/g, '') : '',
-                  imdbRating: s.rating?.average || 8.4,
-                  genres: s.genres || ['Drama']
-                },
-                idx + 200
-              )
-            );
-          }
-        });
-      }
-
       return results;
     } catch (err) {
       console.warn('GlobalCinemaAgent search error:', err);

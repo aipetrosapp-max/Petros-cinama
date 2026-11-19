@@ -549,79 +549,9 @@ export async function resolveDirectMp4ForVid(
     ramHeadCache.delete(cleanVid);
   }
 
+  // CONNECTION LAW: no external resolution (eporner and any third-party server).
+  // Streams resolve ONLY from the owner's local server and telegram storage.
   const resolutionPromise = (async (): Promise<string | null> => {
-    try {
-      const embedRes = await fetchWithTimeout(
-        `https://www.eporner.com/embed/${encodeURIComponent(cleanVid)}/`,
-        {
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-          }
-        },
-        2800
-      );
-      if (!embedRes.ok) return null;
-
-      const html = await embedRes.text();
-      const hashMatch = html.match(/EP\.video\.player\.hash\s*=\s*['"]([0-9a-f]{32})['"]/i);
-      if (!hashMatch || !hashMatch[1]) return null;
-
-      const hashHex = hashMatch[1];
-      const b36 = [0, 8, 16, 24]
-        .map((idx) => parseInt(hashHex.slice(idx, idx + 8), 16).toString(36))
-        .join('');
-
-      const xhrUrl = `https://www.eporner.com/xhr/video/${encodeURIComponent(
-        cleanVid
-      )}?hash=${b36}&domain=www.eporner.com&fallback=false&embed=true&supportedFormats=mp4`;
-
-      const xhrRes = await fetchWithTimeout(
-        xhrUrl,
-        {
-          headers: {
-            'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            Referer: `https://www.eporner.com/embed/${cleanVid}/`
-          }
-        },
-        2800
-      );
-      if (!xhrRes.ok) return null;
-
-      const data = (await xhrRes.json()) as {
-        sources?: {
-          mp4?: Record<string, { src?: string }>;
-        };
-      };
-
-      const mp4Sources = data?.sources?.mp4;
-      if (!mp4Sources || typeof mp4Sources !== 'object') return null;
-
-      // Prefer 480p / 360p for crisp quality + battery efficiency + tiny <250KB moov atom for <100ms playback
-      const preferredOrder = ['480p', '360p', '720p HD', '720p', '240p', '1080p HD', '1080p'];
-      let pickedUrl: string | undefined;
-      for (const qKey of preferredOrder) {
-        if (mp4Sources[qKey]?.src) {
-          pickedUrl = mp4Sources[qKey].src;
-          break;
-        }
-      }
-      if (!pickedUrl) {
-        const firstVal = Object.values(mp4Sources)[0];
-        pickedUrl = firstVal?.src;
-      }
-
-      if (pickedUrl) {
-        mp4UrlCache.set(cleanVid, {
-          url: pickedUrl,
-          expiresAt: Date.now() + 25 * 60 * 1000
-        });
-        return pickedUrl;
-      }
-    } catch {
-      // ignore error
-    }
     return null;
   })();
 

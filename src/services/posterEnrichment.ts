@@ -57,6 +57,16 @@ function extractYear(value: unknown): number | undefined {
 }
 
 async function searchCinemetaPoster(
+  _title: string,
+  _year?: number,
+  _isSeries?: boolean
+): Promise<string | null> {
+  // CONNECTION LAW: no external poster cloud (cinemeta removed).
+  // Posters come from the owner's catalog data or local generated art.
+  return null;
+}
+
+async function _searchCinemetaPosterDisabled(
   title: string,
   year?: number,
   isSeries?: boolean

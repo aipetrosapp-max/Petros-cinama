@@ -853,34 +853,10 @@ async function startServer() {
       }
     }
 
-    await Promise.all(
-      toFetch.map(async (sourceText) => {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 3200);
-        try {
-          const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(
-            targetLang
-          )}&dt=t&q=${encodeURIComponent(sourceText)}`;
-          const upstream = await fetch(url, { signal: controller.signal });
-          if (!upstream.ok) return;
-          const data = (await upstream.json()) as unknown[];
-          if (!Array.isArray(data) || !Array.isArray(data[0])) return;
-          const segments = data[0] as unknown[][];
-          const translated = segments
-            .map((seg) => (typeof seg?.[0] === 'string' ? seg[0] : ''))
-            .join('')
-            .trim();
-          if (translated) {
-            translations[sourceText] = translated;
-            serverTranslateCache.set(`${targetLang}::${sourceText}`, translated);
-          }
-        } catch {
-          // leave untranslated so client keeps graceful fallback
-        } finally {
-          clearTimeout(timer);
-        }
-      })
-    );
+    // CONNECTION LAW: no external translation cloud (translate.googleapis.com
+    // removed). Only locally cached translations are served; the client keeps
+    // its built-in dictionary as graceful fallback.
+    void toFetch;
 
     res.json({ translations });
   });

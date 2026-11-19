@@ -88,24 +88,14 @@ export interface LlmConfig {
 
 /** Resolve the OpenAI-compatible LLM credentials for the browser agent. */
 export function resolveBrowserLlmConfig(): LlmConfig {
-  const gemini = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim();
-  const openai = (process.env.OPENAI_API_KEY || '').trim();
-  if (gemini) {
+  const baseURL = (process.env.LOCAL_LLM_BASE_URL || '').trim();
+  if (baseURL) {
     return {
       mode: 'openai',
-      model: (process.env.BROWSER_AGENT_MODEL || 'gemini-2.0-flash').trim(),
-      baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
-      apiKey: gemini,
-      messageFa: 'مدل Gemini متصل شد. ایجنت مرورگر آماده است.'
-    };
-  }
-  if (openai) {
-    return {
-      mode: 'openai',
-      model: (process.env.BROWSER_AGENT_MODEL || 'gpt-4o-mini').trim(),
-      baseURL: (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').trim(),
-      apiKey: openai,
-      messageFa: 'مدل OpenAI متصل شد. ایجنت مرورگر آماده است.'
+      model: (process.env.LOCAL_LLM_MODEL || 'local-model').trim(),
+      baseURL: baseURL.replace(/\/+$/, ''),
+      apiKey: (process.env.LOCAL_LLM_API_KEY || 'NA').trim(),
+      messageFa: 'مدل لوکال خودت متصل شد. ایجنت مرورگر آماده است.'
     };
   }
   return {
@@ -114,7 +104,7 @@ export function resolveBrowserLlmConfig(): LlmConfig {
     baseURL: '',
     apiKey: '',
     messageFa:
-      'کلید LLM تنظیم نشده — ایجنت با مدل آزمایشی رایگان page-agent اجرا می‌شود (فقط برای تست). برای حالت کامل، GEMINI_API_KEY را در تب ولت و توکن‌ها ثبت کن.'
+      'مدل لوکال تنظیم نشده (LOCAL_LLM_BASE_URL). بدون مدل، ایجنت مرورگر فقط قاب صفحه را نشان می‌دهد و هوش عملیاتی ندارد — هیچ سرویس AI بیرونی به‌جای آن وصل نمی‌شود.'
   };
 }
 
