@@ -648,7 +648,7 @@ export function buildClientStreams(
   cacheRouteFor: (id: string) => string
 ) {
   const published = [...titles]
-    .filter((t) => t.geoPending !== true)
+    .filter((t) => t.geoPending !== true && t.status !== 'draft')
     .sort((a, b) => Date.parse(b.createdAt || '') - Date.parse(a.createdAt || ''))
     .map((t) => titleToClientStream(t, cacheRouteFor));
   return published;
@@ -668,7 +668,7 @@ export function buildPublishedManifest(titles: TitleRecord[]): AdminCatalogFile 
     platform: 'AI Petros Cinema',
     channelName: 'Aipetros',
     streams: [...titles]
-      .filter((t) => t.geoPending !== true)
+      .filter((t) => t.geoPending !== true && t.status !== 'draft')
       .sort((a, b) => Date.parse(b.createdAt || '') - Date.parse(a.createdAt || ''))
       .map((t) => titleToClientStream(t, cacheRouteFor)) as never
   };

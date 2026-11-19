@@ -65,6 +65,7 @@ export async function applyPolicyToMatchingTitles(
       updatedAt: new Date().toISOString()
     };
     s.geoPending = false;
+    (s as { status?: string }).status = 'published';
     changedTitles.push(s.titleFa || s.title);
   }
   if (changedTitles.length > 0) {
@@ -99,11 +100,12 @@ export async function applyTierA(message: string): Promise<{ matched: number; ch
   const streams = (catalog.streams || []) as unknown as GeoStreamLike[];
   const changedTitles: string[] = [];
   for (const s of streams) {
-    if (s.geoPending !== true && s.geoPolicy) continue; // only pending or tier-B entries need a decision
-    if (s.geoPending !== true) continue;
+    // a title needs approval if it is geoPending or still a draft (from URL ingest)
+    if (s.geoPending !== true && (s as { status?: string }).status !== 'draft') continue;
     if (!matchesMessage(s, message)) continue;
     delete s.geoPolicy;
     s.geoPending = false;
+    (s as { status?: string }).status = 'published';
     changedTitles.push(s.titleFa || s.title);
   }
   if (changedTitles.length > 0) {
