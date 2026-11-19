@@ -25,13 +25,13 @@ import { adminApi, clearSessionToken, setSessionToken, getSessionExpiry } from '
 import type { TitleRecord } from '../types.ts';
 import { detectMode, getAdminMode, hasGithubToken, setGithubToken, verifyGithubToken } from '../transport.ts';
 import { LoginGate, SessionExpiryBadge, Spinner } from './LoginGate.tsx';
-import { ArchiveTab } from './ArchiveTab.tsx';
+import { ArchiveTab, TitleEditor, GeoPolicyRow } from './ArchiveTab.tsx';
 import { SourcesTab } from './SourcesTab.tsx';
 import { VaultTab } from './VaultTab.tsx';
 import { SyncTab } from './SyncTab.tsx';
 import { AgentChatTab } from './AgentChatTab.tsx';
 import { CollectionTab } from './CollectionTab.tsx';
-import { Panel, StatCard, Badge, GoldButton, useToast } from './primitives.tsx';
+import { Panel, StatCard, Badge, GoldButton, SearchInput, Select, useToast } from './primitives.tsx';
 
 type TabKey = 'agent' | 'dashboard' | 'archive' | 'collection' | 'sources' | 'vault' | 'sync';
 
@@ -226,7 +226,7 @@ export default function AdminApp() {
         ) : tab === 'agent' ? (
           <AgentChatTab />
         ) : tab === 'dashboard' ? (
-          <DashboardView dashboard={dashboard} titles={titles} onNavigate={setTab} />
+          <DashboardView dashboard={dashboard} titles={titles} onNavigate={setTab} onChanged={load} />
         ) : tab === 'archive' ? (
           <ArchiveTab titles={titles} onChanged={load} />
         ) : tab === 'collection' ? (
@@ -250,20 +250,57 @@ export default function AdminApp() {
 function DashboardView({
   dashboard,
   titles,
-  onNavigate
+  onNavigate,
+  onChanged
 }: {
   dashboard: Awaited<ReturnType<typeof adminApi.dashboard>> | null;
   titles: TitleRecord[];
   onNavigate?: (tab: 'agent' | 'dashboard' | 'archive' | 'sources' | 'vault' | 'sync') => void;
+  onChanged?: () => void;
 }) {
   const toast = useToast();
-  const recent = useMemo(
-    () =>
-      [...titles]
-        .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
-        .slice(0, 8),
-    [titles]
-  );
+  const [filmQuery, setFilmQuery] = useState('');
+  const [filmCat, setFilmCat] = useState<'all' | 'movie' | 'series' | 'anime'>('all');
+  const [filmGroup, setFilmGroup] = useState<'all' | 'tierA' | 'tierB' | 'pending'>('all');
+  const [editingTitle, setEditingTitle] = useState<TitleRecord | null>(null);
+  const [expandedGeo, setExpandedGeo] = useState<Record<string, boolean>>({});
+
+  const patchTitle = async (title: TitleRecord, patch: Partial<TitleRecord>, label: string) => {
+    try {
+      await adminApi.updateTitle(title.id, { ...title, ...patch });
+      toast.push('success', label, title.titleFa || title.title);
+      onChanged?.();
+    } catch (error) {
+      toast.push('error', 'به‌روزرسانی ناموفق', (error as Error).message);
+    }
+  };
+
+  const filmGroups = useMemo(() => {
+    const geo = titles.filter((t) => t.geoPolicy);
+    return {
+      tierA: titles.filter((t) => !t.geoPolicy && t.status !== 'draft' && t.geoPending !== true).length,
+      tierB: geo.length,
+      pending: titles.filter((t) => t.status === 'draft' || t.geoPending === true).length
+    };
+  }, [titles]);
+
+  const filmList = useMemo(() => {
+    const q = filmQuery.trim().toLowerCase();
+    const list = titles.filter((title) => {
+      if (filmCat !== 'all' && title.category !== filmCat) return false;
+      if (filmGroup === 'tierA' && (title.geoPolicy || title.status === 'draft' || title.geoPending === true)) return false;
+      if (filmGroup === 'tierB' && !title.geoPolicy) return false;
+      if (filmGroup === 'pending' && title.status !== 'draft' && title.geoPending !== true) return false;
+      if (!q) return true;
+      return (
+        title.title.toLowerCase().includes(q) ||
+        title.titleFa.toLowerCase().includes(q) ||
+        (title.originalTitle || '').toLowerCase().includes(q) ||
+        (title.director || '').toLowerCase().includes(q)
+      );
+    });
+    return list.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  }, [titles, filmQuery, filmCat, filmGroup]);
 
   if (!dashboard) {
     return (
@@ -363,66 +400,133 @@ function DashboardView({
       </Panel>
 
       <Panel
-        title="آخرین تغییرات"
-        subtitle="۸ عنوان اخیراً ویرایش‌شده"
+        title="همه فیلم‌ها — مدیریت کامل"
+        subtitle={`${filmList.length} عنوان از مجموع ${titles.length} • سطح A (بدون قید): ${filmGroups.tierA.toLocaleString('fa-IR')} • سطح B (قید کشور): ${filmGroups.tierB.toLocaleString('fa-IR')} • در انتظار تصمیم: ${filmGroups.pending.toLocaleString('fa-IR')}`}
         actions={
-          <GoldButton
-            variant="ghost"
-            onClick={() =>
-              toast.push('info', 'نکته', 'برای اعمال تغییرات روی کلاینت‌ها به تب «همگام‌سازی گیت‌هاب» بروید.')
-            }
-          >
-            راهنما
-          </GoldButton>
+          <>
+            <SearchInput value={filmQuery} onChange={setFilmQuery} placeholder="جستجوی فیلم…" />
+            <Select value={filmCat} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilmCat(e.target.value as typeof filmCat)}>
+              <option value="all">همه دسته‌ها</option>
+              <option value="movie">فیلم</option>
+              <option value="series">سریال</option>
+              <option value="anime">انیمه</option>
+            </Select>
+            <Select value={filmGroup} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilmGroup(e.target.value as typeof filmGroup)}>
+              <option value="all">همه کشورها (بدون دسته‌بندی)</option>
+              <option value="tierA">سطح A — پخش همه‌جا</option>
+              <option value="tierB">سطح B — دارای قید کشور</option>
+              <option value="pending">در انتظار تصمیم جغرافیا</option>
+            </Select>
+          </>
         }
       >
-        {recent.length === 0 ? (
-          <p className="py-8 text-center text-xs text-zinc-500">هنوز عنوانی ثبت نشده است.</p>
+        {filmList.length === 0 ? (
+          <p className="py-8 text-center text-xs text-zinc-500">فیلمی با این فیلترها پیدا نشد.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px] text-right text-[11px]">
+            <table className="w-full min-w-[760px] text-right text-[11px]">
               <thead className="text-[10px] text-zinc-500">
                 <tr className="border-b border-white/10">
                   <th className="py-2 pl-2 font-bold">عنوان</th>
-                  <th className="py-2 pl-2 font-bold">دسته</th>
+                  <th className="py-2 pl-2 font-bold">سال</th>
+                  <th className="py-2 pl-2 font-bold">کیفیت</th>
                   <th className="py-2 pl-2 font-bold">وضعیت</th>
-                  <th className="py-2 pl-2 font-bold">استریم</th>
-                  <th className="py-2 font-bold">آخرین تغییر</th>
+                  <th className="py-2 pl-2 font-bold">قید جغرافیا</th>
+                  <th className="py-2 font-bold">عملیات</th>
                 </tr>
               </thead>
               <tbody>
-                {recent.map((title) => (
-                  <tr key={title.id} className="border-b border-white/5">
-                    <td className="py-2 pl-2 font-bold text-zinc-200">
-                      {title.titleFa || title.title}
-                    </td>
-                    <td className="py-2 pl-2 text-zinc-400">
-                      {title.category === 'movie'
-                        ? 'فیلم'
-                        : title.category === 'series'
-                          ? 'سریال'
-                          : 'انیمه'}
-                    </td>
-                    <td className="py-2 pl-2">
-                      <Badge tone={title.status === 'published' ? 'green' : 'neutral'}>
-                        {title.status === 'published' ? 'منتشرشده' : 'پیش‌نویس'}
-                      </Badge>
-                    </td>
-                    <td className="py-2 pl-2">
-                      <Badge tone={(title.qualities || []).length ? 'gold' : 'red'}>
-                        {(title.qualities || []).length || 0} کیفیت
-                      </Badge>
-                    </td>
-                    <td className="py-2 text-zinc-500">
-                      {new Date(title.updatedAt).toLocaleString('fa-IR')}
-                    </td>
-                  </tr>
-                ))}
+                {filmList.map((title) => {
+                  const isExpanded = Boolean(expandedGeo[title.id]);
+                  return (
+                    <>
+                      <tr key={title.id} className="border-b border-white/5 align-middle">
+                        <td className="py-2 pl-2 font-bold text-zinc-200">
+                          {title.titleFa || title.title}
+                          <span className="mr-1 text-[9px] text-zinc-500">{title.title}</span>
+                        </td>
+                        <td className="py-2 pl-2 text-zinc-400">{title.year || '—'}</td>
+                        <td className="py-2 pl-2">
+                          <Badge tone={(title.qualities || []).length ? 'gold' : 'red'}>
+                            {(title.qualities || []).length || 0}
+                          </Badge>
+                        </td>
+                        <td className="py-2 pl-2">
+                          <Badge tone={title.status === 'published' ? 'green' : 'neutral'}>
+                            {title.geoPending === true || title.status === 'draft'
+                              ? 'در انتظار تصمیم'
+                              : 'منتشرشده'}
+                          </Badge>
+                        </td>
+                        <td className="py-2 pl-2">
+                          {title.geoPolicy ? (
+                            <Badge tone={title.geoPolicy.mode === 'block' ? 'red' : 'gold'}>
+                              {title.geoPolicy.mode === 'block' ? `⛔ ممنوع ${title.geoPolicy.countries.join('،')}` : `🌐 فقط ${title.geoPolicy.countries.join('،')}`}
+                            </Badge>
+                          ) : (
+                            <Badge tone="green">سطح A — همه‌جا</Badge>
+                          )}
+                        </td>
+                        <td className="py-2">
+                          <div className="flex flex-wrap items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => setEditingTitle(title)}
+                              className="rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-2 py-0.5 text-[10px] font-bold text-[#F5E7B8] transition hover:bg-[#D4AF37]/20"
+                            >
+                              ✏️ ویرایش
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setExpandedGeo((prev) => ({ ...prev, [title.id]: !prev[title.id] }))}
+                              className="rounded-lg border border-white/12 px-2 py-0.5 text-[10px] font-bold text-zinc-300 transition hover:border-[#D4AF37]/40"
+                            >
+                              🌍 کشورها
+                            </button>
+                            <button
+                              type="button"
+                              title={title.status === 'published' ? 'برگشت به پیش‌نویس' : 'انتشار'}
+                              onClick={() =>
+                                patchTitle(
+                                  title,
+                                  { status: title.status === 'published' ? 'draft' : 'published' },
+                                  title.status === 'published' ? 'به پیش‌نویس برگشت' : 'منتشر شد'
+                                )
+                              }
+                              className="rounded-lg border border-white/12 px-2 py-0.5 text-[10px] font-bold text-zinc-300 transition hover:border-emerald-400/50"
+                            >
+                              {title.status === 'published' ? '↩️ پیش‌نویس' : '📢 انتشار'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {isExpanded ? (
+                        <tr key={`${title.id}-geo`} className="border-b border-white/5">
+                          <td colSpan={6} className="py-2 pl-2">
+                            <GeoPolicyRow title={title} onChanged={() => onChanged?.()} />
+                          </td>
+                        </tr>
+                      ) : null}
+                    </>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
       </Panel>
+
+      {editingTitle ? (
+        <TitleEditor
+          mode="edit"
+          title={editingTitle}
+          onClose={() => setEditingTitle(null)}
+          onSaved={() => {
+            setEditingTitle(null);
+            onChanged?.();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

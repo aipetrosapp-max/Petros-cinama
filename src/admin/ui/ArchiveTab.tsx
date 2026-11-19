@@ -503,8 +503,8 @@ export interface GeoPolicyValue {
   noteFa?: string;
 }
 
-/** Compact inline editor used in the expanded archive row. */
-function GeoPolicyRow({ title, onChanged }: { title: TitleRecord; onChanged: () => void }) {
+/** Compact inline geo editor — exported for reuse in the dashboard film manager. */
+export function GeoPolicyRow({ title, onChanged }: { title: TitleRecord; onChanged: () => void }) {
   const toast = useToast();
   const [mode, setMode] = useState<'none' | 'block' | 'allow'>(title.geoPolicy ? title.geoPolicy.mode : 'none');
   const [codes, setCodes] = useState<string[]>(title.geoPolicy?.countries || []);
@@ -612,7 +612,7 @@ function GeoPolicyRow({ title, onChanged }: { title: TitleRecord; onChanged: () 
 // Title editor (qualities + subtitles)
 // ---------------------------------------------------------------------------
 
-function TitleEditor({
+export function TitleEditor({
   mode,
   title,
   onClose,
