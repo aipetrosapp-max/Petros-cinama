@@ -120,6 +120,8 @@ export interface PrototypeMediaItem {
   qualities?: { quality: string; url: string; format?: string }[];
   subtitles: SubtitleLine[];
   chapters: ChapterMarker[];
+  /** Two-tier geo policy (set by the Master Admin Agent only). */
+  geoPolicy?: { mode: 'block' | 'allow'; countries: string[]; noteFa?: string; updatedAt?: string };
   spatialPos: { x: number; y: number; z: number };
 }
 

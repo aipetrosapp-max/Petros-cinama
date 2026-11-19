@@ -72,6 +72,7 @@ import { AipetrosLandingScreen } from './screens/AipetrosLandingScreen';
 import { dynamicStreamSync, convertDynamicStreamToMediaItem, type DynamicStreamItem } from '../services/dynamicStreamSync';
 import { platformConfigSync, isFeatureEnabled } from '../services/platformConfigSync';
 import { isItemPlayable } from '../services/streamSourceResolver';
+import { detectVisitorCountry, filterStreamsByGeo, getCachedCountry } from '../services/geoGate';
 import { ensureUniqueCatalogPosters } from '../services/posterRegistry';
 import { enrichCatalogPosters } from '../services/posterEnrichment';
 import { telegramCatalogAgent } from '../agents/telegramCatalogAgent';
@@ -165,6 +166,16 @@ function UniversePrototypeShell({
   const [libraryTabRequest, setLibraryTabRequest] = useState<LibraryTab | undefined>(undefined);
   const [langPickerOpen, setLangPickerOpen] = useState(false);
 
+  // ── Two-tier geo gate (سطح‌بندی جغرافیایی) — فقط ایجنت ادمین می‌تواند قید بگذارد ──
+  const geoFilterSync = <T extends { geoPolicy?: { mode: 'block' | 'allow'; countries: string[] } }>(streams: T[]): T[] => {
+    const cached = getCachedCountry();
+    return cached ? filterStreamsByGeo(streams, cached) : streams;
+  };
+  const geoFilterAsync = async <T extends { geoPolicy?: { mode: 'block' | 'allow'; countries: string[] } }>(streams: T[]): Promise<T[]> => {
+    const country = await detectVisitorCountry();
+    return filterStreamsByGeo(streams, country);
+  };
+
   const [catalog, setCatalog] = useState<PrototypeMediaItem[]>(() => {
     // Purify and ignore legacy seed mock movies (X-Men, Interstellar mock seeds, etc.)
     const rawVault = initialVault?.catalog || [];
@@ -175,7 +186,7 @@ function UniversePrototypeShell({
       !item.id.startsWith('film-dune') &&
       !item.id.startsWith('film-batman')
     ).filter(isItemPlayable);
-    const fromDynamic = dynamicStreamSync.getStreams().map(convertDynamicStreamToMediaItem).filter(isItemPlayable);
+    const fromDynamic = geoFilterSync(dynamicStreamSync.getStreams()).map(convertDynamicStreamToMediaItem).filter(isItemPlayable);
     const fromSeed = PROTOTYPE_MEDIA_CATALOG.filter(isItemPlayable);
     const chosen = fromDynamic.length > 0 ? fromDynamic : fromVault.length > 0 ? fromVault : fromSeed;
     // Poster law: no two titles on the home screen may ever share a cover.
@@ -308,8 +319,15 @@ function UniversePrototypeShell({
       if (dynamicStreams && dynamicStreams.length > 0) {
         // STRICT USER RULE: Only display items that are 100% playable without gateway/errors!
         // Never show a title in the app if it cannot be fully played.
-        const allItems = dynamicStreams.map(convertDynamicStreamToMediaItem);
+        const geoVisibleStreams = geoFilterSync(dynamicStreams);
+        const allItems = geoVisibleStreams.map(convertDynamicStreamToMediaItem);
         const playableItems = allItems.filter(isItemPlayable);
+        // refine with a fresh async country detection (first entry / cache expiry)
+        void geoFilterAsync(dynamicStreams).then((refined) => {
+          if (!isMounted || refined.length === geoVisibleStreams.length) return;
+          const refinedItems = refined.map(convertDynamicStreamToMediaItem).filter(isItemPlayable);
+          if (refinedItems.length > 0) setCatalog(ensureUniqueCatalogPosters(refinedItems));
+        });
         const nextCatalog = ensureUniqueCatalogPosters(playableItems.length > 0 ? playableItems : allItems);
         setCatalog(nextCatalog);
       }
@@ -320,7 +338,8 @@ function UniversePrototypeShell({
       try {
         setSyncStatusText(lang === 'fa' ? 'ایجنت پتروس سینما در حال اعتبارسنجی و پاک‌سازی هوشمند مخزن فیلم‌ها...' : 'AI Agent purifying and verifying cinema stream repository...');
         const { catalog: purifiedCatalog, report } = await telegramCatalogAgent.purifyAndSync(catalog);
-        const playablePurified = purifiedCatalog ? purifiedCatalog.filter(isItemPlayable) : [];
+        const geoPurified = purifiedCatalog ? await geoFilterAsync(purifiedCatalog) : null;
+        const playablePurified = geoPurified ? geoPurified.filter(isItemPlayable) : [];
         if (isMounted && playablePurified.length > 0) {
           setCatalog(ensureUniqueCatalogPosters(playablePurified));
           setSyncStatusText(lang === 'fa' ? report.messageFa : 'Cinema catalog synchronized.');
@@ -845,7 +864,7 @@ function UniversePrototypeShell({
     });
     void clearVaultSnapshot();
     const validOnly = ensureUniqueCatalogPosters(
-      dynamicStreamSync.getStreams()
+      geoFilterSync(dynamicStreamSync.getStreams())
         .map(convertDynamicStreamToMediaItem)
         .filter(isItemPlayable)
     );
@@ -1398,7 +1417,7 @@ function UniversePrototypeShell({
             }}
             onRefreshCatalog={() => {
               const updatedStreams = ensureUniqueCatalogPosters(
-                dynamicStreamSync.getStreams()
+                geoFilterSync(dynamicStreamSync.getStreams())
                   .map(convertDynamicStreamToMediaItem)
                   .filter(isItemPlayable)
               );

@@ -101,6 +101,8 @@ export interface TitleRecord {
   episodes: EpisodeRecord[];
   /** offline / low-bandwidth download mirrors */
   downloadLinks?: Array<{ id: string; label: string; url: string; sizeBytes?: number }>;
+  /** Two-tier geo policy (admin-only): block = hidden in listed countries; allow = visible ONLY in listed countries. */
+  geoPolicy?: { mode: 'block' | 'allow'; countries: string[]; noteFa?: string; updatedAt?: string };
   createdAt: string;
   updatedAt: string;
 }

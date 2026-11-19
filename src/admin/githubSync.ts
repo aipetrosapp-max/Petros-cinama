@@ -623,6 +623,9 @@ export function titleToClientStream(
         forced: Boolean(s.forced)
       }))
     })),
+    geoPolicy: title.geoPolicy
+      ? { mode: title.geoPolicy.mode, countries: (title.geoPolicy.countries || []).map((c) => c.toUpperCase().slice(0, 2)), noteFa: title.geoPolicy.noteFa, updatedAt: title.geoPolicy.updatedAt }
+      : undefined,
     playbackStatus: playableUrl ? 'available' : 'unavailable',
     playbackStatusReason: playableUrl
       ? directUrl

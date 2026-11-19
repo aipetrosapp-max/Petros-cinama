@@ -314,6 +314,14 @@ function sanitizeTitle(input: Partial<TitleRecord>, existing?: TitleRecord): Tit
     seasons: seasons.map((s) => ({ ...s, titleId: s.titleId || input.id || existing?.id || '' })),
     episodes: episodes.map((e) => ({ ...e, titleId: e.titleId || input.id || existing?.id || '' })),
     downloadLinks: input.downloadLinks ?? existing?.downloadLinks ?? [],
+    geoPolicy: input.geoPolicy
+      ? {
+          mode: input.geoPolicy.mode === 'allow' ? 'allow' : 'block',
+          countries: (input.geoPolicy.countries || []).map((c) => String(c).toUpperCase().slice(0, 2)).filter(Boolean),
+          noteFa: input.geoPolicy.noteFa,
+          updatedAt: new Date().toISOString()
+        }
+      : existing?.geoPolicy,
     createdAt: existing?.createdAt || now,
     updatedAt: now
   };

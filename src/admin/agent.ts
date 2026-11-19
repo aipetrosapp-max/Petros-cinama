@@ -263,6 +263,85 @@ function buildHelp(): AgentReply {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Two-tier geo helpers (Persian country names -> ISO-2, per-title policy edit)
+// ---------------------------------------------------------------------------
+
+const PERSIAN_COUNTRY_CODES: Array<[RegExp, string]> = [
+  [/ایران/, 'IR'],
+  [/امریکا|آمریکا|آمریکا/, 'US'],
+  [/انگلیس|بریتانیا|انگلستان/, 'GB'],
+  [/المان|آلمان/, 'DE'],
+  [/فرانسه/, 'FR'],
+  [/کانادا/, 'CA'],
+  [/ترکیه/, 'TR'],
+  [/عراق/, 'IQ'],
+  [/سوریه/, 'SY'],
+  [/چین/, 'CN'],
+  [/روسیه/, 'RU'],
+  [/ژاپن/, 'JP'],
+  [/هندوستان|هند/, 'IN'],
+  [/امارات/, 'AE'],
+  [/عربستان/, 'SA'],
+  [/استرالیا/, 'AU'],
+  [/ایتالیا/, 'IT'],
+  [/اسپانیا/, 'ES'],
+  [/هلند/, 'NL'],
+  [/سوئد/, 'SE'],
+  [/افغانستان/, 'AF'],
+  [/تاجیکستان/, 'TJ'],
+  [/ازبکستان/, 'UZ'],
+  [/پاکستان/, 'PK']
+];
+
+/** Extract ISO-2 country codes from a Persian chat message. */
+function extractCountryCodes(text: string): string[] {
+  const codes: string[] = [];
+  for (const m of text.matchAll(/\b([A-Za-z]{2})\b/g)) {
+    const up = m[1].toUpperCase();
+    if (/^(US|GB|DE|FR|CA|TR|IQ|SY|CN|RU|JP|IN|AE|SA|AU|IT|ES|NL|SE|AF|TJ|UZ|PK|IR|BR|MX|KR|ID|VN|PH|EG|MA|DZ|TN|UA|PL|CZ|AT|CH|BE|GR|PT|IL|JO|LB|KW|QA|BH|OM|YE|AZ|AM|GE|KZ|KG|TM|BD|LK|NP|MM|TH|MY|SG|HK|TW|NZ|FI|NO|DK|IE|HU|RO|BG|HR|RS|SK|SI|EE|LV|LT|BY|MD|AL|MK|ME|BA|IS|LU|MT|CY)$/.test(up)) {
+      codes.push(up);
+    }
+  }
+  for (const [re, code] of PERSIAN_COUNTRY_CODES) {
+    if (re.test(text) && !codes.includes(code)) codes.push(code);
+  }
+  return [...new Set(codes)];
+}
+
+async function setGeoPolicyForTitles(text: string, mode: 'block' | 'allow'): Promise<AgentReply> {
+  const codes = extractCountryCodes(text);
+  if (codes.length === 0) {
+    return { intent: 'geo_invalid', replyFa: '❌ کشور پیدا نشد. مثال: «کشورهای US،DE را برای The Stranger ببند» یا کد کشور بنویس (US/DE/IR…).' };
+  }
+  const { applyPolicyToMatchingTitles } = await import('./agentUtils.ts');
+  const result = await applyPolicyToMatchingTitles(text, { mode, countries: codes });
+  if (result.matched === 0) {
+    return { intent: 'geo_no_match', replyFa: '❌ هیچ عنوانی مطابق متن پیدا نشد. بخشی از عنوان را دقیق بنویس.' };
+  }
+  const publish = await publishEverything('geo policy via admin chat agent');
+  return {
+    intent: 'geo_policy_set',
+    replyFa:
+      `🌍 اعمال شد (${mode === 'block' ? 'ممنوع در' : 'فقط مجاز در'} ${codes.join('، ')}):\n` +
+      result.changedTitles.map((t) => `• «${t}»`).join('\n') +
+      `\n\n${publish.replyFa}`
+  };
+}
+
+async function clearGeoPolicyForTitles(text: string): Promise<AgentReply> {
+  const { clearPolicyFromMatchingTitles } = await import('./agentUtils.ts');
+  const result = await clearPolicyFromMatchingTitles(text);
+  if (result.matched === 0) {
+    return { intent: 'geo_no_match', replyFa: '❌ عنوانی با قید جغرافیایی مطابق متن پیدا نشد. «گزارش جغرافیایی» را ببین.' };
+  }
+  const publish = await publishEverything('geo policy cleared via admin chat agent');
+  return {
+    intent: 'geo_policy_cleared',
+    replyFa: `🌍 قید جغرافیایی برداشته شد از:\n${result.changedTitles.map((t) => `• «${t}»`).join('\n')}\n\n${publish.replyFa}`
+  };
+}
+
 async function publishEverything(note?: string): Promise<AgentReply> {
   const catalog = await readLocalCatalog();
   const config = await readLocalConfig();
@@ -917,6 +996,52 @@ export async function handleAdminChatMessage(rawText: string): Promise<AgentRepl
         (pr.running ? '• وضعیت: در حال اجرا ⏳\n' : '• وضعیت: متوقف/تمام (برای ادامه «اجرای کالکشن» را بگو)\n') +
         `\n${(pr.log || []).slice(0, 8).join('\n')}`
     };
+  }
+  // ---------------------------------------------------------------------------
+  // Two-tier geographic policy (سطح‌بندی جغرافیایی) — admin/agent only
+  // ---------------------------------------------------------------------------
+  if (/گزارش جغرافیایی|سطح جغرافیا|سطح بندی جغرافیایی/.test(text)) {
+    const { geoPreviewCounts } = await import('../services/geoGate.ts');
+    const catalog = await readLocalCatalog();
+    const streams = (catalog.streams || []) as unknown as Array<{ titleFa: string; title: string; geoPolicy?: { mode: 'block' | 'allow'; countries: string[] } }>;
+    const tierB = streams.filter((t) => t.geoPolicy && (t.geoPolicy.countries || []).length > 0);
+    const sample = tierB.slice(0, 10).map((t) => {
+      const p = t.geoPolicy!;
+      return `• «${t.titleFa || t.title}» — ${p.mode === 'allow' ? 'فقط' : 'ممنوع در'} ${p.countries.join('، ')}`;
+    });
+    const us = geoPreviewCounts(streams, 'US');
+    const de = geoPreviewCounts(streams, 'DE');
+    const ir = geoPreviewCounts(streams, 'IR');
+    return {
+      intent: 'geo_report',
+      replyFa:
+        `🌍 سطح‌بندی جغرافیایی:\n` +
+        `• سطح A (همه‌جا): ${streams.length - tierB.length} عنوان\n` +
+        `• سطح B (دارای قید کشور): ${tierB.length} عنوان\n` +
+        (sample.length ? `\n${sample.join('\n')}\n` : '\nهیچ عنوانی قید جغرافیایی ندارد. نمونه: «کشور IR را برای The Stranger ببند»\n') +
+        `\n👁 شبیه‌سازی: آمریکا ${us.visible}/${streams.length} | آلمان ${de.visible}/${streams.length} | ایران ${ir.visible}/${streams.length}`
+    };
+  }
+  if (/در کشور [\u0600-\u06FFa-zA-Z ]+ (چی |چه )?(دیده می شود|می بینم|چه می بینم)/.test(text)) {
+    const { geoPreviewCounts } = await import('../services/geoGate.ts');
+    const cc = extractCountryCodes(text);
+    const catalog = await readLocalCatalog();
+    const streams = (catalog.streams || []) as unknown as Array<{ titleFa: string; title: string; geoPolicy?: { mode: 'block' | 'allow'; countries: string[] } }>;
+    const code = cc[0] || 'US';
+    const { visible, hidden } = geoPreviewCounts(streams, code);
+    return {
+      intent: 'geo_preview',
+      replyFa: `👁 شبیه‌سازی بازدیدکننده از کشور ${code}: ${visible} عنوان دیده می‌شود، ${hidden} عنوان مخفی است.`
+    };
+  }
+  if (/(قید جغرافیایی|محدودیت جغرافیایی|قید کشور)/.test(text) && /(بردار|حذف|لغو|خیر|بی خیال)/.test(text)) {
+    return clearGeoPolicyForTitles(text);
+  }
+  if (/(کشور|کشورها)/.test(text) && /(ببند|بسته|پخش نشه|ممنوع|بلاک)/.test(text)) {
+    return setGeoPolicyForTitles(text, 'block');
+  }
+  if (/(فقط در کشور|فقط کشورها|فقط این کشورها|فقط از کشور)/.test(text) && /(ببین|دیده|پخش|باز)/.test(text)) {
+    return setGeoPolicyForTitles(text, 'allow');
   }
   // Catalog vs Telegram channel diff — transfer whatever is missing
   if (/(مقایسه|اسکن|در کانال نیست)/.test(text) && /(کانال|تلگرام)/.test(text)) {

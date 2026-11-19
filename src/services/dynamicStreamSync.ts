@@ -54,6 +54,8 @@ export interface DynamicStreamItem {
   playbackStatusReason?: string;
   trailerUrl?: string;
   subtitleUrl?: string;
+  /** Two-tier geo policy (set by the Master Admin Agent only). */
+  geoPolicy?: { mode: 'block' | 'allow'; countries: string[]; noteFa?: string; updatedAt?: string };
 }
 
 export interface DynamicStreamsManifest {
@@ -445,6 +447,7 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     originalSource: stream.originalSource,
     qualities: stream.qualities || [],
     subtitles: [],
+    geoPolicy: stream.geoPolicy,
     chapters: [],
     spatialPos: { x: 0, y: 0, z: -100 }
   };
