@@ -626,6 +626,8 @@ export function titleToClientStream(
     geoPolicy: title.geoPolicy
       ? { mode: title.geoPolicy.mode, countries: (title.geoPolicy.countries || []).map((c) => c.toUpperCase().slice(0, 2)), noteFa: title.geoPolicy.noteFa, updatedAt: title.geoPolicy.updatedAt }
       : undefined,
+    subtitleUrl: (title.subtitles || []).find((s) => s.url)?.url,
+    status: title.status,
     playbackStatus: playableUrl ? 'available' : 'unavailable',
     playbackStatusReason: playableUrl
       ? directUrl

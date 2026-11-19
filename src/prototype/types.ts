@@ -117,6 +117,8 @@ export interface PrototypeMediaItem {
   streamStatus?: 'available' | 'requires_gateway' | 'unavailable' | 'maintenance';
   streamStatusReason?: string;
   subtitleUrl?: string;
+  /** catalog workflow status (draft/published) carried from the admin manifest */
+  catalogStatus?: string;
   qualities?: { quality: string; url: string; format?: string }[];
   subtitles: SubtitleLine[];
   chapters: ChapterMarker[];

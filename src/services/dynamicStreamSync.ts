@@ -54,6 +54,7 @@ export interface DynamicStreamItem {
   playbackStatusReason?: string;
   trailerUrl?: string;
   subtitleUrl?: string;
+  status?: string;
   /** Two-tier geo policy (set by the Master Admin Agent only). */
   geoPolicy?: { mode: 'block' | 'allow'; countries: string[]; noteFa?: string; updatedAt?: string };
 }
@@ -443,6 +444,7 @@ export function convertDynamicStreamToMediaItem(stream: DynamicStreamItem): Prot
     streamStatus: stream.playbackStatus || 'unavailable',
     streamStatusReason: stream.playbackStatusReason,
     subtitleUrl: stream.subtitleUrl,
+    catalogStatus: stream.status,
     sourceType: stream.sourceType || (stream.defaultStreamUrl?.includes('t.me') ? 'telegram' : 'direct_mp4'),
     originalSource: stream.originalSource,
     qualities: stream.qualities || [],
