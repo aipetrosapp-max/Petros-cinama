@@ -1066,6 +1066,28 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
   const [liveBusy, setLiveBusy] = useState(false);
   const [vipResult, setVipResult] = useState<{ ok: boolean; host: string; count: number; loggedIn: boolean; messageFa: string } | null>(null);
   const [sessions, setSessions] = useState<Array<{ host: string; count: number; logged_in: boolean; savedAt?: string | null; url?: string }>>([]);
+  const [extractUrl, setExtractUrl] = useState('');
+  const [extractBusy, setExtractBusy] = useState(false);
+  const [extractResult, setExtractResult] = useState<{ ok: boolean; withSession: boolean; count: number; links: Array<{ url: string; text: string; type: string }>; messageFa: string } | null>(null);
+
+  const runExtract = async () => {
+    setExtractBusy(true);
+    setExtractResult(null);
+    try {
+      const res = await adminApi.vipExtractLinks(extractUrl.trim());
+      setExtractResult(res);
+      if (res.ok) {
+        toast.push('success', 'استخراج موفق', res.messageFa);
+      } else {
+        toast.push('info', 'لینکی پیدا نشد', res.messageFa);
+      }
+    } catch (error) {
+      setExtractResult({ ok: false, withSession: false, count: 0, links: [], messageFa: (error as Error).message });
+      toast.push('error', 'استخراج ناموفق', (error as Error).message);
+    } finally {
+      setExtractBusy(false);
+    }
+  };
 
   const refreshSessions = async () => {
     try {
@@ -1246,6 +1268,54 @@ function LinkImportCard({ onAdded }: { onAdded: () => void }) {
               ))}
             </div>
           )}
+
+          <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[#D4AF37]/25 bg-[#D4AF37]/[0.05] p-2">
+            <span className="text-[10.5px] font-bold text-[#D4AF37]">🔗 تست واقعی نشست:</span>
+            <TextInput
+              value={extractUrl}
+              onChange={(e) => setExtractUrl(e.target.value)}
+              placeholder="آدرس یک صفحه از همان سایت (مثلاً صفحه فیلم)"
+              dir="ltr"
+              className="w-72 text-xs"
+            />
+            <GoldButton
+              variant="ghost"
+              disabled={!extractUrl.trim() || extractBusy}
+              onClick={() => void runExtract()}
+            >
+              {extractBusy ? 'در حال بازکردن صفحه…' : '🔗 استخراج لینک‌های داخل صفحه'}
+            </GoldButton>
+          </div>
+          {extractResult && (
+            <div className="rounded-xl border border-white/10 bg-black/40 p-3">
+              <p className="mb-2 text-[10.5px] text-zinc-300">
+                {extractResult.ok ? `✅ ${extractResult.messageFa}` : `❌ ${extractResult.messageFa}`}
+                {extractResult.ok ? (
+                  <span className="mr-2 text-zinc-500">(با نشست VIP: {extractResult.withSession ? 'بله ✓' : 'خیر'})</span>
+                ) : null}
+              </p>
+              {extractResult.links.length > 0 && (
+                <div className="max-h-64 overflow-y-auto">
+                  <table className="w-full text-right text-[10px]">
+                    <tbody>
+                      {extractResult.links.map((l, i) => (
+                        <tr key={l.url + i} className="border-b border-white/5">
+                          <td className="w-16 py-1.5">
+                            <Badge tone={l.type === 'direct' || l.type === 'stream' ? 'green' : l.type === 'embed' ? 'gold' : 'neutral'}>
+                              {l.type === 'direct' ? 'فایل مستقیم' : l.type === 'stream' ? 'استریم' : l.type === 'embed' ? 'پخش‌کننده' : 'صفحه دانلود'}
+                            </Badge>
+                          </td>
+                          <td className="max-w-[260px] truncate py-1.5 pl-2 text-zinc-300" dir="ltr" title={l.url}>{l.url}</td>
+                          <td className="max-w-[140px] truncate py-1.5 text-zinc-500" title={l.text}>{l.text}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
           <p className="text-[10px] leading-relaxed text-zinc-500">
             این ورود فقط با اکانت شخصی خودت انجام می‌شود و کوکی‌ها فقط روی کامپیوتر خودت (data/browser_sessions) نگه‌داری می‌شوند — برای دانلود/بررسی لینک‌هایی که دسترسی اشتراکی‌ات را دارند. خوانده نمی‌شوند روی هیچ سرور بیرونی.
           </p>

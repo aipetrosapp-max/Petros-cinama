@@ -834,6 +834,12 @@ export const adminApi = {
       '/browser/sessions'
     ),
 
+  vipExtractLinks: (url: string) =>
+    request<{ ok: boolean; host: string; withSession: boolean; count: number; links: Array<{ url: string; text: string; type: string }>; messageFa: string }>(
+      '/browser/vip-links',
+      { method: 'POST', body: { url } }
+    ),
+
   checkBrowserSession: (host: string) =>
     request<{ ok: boolean; session?: { url: string; cookie_header: string; count: number }; messageFa?: string }>(
       `/browser/session/${encodeURIComponent(host)}`

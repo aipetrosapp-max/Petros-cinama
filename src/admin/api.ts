@@ -865,6 +865,75 @@ adminRouter.post('/browser/vip-login', requireAdminAuth, async (req, res) => {
   }
 });
 
+/** Extract the video/source links found inside a VIP site page, using the
+ * owner's own saved session cookies (connectivity test — nothing is copied). */
+adminRouter.post('/browser/vip-links', requireAdminAuth, async (req, res) => {
+  const pageUrl = String(req.body?.url || '').trim();
+  if (!/^https?:\/\//i.test(pageUrl)) {
+    res.status(400).json({ error: 'invalid_url', messageFa: 'آدرس صفحه سایت را کامل وارد کن.' });
+    return;
+  }
+  let host = '';
+  try {
+    host = new URL(pageUrl).hostname.replace(/[^a-zA-Z0-9.-]/g, '_');
+  } catch {
+    res.status(400).json({ error: 'invalid_url', messageFa: 'آدرس نامعتبر است.' });
+    return;
+  }
+  const sessionPath = path.join(process.cwd(), 'data', 'browser_sessions', `${host}.json`);
+  if (!fs.existsSync(sessionPath)) {
+    res.status(400).json({
+      error: 'no_session',
+      messageFa: `برای ${host} نشستی ذخیره نشده — اول از بخش VIP لاگین کن تا کوکی‌ها استخراج شود.`
+    });
+    return;
+  }
+  const outDir = path.join(process.cwd(), 'data', 'browser_sessions');
+  const outPath = path.join(outDir, `${host}-links.json`);
+  const python = process.platform === 'win32' ? 'python' : 'python3';
+  const scriptPath = path.join(process.cwd(), 'scripts', 'vip_link_extractor.py');
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(python, [scriptPath, pageUrl, sessionPath, outPath], {
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
+      const timer = setTimeout(() => {
+        child.kill();
+        reject(new Error('timeout_120s'));
+      }, 120_000);
+      child.on('error', (e) => {
+        clearTimeout(timer);
+        reject(e);
+      });
+      child.on('close', () => {
+        clearTimeout(timer);
+        resolve();
+      });
+    });
+    const data = JSON.parse(await fsp.readFile(outPath, 'utf-8')) as {
+      ok?: boolean;
+      withSession?: boolean;
+      count?: number;
+      links?: Array<{ url: string; text: string; type: string }>;
+      message?: string;
+    };
+    res.json({
+      ok: Boolean(data.ok),
+      host,
+      withSession: Boolean(data.withSession),
+      count: Number(data.count || 0),
+      links: (data.links || []).slice(0, 200),
+      messageFa: String(data.message || '')
+    });
+  } catch (err: unknown) {
+    const msg = (err as Error).message;
+    res.status(500).json({
+      error: 'extract_failed',
+      messageFa: msg.includes('timeout') ? 'استخراج بیش از ۲ دقیقه طول کشید — صفحه سنگین است.' : `استخراج ناموفق بود: ${msg}`
+    });
+  }
+});
+
 adminRouter.post('/browser/launch', requireAdminAuth, async (req, res) => {
   const targetUrl = String(req.body?.url || '').trim();
   if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {

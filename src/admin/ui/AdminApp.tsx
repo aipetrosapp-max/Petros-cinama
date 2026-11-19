@@ -579,8 +579,8 @@ function DashboardView({
                 {filmList.map((title) => {
                   const isExpanded = Boolean(expandedGeo[title.id]);
                   return (
-                    <>
-                      <tr key={title.id} className="border-b border-white/5 align-middle">
+                    <React.Fragment key={title.id}>
+                      <tr className="border-b border-white/5 align-middle">
                         <td className="py-2 pl-2 font-bold text-zinc-200">
                           {title.titleFa || title.title}
                           <span className="mr-1 text-[9px] text-zinc-500">{title.title}</span>
@@ -647,7 +647,7 @@ function DashboardView({
                           </td>
                         </tr>
                       ) : null}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </tbody>

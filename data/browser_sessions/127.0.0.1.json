@@ -1,0 +1,46 @@
+{
+  "url": "http://127.0.0.1:3219/",
+  "host": "127.0.0.1",
+  "ok": true,
+  "count": 3,
+  "logged_in": true,
+  "message": "ورود موفق و نشست استخراج شد.",
+  "auth_cookies": [
+    "sess_token",
+    "vip_user",
+    "auth_hash"
+  ],
+  "cookies": [
+    {
+      "name": "sess_token",
+      "value": "abc123",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "vip_user",
+      "value": "petros",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "auth_hash",
+      "value": "deadbeef",
+      "domain": "127.0.0.1",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "cookie_header": "sess_token=abc123; vip_user=petros; auth_hash=deadbeef"
+}
