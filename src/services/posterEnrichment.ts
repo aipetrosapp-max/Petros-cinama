@@ -11,7 +11,7 @@ import { ensureUniqueCatalogPosters, resolveUniquePoster, SHARED_POSTER_BLACKLIS
  */
 
 const POSTER_CACHE_KEY = 'aipetros_unique_poster_map_v1';
-const CINEMETA_SEARCH = 'https://v3-cinemeta.strem.io/catalog';
+const CINEMETA_SEARCH = ''; // removed by connection law (external poster cloud)
 const MAX_LOOKUPS_PER_RUN = 12;
 const FETCH_TIMEOUT_MS = 8000;
 

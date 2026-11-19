@@ -58,7 +58,7 @@ function mapCinemetaToPrototypeItem(meta: CinemetaMetaItem, index: number): Prot
 
   // Poster law: the shared Unsplash "CINEMA" art is banned — every title gets
   // its own unique poster (generated from its name) when Cinemeta has none.
-  const poster = meta.poster || generateUniquePosterSvg(meta.name, `cinemeta-${meta.id || index}`);
+  const poster = meta.poster || generateUniquePosterSvg(meta.name, `poster-${meta.id || index}`);
   const backdrop = meta.background || poster;
 
   const synopsisEn = meta.description || `${meta.name} (${cleanYear}) - High-fidelity global cinema presentation. Directed by ${directorName}.`;
