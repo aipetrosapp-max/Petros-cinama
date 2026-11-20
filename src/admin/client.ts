@@ -61,6 +61,8 @@ interface AdminRequestInit {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: Record<string, string>;
   body?: unknown;
+  /** hard cap so a stuck request can never leave the UI frozen (default 180s) */
+  timeoutMs?: number;
 }
 
 async function request<T>(path: string, init: AdminRequestInit = {}): Promise<T> {
@@ -74,11 +76,14 @@ async function request<T>(path: string, init: AdminRequestInit = {}): Promise<T>
   if (init.body !== undefined) headers['Content-Type'] = 'application/json';
   if (sessionToken) headers['x-admin-token'] = sessionToken;
 
+  const controller = new AbortController();
+  const requestTimer = setTimeout(() => controller.abort(), init.timeoutMs || 180_000);
   const response = await fetch(`/api/admin${path}`, {
     ...init,
     headers,
-    body: init.body === undefined ? undefined : JSON.stringify(init.body)
-  });
+    body: init.body === undefined ? undefined : JSON.stringify(init.body),
+    signal: controller.signal
+  }).finally(() => clearTimeout(requestTimer));
 
   const text = await response.text();
   let payload: unknown = null;
@@ -849,6 +854,18 @@ export const adminApi = {
   transferStatus: () =>
     request<{ ok: boolean; items: Array<{ id: string; title: string; status: string; progressPct: number; error: string }> }>(
       '/telegram/transfer/status'
+    ),
+
+  f2mSearch: (query: string) =>
+    request<{ ok: boolean; entries: Array<{ title: string; year: string | null; isSeries: boolean; link: string }>; messageFa: string }>(
+      '/sources/f2m-search',
+      { method: 'POST', body: { query } }
+    ),
+
+  f2mFiles: (url: string) =>
+    request<{ ok: boolean; count: number; links: Array<{ name: string; url: string; type: string; quality: string; dubbed: boolean; subbed: boolean; size?: number }>; messageFa: string }>(
+      '/sources/f2m-files',
+      { method: 'POST', body: { url } }
     ),
 
   checkBrowserSession: (host: string) =>

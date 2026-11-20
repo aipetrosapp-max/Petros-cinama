@@ -28,6 +28,7 @@ const KIND_LABEL: Record<string, string> = {
 
 export function SourcesTab() {
   const toast = useToast();
+  const isLocal = getAdminMode() !== 'github';
   const [sources, setSources] = useState<SourceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [url, setUrl] = useState('');
@@ -52,6 +53,51 @@ export function SourcesTab() {
   const [transferState, setTransferState] = useState<Record<string, { status: string; progressPct: number; error: string }>>({});
   const [fileQuery, setFileQuery] = useState('');
   const [extractMessage, setExtractMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [f2mQuery, setF2mQuery] = useState('');
+  const [f2mSearching, setF2mSearching] = useState(false);
+  const [f2mResults, setF2mResults] = useState<Array<{ title: string; year: string | null; isSeries: boolean; link: string }>>([]);
+  const [f2mFiles, setF2mFiles] = useState<Array<{ name: string; url: string; type: string; quality: string; dubbed: boolean; subbed: boolean; size?: number }>>([]);
+  const [f2mLoading, setF2mLoading] = useState<string | null>(null);
+
+  const f2mSearch = async () => {
+    setF2mSearching(true);
+    setF2mResults([]);
+    setF2mFiles([]);
+    setSelectedForTelegram([]);
+    try {
+      const res = await adminApi.f2mSearch(f2mQuery.trim());
+      if (res.ok) {
+        setF2mResults(res.entries);
+        toast.push('success', 'نتایج جستجو', res.messageFa);
+      } else {
+        toast.push('info', 'نتیجه‌ای نبود', res.messageFa);
+      }
+    } catch (error) {
+      toast.push('error', 'جستجو ناموفق', (error as Error).message);
+    } finally {
+      setF2mSearching(false);
+    }
+  };
+
+  const loadF2mFiles = async (link: string) => {
+    setF2mFiles([]);
+    setSelectedForTelegram([]);
+    setF2mLoading(link);
+    try {
+      const res = await adminApi.f2mFiles(link);
+      if (res.ok && res.links.length > 0) {
+        setF2mFiles(res.links);
+        setSelectedForTelegram(res.links.map((l) => l.url));
+        toast.push('success', 'فایل‌های مستقیم آماده شد', res.messageFa);
+      } else {
+        toast.push('info', 'فایلی نبود', res.messageFa);
+      }
+    } catch (error) {
+      toast.push('error', 'استخراج فایل‌ها ناموفق', (error as Error).message);
+    } finally {
+      setF2mLoading(null);
+    }
+  };
 
   const visibleFiles = useMemo(() => {
     const q = fileQuery.trim().toLowerCase();
@@ -85,9 +131,10 @@ export function SourcesTab() {
     try {
       // full=true → the WHOLE link list of the page, not just the obvious media ones
       const res = await adminApi.vipExtractLinks(sourcePageUrl.trim(), true);
-      if (res.ok) {
-        const media = res.links.filter((l) => l.type === 'direct' || l.type === 'stream');
-        const rest = res.links.filter((l) => l.type !== 'direct' && l.type !== 'stream');
+      const links = Array.isArray(res?.links) ? res.links : [];
+      if (res?.ok) {
+        const media = links.filter((l) => l.type === 'direct' || l.type === 'stream');
+        const rest = links.filter((l) => l.type !== 'direct' && l.type !== 'stream');
         const all = [...media, ...rest];
         setExtractedFiles(all);
         setSelectedForTelegram(media.map((l) => l.url));
@@ -102,7 +149,7 @@ export function SourcesTab() {
           toast.push('success', 'کل لیست لینک‌های صفحه آماده شد', `${all.length} لینک: ${media.length.toLocaleString('fa-IR')} فایل قابل ارسال + ${rest.length.toLocaleString('fa-IR')} لینک دیگر.`);
         }
       } else {
-        setExtractMessage({ ok: false, text: res.messageFa });
+        setExtractMessage({ ok: false, text: res?.messageFa || 'پاسخ نامعتبر از سرور استخراج.' });
       }
     } catch (error) {
       setExtractMessage({ ok: false, text: (error as Error).message });
@@ -365,6 +412,105 @@ export function SourcesTab() {
       </Panel>
 
       <Panel
+        title="🎬 جستجوی فیلمیار — اسم فیلم را بزن، لیست فایل‌ها را بگیر، تیک بزن، به تلگرام بفرست"
+        subtitle="مثل پروژه‌های متن‌باز فیلمیار/فری‌مووی: جستجو → فایل‌های مستقیم با کیفیت و دوبله/زیرنویس → تیک → ارسال واقعی به کانال"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <TextInput
+            value={f2mQuery}
+            onChange={(e) => setF2mQuery(e.target.value)}
+            placeholder="اسم فیلم یا سریال (مثلاً: Inception یا امپراتوری بهشت)"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && f2mQuery.trim()) void f2mSearch();
+            }}
+            className="min-w-[240px] flex-1"
+          />
+          <GoldButton onClick={() => void f2mSearch()} loading={f2mSearching} disabled={!f2mQuery.trim()}>
+            🔍 جستجو
+          </GoldButton>
+        </div>
+
+        {f2mResults.length > 0 && f2mFiles.length === 0 ? (
+          <div className="mt-3 max-h-64 overflow-y-auto rounded-xl border border-white/10 bg-black/40 p-2">
+            {f2mResults.map((r) => (
+              <div key={r.link} className="flex items-center gap-2 border-b border-white/5 px-2 py-2 last:border-0">
+                <Badge tone={r.isSeries ? 'blue' : 'gold'}>{r.isSeries ? 'سریال' : 'فیلم'}</Badge>
+                <span className="min-w-0 flex-1 truncate text-[10.5px] text-zinc-300">
+                  {r.title}
+                  {r.year ? <span className="mr-1 text-zinc-500">({r.year})</span> : null}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void loadF2mFiles(r.link)}
+                  className="rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-2.5 py-1 text-[10px] font-bold text-[#F5E7B8] transition hover:bg-[#D4AF37]/25"
+                >
+                  {f2mLoading === r.link ? '⏳ در حال گرفتن فایل‌ها…' : '📂 لیست فایل‌ها'}
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {f2mFiles.length > 0 ? (
+          <div className="mt-3 space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="green">فایل مستقیم: {f2mFiles.length.toLocaleString('fa-IR')}</Badge>
+              <Badge tone="neutral">تیک‌خورده: {selectedForTelegram.length.toLocaleString('fa-IR')}</Badge>
+              <GoldButton
+                variant="ghost"
+                onClick={() => void sendSelectedToTelegram()}
+                disabled={selectedForTelegram.length === 0 || sendingToTelegram || !isLocal}
+              >
+                {sendingToTelegram ? 'در حال ارسال…' : `📤 ارسال ${selectedForTelegram.length.toLocaleString('fa-IR')} فایل به تلگرام`}
+              </GoldButton>
+              <button
+                type="button"
+                onClick={() => {
+                  setF2mFiles([]);
+                  setF2mResults([]);
+                  setSelectedForTelegram([]);
+                }}
+                className="rounded-lg border border-white/12 px-2 py-1 text-[10px] font-bold text-zinc-300 transition hover:border-rose-400/40"
+              >
+                ✕ بستن
+              </button>
+            </div>
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-white/10 bg-black/40 p-2">
+              {f2mFiles.map((f, i) => {
+                const checked = selectedForTelegram.includes(f.url);
+                const st = transferState[f.name];
+                return (
+                  <label key={f.url + i} className="flex cursor-pointer items-center gap-2 border-b border-white/5 px-2 py-2 last:border-0">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() =>
+                        setSelectedForTelegram((prev) => (prev.includes(f.url) ? prev.filter((u) => u !== f.url) : [...prev, f.url]))
+                      }
+                      className="accent-[#D4AF37]"
+                    />
+                    <Badge tone={f.dubbed ? 'gold' : f.subbed ? 'blue' : 'neutral'}>
+                      {f.dubbed ? 'دوبله' : f.subbed ? 'زیرنویس' : '-'}
+                    </Badge>
+                    {f.quality ? <Badge tone="green">{f.quality}</Badge> : null}
+                    <span className="min-w-0 flex-1 truncate text-[10.5px] text-zinc-300" dir="ltr" title={f.url}>
+                      {f.name}
+                    </span>
+                    {f.size ? <Badge tone="neutral" dir="ltr">{(f.size / 1048576).toFixed(0)} MB</Badge> : null}
+                    {st ? (
+                      <Badge tone={st.status === 'uploaded' ? 'green' : st.status === 'failed' ? 'red' : 'gold'}>
+                        {st.status === 'downloading' ? `⏬ ${st.progressPct}%` : st.status === 'uploading' ? `⏫ ${st.progressPct}%` : st.status === 'uploaded' ? '✅ رسید' : `⛔ ${st.error || 'ناموفق'}`}
+                      </Badge>
+                    ) : null}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+      </Panel>
+
+      <Panel
         title="📂 لیست فایل‌های منبع — تیک بزن، کامل به تلگرام برو"
         subtitle="از یک صفحه سایت منبع لینک بگیر؛ فایل‌ها را با تیک انتخاب کن؛ دانلود کامل + آپلود واقعی به کانال تلگرام تو با نام خود فایل‌ها"
       >
@@ -379,18 +525,29 @@ export function SourcesTab() {
           <GoldButton
             onClick={() => void extractSourceFiles()}
             loading={extractingFiles}
-            disabled={!sourcePageUrl.trim()}
+            disabled={!sourcePageUrl.trim() || !isLocal}
           >
             📂 استخراج لیست فایل‌ها
           </GoldButton>
           <GoldButton
             variant="ghost"
             onClick={() => void sendSelectedToTelegram()}
-            disabled={selectedForTelegram.length === 0 || sendingToTelegram}
+            disabled={selectedForTelegram.length === 0 || sendingToTelegram || !isLocal}
           >
             {sendingToTelegram ? 'در حال ارسال…' : `📤 ارسال ${selectedForTelegram.length.toLocaleString('fa-IR')} فایل تیک‌خورده به تلگرام`}
           </GoldButton>
         </div>
+        {!isLocal ? (
+          <div className="mt-3 rounded-xl border border-amber-500/30 bg-amber-950/20 px-3 py-2 text-[10.5px] text-amber-200">
+            ⚠️ استخراج لینک و ارسال به تلگرام فقط روی کامپیوتر خودت کار می‌کند (مرورگر و نشست تلگرام لوکال هستند). پنل را از لوکال باز کن:{" "}
+            <a href="http://localhost:3210/admin" target="_blank" rel="noopener noreferrer" className="underline">localhost:3210/admin</a>
+          </div>
+        ) : null}
+        {extractingFiles ? (
+          <div className="mt-3 rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-3 py-2 text-[10.5px] text-[#F5E7B8]">
+            ⏳ مرورگر بی‌سر و صدا سایت را باز می‌کند و کل لینک‌ها را جمع می‌کند — برای سایت‌های سنگین تا ۲ دقیقه طول می‌کشد. صبر کن تا لیست بیاید.
+          </div>
+        ) : null}
 
         {extractMessage ? (
           <div
@@ -436,6 +593,7 @@ export function SourcesTab() {
                 const checked = selectedForTelegram.includes(f.url);
                 const st = transferState[f.url];
                 const sendable = f.type === 'direct' || f.type === 'stream';
+                  const locked = f.type === 'locked';
                 return (
                   <label
                     key={f.url + i}
@@ -451,8 +609,8 @@ export function SourcesTab() {
                       }
                       className="accent-[#D4AF37]"
                     />
-                    <Badge tone={sendable ? 'green' : f.type === 'embed' ? 'gold' : 'neutral'}>
-                      {f.type === 'direct' ? 'مستقیم' : f.type === 'stream' ? 'استریم' : f.type === 'embed' ? 'پلیر' : f.type === 'page' ? 'صفحه' : 'لینک'}
+                    <Badge tone={locked ? 'amber' : sendable ? 'green' : f.type === 'embed' ? 'gold' : 'neutral'}>
+                      {f.type === 'direct' ? 'مستقیم' : f.type === 'stream' ? 'استریم' : f.type === 'embed' ? 'پلیر' : f.type === 'page' ? 'صفحه' : f.type === 'locked' ? '🔒 قفل' : 'لینک'}
                     </Badge>
                     <span className="min-w-0 flex-1 truncate text-[10.5px] text-zinc-300" dir="ltr" title={f.url}>
                       {name}

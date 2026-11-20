@@ -1305,6 +1305,60 @@ adminRouter.get('/telegram/transfer/status', requireAdminAuth, async (_req, res)
   }
 });
 
+/** filmyar-style search on Film2Media (f2mc.top). */
+function runNodeScript(script: string, args: string[], timeoutMs = 90_000): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const python = process.platform === 'win32' ? 'python' : 'python3';
+    const child = spawn(python, [path.join(process.cwd(), 'scripts', script), ...args], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    let stdout = '';
+    const timer = setTimeout(() => {
+      child.kill();
+      reject(new Error('timeout'));
+    }, timeoutMs);
+    child.stdout.on('data', (d: Buffer) => (stdout += d.toString()));
+    child.on('error', (e) => {
+      clearTimeout(timer);
+      reject(e);
+    });
+    child.on('close', () => {
+      clearTimeout(timer);
+      resolve(stdout);
+    });
+  });
+}
+
+adminRouter.post('/sources/f2m-search', requireAdminAuth, async (req, res) => {
+  const query = String(req.body?.query || '').trim();
+  if (!query) {
+    res.status(400).json({ error: 'no_query', messageFa: 'عبارت جستجو را وارد کن.' });
+    return;
+  }
+  try {
+    const stdout = await runNodeScript('f2m_search.py', [query]);
+    const data = JSON.parse(stdout.trim().split('\n').pop() || '{}') as { ok?: boolean; entries?: Array<{ title: string; year: string | null; isSeries: boolean; link: string }>; error?: string };
+    res.json({ ok: Boolean(data.ok), entries: data.entries || [], messageFa: data.ok ? `${(data.entries || []).length} نتیجه` : `جستجو ناموفق: ${data.error || 'نامشخص'}` });
+  } catch (err: unknown) {
+    res.status(500).json({ error: 'f2m_search_failed', messageFa: `جستجو ناموفق بود: ${(err as Error).message}` });
+  }
+});
+
+adminRouter.post('/sources/f2m-files', requireAdminAuth, async (req, res) => {
+  const url = String(req.body?.url || '').trim();
+  if (!/^https?:\/\//i.test(url)) {
+    res.status(400).json({ error: 'invalid_url', messageFa: 'آدرس صفحه فیلم نامعتبر است.' });
+    return;
+  }
+  try {
+    const stdout = await runNodeScript('f2m_files.py', [url], 150_000);
+    const data = JSON.parse(stdout.trim().split('\n').pop() || '{}') as { ok?: boolean; count?: number; links?: Array<{ name: string; url: string; type: string; quality: string; dubbed: boolean; subbed: boolean; size?: number }>; error?: string };
+    res.json({ ok: Boolean(data.ok), count: data.count || 0, links: data.links || [], messageFa: data.ok ? `${data.count} فایل مستقیم پیدا شد` : `استخراج ناموفق: ${data.error || 'نامشخص'}` });
+  } catch (err: unknown) {
+    res.status(500).json({ error: 'f2m_files_failed', messageFa: `استخراج ناموفق بود: ${(err as Error).message}` });
+  }
+});
+
 adminRouter.post('/catalog/from-link', requireAdminAuth, async (req, res) => {
   const body = requireBody(req, res);
   if (!body) return;
