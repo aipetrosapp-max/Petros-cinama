@@ -868,6 +868,24 @@ export const adminApi = {
       { method: 'POST', body: { url } }
     ),
 
+  publishCatalog: (mode: 'full' | 'summary', limit?: number) =>
+    request<{ ok: boolean; messageFa: string }>('/telegram/publish-catalog', {
+      method: 'POST',
+      body: { mode, limit }
+    }),
+
+  publishCatalogStatus: () =>
+    request<{
+      running?: boolean;
+      done?: boolean;
+      mode?: string;
+      sent?: number;
+      total?: number;
+      currentItem?: string;
+      messageFa?: string;
+      error?: string;
+    }>('/telegram/publish-catalog/status'),
+
   checkBrowserSession: (host: string) =>
     request<{ ok: boolean; session?: { url: string; cookie_header: string; count: number }; messageFa?: string }>(
       `/browser/session/${encodeURIComponent(host)}`

@@ -73,6 +73,50 @@ export function ArchiveTab({
   const [seasonTarget, setSeasonTarget] = useState<TitleRecord | null>(null);
   const [episodeTarget, setEpisodeTarget] = useState<TitleRecord | null>(null);
 
+  // ── انتشار کامل کتابخانه به تلگرام ──
+  const [pubMode, setPubMode] = useState<'full' | 'summary'>('full');
+  const [pubStarting, setPubStarting] = useState(false);
+  const [pubStatus, setPubStatus] = useState<{
+    running?: boolean;
+    done?: boolean;
+    mode?: string;
+    sent?: number;
+    total?: number;
+    currentItem?: string;
+    messageFa?: string;
+    error?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    const tick = async () => {
+      try {
+        const s = await adminApi.publishCatalogStatus();
+        if (alive) setPubStatus(s);
+      } catch {
+        /* status unavailable */
+      }
+    };
+    void tick();
+    const timer = setInterval(tick, 6000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, []);
+
+  const startCatalogPublish = async () => {
+    setPubStarting(true);
+    try {
+      const res = await adminApi.publishCatalog(pubMode);
+      toast.push('success', 'انتشار شروع شد', res.messageFa);
+    } catch (error) {
+      toast.push('error', 'شروع انتشار ناموفق', (error as Error).message);
+    } finally {
+      setPubStarting(false);
+    }
+  };
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = titles.filter((title) => {
@@ -131,6 +175,43 @@ export function ArchiveTab({
 
   return (
     <div className="space-y-4">
+      <Panel
+        title="📚 انتشار کامل کتابخانه به تلگرام — همه فیلم‌ها با همه کیفیت‌ها"
+        subtitle="۲۲۸ عنوان منتشرشده؛ هر عنوان یک پست با لیست کامل کیفیت‌ها (لینک مستقیم) یا لیست خلاصه کتابخانه"
+        actions={
+          <>
+            <Select
+              value={pubMode}
+              onChange={(e) => setPubMode(e.target.value as 'full' | 'summary')}
+            >
+              <option value="full">پست برای هر فیلم (با لینک کیفیت‌ها)</option>
+              <option value="summary">لیست خلاصه (۴۰ عنوان در هر پیام)</option>
+            </Select>
+            <GoldButton onClick={() => void startCatalogPublish()} loading={pubStarting} disabled={Boolean(pubStatus?.running)}>
+              {pubStatus?.running ? 'در حال انتشار…' : '📤 شروع انتشار به تلگرام'}
+            </GoldButton>
+          </>
+        }
+      >
+        {pubStatus?.running ? (
+          <div className="space-y-1.5">
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-l from-[#F5E7B8] to-[#D4AF37] transition-all"
+                style={{ width: `${pubStatus.total ? Math.round(((pubStatus.sent || 0) / pubStatus.total) * 100) : 0}%` }}
+              />
+            </div>
+            <p className="text-[10.5px] text-zinc-400">
+              {(pubStatus.sent || 0).toLocaleString('fa-IR')} از {pubStatus.total?.toLocaleString('fa-IR')} — {pubStatus.currentItem || '…'}
+            </p>
+          </div>
+        ) : pubStatus?.done ? (
+          <p className="text-[10.5px] text-zinc-400">
+            {pubStatus.messageFa || (pubStatus.error ? `⛔ ${pubStatus.error}` : 'آخرین انتشار تمام شد.')}
+          </p>
+        ) : null}
+      </Panel>
+
       <Panel
         title="آرشیو مدیا"
         subtitle={`${filtered.length} عنوان از مجموع ${titles.length} — فیلم، سریال و انیمه با ساختار فصل/قسمت`}

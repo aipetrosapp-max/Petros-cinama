@@ -1359,6 +1359,37 @@ adminRouter.post('/sources/f2m-files', requireAdminAuth, async (req, res) => {
   }
 });
 
+adminRouter.post('/telegram/publish-catalog', requireAdminAuth, async (req, res) => {
+  const mode = req.body?.mode === 'summary' ? 'summary' : 'full';
+  const limit = Number(req.body?.limit) || 0;
+  // one job at a time
+  const statusPath = path.join(process.cwd(), 'data', 'telegram_catalog_status.json');
+  try {
+    const cur = JSON.parse(await fsp.readFile(statusPath, 'utf8').catch(() => '{}'));
+    if (cur.running) {
+      res.status(409).json({ error: 'already_running', messageFa: 'یک کار انتشار در حال اجراست — اول صبر کن تمام شود.' });
+      return;
+    }
+  } catch {
+    /* no status yet */
+  }
+  const python = process.platform === 'win32' ? 'python' : 'python3';
+  const args = [path.join(process.cwd(), 'scripts', 'telethon_catalog_publish.py'), mode];
+  if (limit) args.push(String(limit));
+  const child = spawn(python, args, { detached: true, stdio: 'ignore', env: process.env });
+  child.unref();
+  res.json({ ok: true, messageFa: mode === 'full' ? 'انتشار پست برای هر فیلم شروع شد' : 'انتشار لیست خلاصه شروع شد' });
+});
+
+adminRouter.get('/telegram/publish-catalog/status', requireAdminAuth, async (_req, res) => {
+  try {
+    const raw = await fsp.readFile(path.join(process.cwd(), 'data', 'telegram_catalog_status.json'), 'utf8');
+    res.json(JSON.parse(raw));
+  } catch {
+    res.json({ running: false, done: false });
+  }
+});
+
 adminRouter.post('/catalog/from-link', requireAdminAuth, async (req, res) => {
   const body = requireBody(req, res);
   if (!body) return;
