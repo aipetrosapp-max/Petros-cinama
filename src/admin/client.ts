@@ -874,6 +874,32 @@ export const adminApi = {
       body: { mode, limit }
     }),
 
+  uploadLibrary: (limit?: number) =>
+    request<{ ok: boolean; messageFa: string }>('/telegram/upload-library', {
+      method: 'POST',
+      body: { limit }
+    }),
+
+  uploadLibraryStatus: () =>
+    request<{
+      running?: boolean;
+      done?: boolean;
+      total?: number;
+      sent?: number;
+      skipped?: number;
+      failed?: number;
+      phase?: string;
+      pct?: number;
+      currentItem?: string;
+      currentFile?: string;
+      fileMB?: number;
+      current?: number;
+      lastSkip?: string;
+      lastError?: string;
+      messageFa?: string;
+      error?: string;
+    }>('/telegram/upload-library/status'),
+
   publishCatalogStatus: () =>
     request<{
       running?: boolean;

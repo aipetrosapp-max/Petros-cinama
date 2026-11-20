@@ -1359,6 +1359,36 @@ adminRouter.post('/sources/f2m-files', requireAdminAuth, async (req, res) => {
   }
 });
 
+adminRouter.post('/telegram/upload-library', requireAdminAuth, async (req, res) => {
+  const limit = Number(req.body?.limit) || 0;
+  const minYear = Number(req.body?.minYear) || 0;
+  try {
+    const cur = JSON.parse(await fsp.readFile(path.join(process.cwd(), 'data', 'telegram_library_status.json'), 'utf8').catch(() => '{}'));
+    if (cur.running) {
+      res.status(409).json({ error: 'already_running', messageFa: 'آپلود مخزن در حال اجراست.' });
+      return;
+    }
+  } catch {
+    /* no status yet */
+  }
+  const python = process.platform === 'win32' ? 'python' : 'python3';
+  const args = [path.join(process.cwd(), 'scripts', 'telethon_library_upload.py')];
+  if (limit) args.push(String(limit));
+  if (minYear) args.push(String(minYear));
+  const child = spawn(python, args, { detached: true, stdio: 'ignore', env: process.env });
+  child.unref();
+  res.json({ ok: true, messageFa: 'آپلود واقعی مخزن شروع شد — از جدیدترین سال' });
+});
+
+adminRouter.get('/telegram/upload-library/status', requireAdminAuth, async (_req, res) => {
+  try {
+    const raw = await fsp.readFile(path.join(process.cwd(), 'data', 'telegram_library_status.json'), 'utf8');
+    res.json(JSON.parse(raw));
+  } catch {
+    res.json({ running: false, done: false });
+  }
+});
+
 adminRouter.post('/telegram/publish-catalog', requireAdminAuth, async (req, res) => {
   const mode = req.body?.mode === 'summary' ? 'summary' : 'full';
   const limit = Number(req.body?.limit) || 0;

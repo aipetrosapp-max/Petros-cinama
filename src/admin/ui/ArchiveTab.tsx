@@ -74,7 +74,7 @@ export function ArchiveTab({
   const [episodeTarget, setEpisodeTarget] = useState<TitleRecord | null>(null);
 
   // ── انتشار کامل کتابخانه به تلگرام ──
-  const [pubMode, setPubMode] = useState<'full' | 'summary'>('full');
+  const [pubMode, setPubMode] = useState<'full' | 'summary' | 'upload'>('full');
   const [pubStarting, setPubStarting] = useState(false);
   const [pubStatus, setPubStatus] = useState<{
     running?: boolean;
@@ -82,16 +82,22 @@ export function ArchiveTab({
     mode?: string;
     sent?: number;
     total?: number;
+    skipped?: number;
+    failed?: number;
     currentItem?: string;
     messageFa?: string;
     error?: string;
+    phase?: string;
+    pct?: number;
+    currentFile?: string;
+    fileMB?: number;
   } | null>(null);
 
   useEffect(() => {
     let alive = true;
     const tick = async () => {
       try {
-        const s = await adminApi.publishCatalogStatus();
+        const s = pubMode === 'upload' ? await adminApi.uploadLibraryStatus() : await adminApi.publishCatalogStatus();
         if (alive) setPubStatus(s);
       } catch {
         /* status unavailable */
@@ -108,10 +114,10 @@ export function ArchiveTab({
   const startCatalogPublish = async () => {
     setPubStarting(true);
     try {
-      const res = await adminApi.publishCatalog(pubMode);
-      toast.push('success', 'انتشار شروع شد', res.messageFa);
+      const res = pubMode === 'upload' ? await adminApi.uploadLibrary() : await adminApi.publishCatalog(pubMode as 'full' | 'summary');
+      toast.push('success', 'شروع شد', res.messageFa);
     } catch (error) {
-      toast.push('error', 'شروع انتشار ناموفق', (error as Error).message);
+      toast.push('error', 'شروع ناموفق', (error as Error).message);
     } finally {
       setPubStarting(false);
     }
@@ -182,13 +188,14 @@ export function ArchiveTab({
           <>
             <Select
               value={pubMode}
-              onChange={(e) => setPubMode(e.target.value as 'full' | 'summary')}
+              onChange={(e) => setPubMode(e.target.value as 'full' | 'summary' | 'upload')}
             >
               <option value="full">پست برای هر فیلم (با لینک کیفیت‌ها)</option>
               <option value="summary">لیست خلاصه (۴۰ عنوان در هر پیام)</option>
+              <option value="upload">📤 آپلود واقعی فایل‌ها به کانال (مخزن — از جدیدترین)</option>
             </Select>
             <GoldButton onClick={() => void startCatalogPublish()} loading={pubStarting} disabled={Boolean(pubStatus?.running)}>
-              {pubStatus?.running ? 'در حال انتشار…' : '📤 شروع انتشار به تلگرام'}
+              {pubStatus?.running ? 'در حال کار…' : '📤 شروع به تلگرام'}
             </GoldButton>
           </>
         }
@@ -202,7 +209,10 @@ export function ArchiveTab({
               />
             </div>
             <p className="text-[10.5px] text-zinc-400">
-              {(pubStatus.sent || 0).toLocaleString('fa-IR')} از {pubStatus.total?.toLocaleString('fa-IR')} — {pubStatus.currentItem || '…'}
+              {(pubStatus.sent || 0).toLocaleString('fa-IR')} از {pubStatus.total?.toLocaleString('fa-IR')}
+              {pubStatus.skipped ? ` — رد شده: ${pubStatus.skipped.toLocaleString('fa-IR')}` : ''}
+              {pubStatus.failed ? ` — ناموفق: ${pubStatus.failed.toLocaleString('fa-IR')}` : ''}
+              {pubStatus.pct ? ` — ${pubStatus.pct.toLocaleString('fa-IR')}٪` : ''} — {pubStatus.currentItem || pubStatus.currentFile || '…'}
             </p>
           </div>
         ) : pubStatus?.done ? (
